@@ -214,7 +214,7 @@
                                 <!--begin::Menu-->
                                 <div class="menu menu-column menu-rounded menu-sub-indention fw-semibold fs-6"
                                     id="#kt_app_sidebar_menu" data-kt-menu="true" data-kt-menu-expand="false">
-                                    @can('dashboard')
+                                    @can('dashboard.view')
                                         <!--begin:Menu item-->
                                         <div class="menu-item pt-5">
                                             <!--begin:Menu link-->
@@ -233,7 +233,7 @@
                                         <!--end:Menu item-->
                                     @endcan
 
-                                    @canany(['master-user', 'master-role'])
+                                    @canany(['users.view', 'roles.view'])
                                         <!--begin:Menu item-->
                                         <div class="menu-item pt-3">
                                             <!--begin:Menu content-->
@@ -244,7 +244,7 @@
                                             <!--end:Menu content-->
                                         </div>
                                         <!--end:Menu item-->
-                                        @canany(['master-user', 'master-role'])
+                                        @canany(['users.view', 'roles.view'])
                                             <div data-kt-menu-trigger="click"
                                                 class="menu-item menu-accordion {{ request()->routeIs('master.user*') || request()->routeIs('master.role*') || request()->routeIs('master.branch*') ? 'here show' : '' }}">
                                                 <!--begin:Menu link-->
@@ -262,7 +262,7 @@
                                                 <!--end:Menu link-->
                                                 <!--begin:Menu sub-->
                                                 <div class="menu-sub menu-sub-accordion">
-                                                    @can('master-user')
+                                                    @can('users.view')
                                                         <!--begin:Menu item-->
                                                         <div class="menu-item">
                                                             <!--begin:Menu link-->
@@ -277,7 +277,7 @@
                                                         </div>
                                                         <!--end:Menu item-->
                                                     @endcan
-                                                    @can('master-role')
+                                                    @can('roles.view')
                                                         <!--begin:Menu item-->
                                                         <div class="menu-item">
                                                             <!--begin:Menu link-->

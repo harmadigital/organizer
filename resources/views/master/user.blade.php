@@ -1,7 +1,7 @@
 @extends('layouts.main_layout',['title'=>'Master','breadcrum'=>['Master','User']])
 
 @section('content')
-<div class="col-xxl-12">
+<div class="col-xxl-12 mb-7" data-user-section="header">
     <div class="card">
         <div class="card-header card-header-stretch">
             <div class="card-title">
@@ -22,16 +22,99 @@
                 </ul>
             </div>
         </div>
-        <div class="card-body py-4">
-            <div class="d-flex justify-content-between mb-5">
-                <div class="d-flex align-items-center position-relative my-1">
-                    <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-5"><span class="path1"></span><span class="path2"></span></i>
-                    <input type="text" id="search_user_name" data-kt-docs-table-filter="search" class="form-control form-control-solid w-250px ps-14" placeholder="Cari User">
+    </div>
+</div>
+
+<div class="row g-5 g-xl-8 mb-7" data-user-section="counter">
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body d-flex align-items-center gap-3 py-4">
+                <span class="symbol symbol-40px symbol-circle bg-light-primary">
+                    <span class="symbol-label"><i class="ki-duotone ki-profile-user fs-2 text-primary"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i></span>
+                </span>
+                <div>
+                    <div class="fs-2 fw-bold text-gray-800">{{ $userSummary['total'] }}</div>
+                    <div class="text-muted fw-semibold fs-7">Total User</div>
                 </div>
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#kt_modal_add_user">
-                    <i class="ki-duotone ki-plus fs-2"></i> Tambah User
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 border border-success border-dashed bg-light-success">
+            <div class="card-body d-flex align-items-center gap-3 py-4">
+                <span class="symbol symbol-40px symbol-circle">
+                    <span class="symbol-label bg-success"><i class="ki-solid ki-check fs-2 text-white"></i></span>
+                </span>
+                <div>
+                    <div class="fs-2 fw-bold text-success">{{ $userSummary['active'] }}</div>
+                    <div class="text-success fw-semibold fs-7">Active</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 border border-danger border-dashed bg-light-danger">
+            <div class="card-body d-flex align-items-center gap-3 py-4">
+                <span class="symbol symbol-40px symbol-circle">
+                    <span class="symbol-label bg-danger"><i class="ki-solid ki-cross fs-2 text-white"></i></span>
+                </span>
+                <div>
+                    <div class="fs-2 fw-bold text-danger">{{ $userSummary['inactive'] }}</div>
+                    <div class="text-danger fw-semibold fs-7">Inactive</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-xxl-12 mb-7" data-user-section="filter">
+    <div class="card">
+        <div class="card-body py-6">
+            <div class="row g-5">
+                <div class="col-lg-5">
+                    <div class="position-relative">
+                        <i class="ki-duotone ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-5"><span class="path1"></span><span class="path2"></span></i>
+                        <input type="text" id="search_user_name" class="form-control form-control-solid ps-14" placeholder="Cari nama, email...">
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <select id="filter_user_role" class="form-select form-select-solid" data-control="select2" data-hide-search="true" data-placeholder="Semua Role">
+                        <option value=""></option>
+                        @foreach ($roles as $role)
+                            <option value="{{ $role->name }}">{{ $role->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-lg-3">
+                    <select id="filter_user_status" class="form-select form-select-solid" data-control="select2" data-hide-search="true" data-placeholder="Semua Status">
+                        <option value=""></option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer d-flex justify-content-end gap-2 py-3">
+            <button type="button" id="filter_user_submit" class="btn btn-sm btn-light-primary px-4">
+                <i class="ki-duotone ki-filter fs-3"><span class="path1"></span><span class="path2"></span></i> Filter
+            </button>
+            @can('users.create')
+                <button type="button" class="btn btn-sm btn-primary px-4" data-bs-toggle="modal" data-bs-target="#kt_modal_add_user">
+                    <i class="ki-duotone ki-plus fs-3"></i> Tambah User
                 </button>
-                </div>
+            @endcan
+        </div>
+    </div>
+</div>
+
+<div class="col-xxl-12" data-user-section="list">
+    <div class="card">
+        <div class="card-header">
+            <div class="card-title">
+                <h3 class="m-0 text-gray-800">List Data User</h3>
+            </div>
+        </div>
+        <div class="card-body py-6">
             <div class="table-responsive">
                 <table id="kt_datatable_user" class="table align-middle table-row-dashed fs-6 gy-5">
                     <thead>

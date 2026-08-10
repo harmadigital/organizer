@@ -47,7 +47,7 @@
         <!--end::Col-->
     </div>
 
-    @can('dashboard')
+    @can('dashboard.view')
         <div class="row g-5 g-xl-10">
             <!--begin::Col-->
             <div class="col-sm-6 col-xl-3 mb-xl-10">

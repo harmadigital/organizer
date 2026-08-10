@@ -18,6 +18,8 @@ var KTDatatablesServerSide = function () {
                 type: "GET",
                 data: function (data) {
                     data.name = $('#search_user_name').val();
+                    data.role = $('#filter_user_role').val();
+                    data.status = $('#filter_user_status').val();
                 }
             },
             columns: [
@@ -73,18 +75,10 @@ var KTDatatablesServerSide = function () {
 
     }
 
-    // Search Datatable --- official docs reference: https://datatables.net/reference/api/search()
-    var handleSearchDatatable = function () {
-        const filterSearch = document.querySelector('[data-kt-docs-table-filter="search"]');
-        filterSearch.addEventListener('keyup', delay(function (e) {
-            dt.search(e.target.value).draw();
-        }, 1000));
-    }
     // Public methods
     return {
         init: function () {
             initDatatable();
-            handleSearchDatatable();
         }
     }
 }();
@@ -97,6 +91,10 @@ jQuery(document).ready((function () {
 $('#search_user_name').keyup(delay(function (e) {
     $('#kt_datatable_user').DataTable().ajax.reload();
 }, 500));
+
+$('#filter_user_submit').on('click', function () {
+    $('#kt_datatable_user').DataTable().ajax.reload();
+});
 
 // Modul untuk mengelola logika form Tambah User
 const KTDataAdd = function () {

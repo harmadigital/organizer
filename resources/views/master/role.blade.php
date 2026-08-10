@@ -1,7 +1,7 @@
 @extends('layouts.main_layout', ['title' => 'Role & Permission', 'breadcrum' => ['Master', 'Role & Permission']])
 
 @section('content')
-    <div class="col-xxl-12">
+    <div class="col-xxl-12 mb-7" data-role-section="header">
         <div class="card">
             <div class="card-header card-header-stretch">
                 <div class="card-title">
@@ -23,19 +23,82 @@
                     </ul>
                 </div>
             </div>
-            <div class="card-body py-4">
-                <div class="d-flex justify-content-between mb-5">
-                    <div class="d-flex align-items-center position-relative my-1">
-                        <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-5"><span class="path1"></span><span
-                                class="path2"></span></i>
-                        <input type="text" id="search_role_name" data-kt-permissions-table-filter="search"
-                            class="form-control form-control-solid w-250px ps-14" placeholder="Cari Role">
+        </div>
+    </div>
+
+    <div class="row g-5 g-xl-8 mb-7" data-role-section="counter">
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body d-flex align-items-center gap-3 py-4">
+                    <span class="symbol symbol-40px symbol-circle bg-light-primary">
+                        <span class="symbol-label"><i class="ki-duotone ki-security-user fs-2 text-primary"><span class="path1"></span><span class="path2"></span></i></span>
+                    </span>
+                    <div>
+                        <div class="fs-2 fw-bold text-gray-800">{{ $roleSummary['total'] }}</div>
+                        <div class="text-muted fw-semibold fs-7">Total Role</div>
                     </div>
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                        data-bs-target="#kt_modal_add_role">
-                        <i class="ki-duotone ki-plus fs-2"></i> Tambah Role
-                    </button>
                 </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border border-success border-dashed bg-light-success">
+                <div class="card-body d-flex align-items-center gap-3 py-4">
+                    <span class="symbol symbol-40px symbol-circle">
+                        <span class="symbol-label bg-success"><i class="ki-solid ki-check fs-2 text-white"></i></span>
+                    </span>
+                    <div>
+                        <div class="fs-2 fw-bold text-success">{{ $roleSummary['permissions'] }}</div>
+                        <div class="text-success fw-semibold fs-7">Total Permission</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border border-primary border-dashed bg-light-primary">
+                <div class="card-body d-flex align-items-center gap-3 py-4">
+                    <span class="symbol symbol-40px symbol-circle">
+                        <span class="symbol-label bg-primary"><i class="ki-solid ki-people fs-2 text-white"></i></span>
+                    </span>
+                    <div>
+                        <div class="fs-2 fw-bold text-primary">{{ $roleSummary['used'] }}</div>
+                        <div class="text-primary fw-semibold fs-7">Role Digunakan</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xxl-12 mb-7" data-role-section="filter">
+        <div class="card">
+            <div class="card-body py-4">
+                <div class="position-relative">
+                    <i class="ki-duotone ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-5"><span class="path1"></span><span class="path2"></span></i>
+                    <input type="text" id="search_role_name" data-kt-permissions-table-filter="search"
+                        class="form-control form-control-solid ps-14" placeholder="Cari nama role...">
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-end gap-2 py-3">
+                <button type="button" id="filter_role_submit" class="btn btn-sm btn-light-primary px-4">
+                    <i class="ki-duotone ki-filter fs-3"><span class="path1"></span><span class="path2"></span></i> Filter
+                </button>
+                @can('roles.create')
+                    <button type="button" class="btn btn-sm btn-primary px-4" data-bs-toggle="modal"
+                        data-bs-target="#kt_modal_add_role">
+                        <i class="ki-duotone ki-plus fs-3"></i> Tambah Role
+                    </button>
+                @endcan
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xxl-12" data-role-section="list">
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    <h3 class="m-0 text-gray-800">List Data Role</h3>
+                </div>
+            </div>
+            <div class="card-body py-6">
                 <div class="table-responsive">
                     <table id="kt_datatable_role" class="table align-middle table-row-dashed fs-6 gy-5">
                         <thead>
@@ -56,7 +119,7 @@
     </div>
 
     <div class="modal fade" tabindex="-1" id="kt_modal_add_role">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
                     <h3 class="modal-title">Tambah Role</h3>
@@ -79,12 +142,12 @@
 
                 <!--begin::Form-->
                 <form id="kt_docs_form_add_role" class="form" action="#" autocomplete="off">
-                    <div class="modal-body py-10 px-lg-17">
+                    <div class="modal-body py-7 px-lg-10">
                         <!--begin::Scroll-->
                         <div class="scroll-y me-n7 pe-7" data-kt-scroll="true" data-kt-scroll-max-height="auto"
                             data-kt-scroll-offset="300px">
                             <!--begin::Input group-->
-                            <div class="fv-row mb-10">
+                            <div class="fv-row mb-7">
                                 <!--begin::Label-->
                                 <label class="required fw-semibold fs-6 mb-2">Nama Role</label>
                                 <!--end::Label-->
@@ -96,21 +159,11 @@
                             </div>
                             <!--end::Input group-->
                             <!--begin::Input group-->
-                            <div class="fv-row mb-10">
+                            <div class="fv-row mb-0">
                                 <!--begin::Label-->
                                 <label class="required fw-semibold fs-6 mb-2">Permission</label>
                                 <!--end::Label-->
-                                <!--begin::Input-->
-                                <select class="form-select form-select-solid" name="permission" id="permission"
-                                    data-control="select2" data-close-on-select="false"
-                                    data-dropdown-parent="#kt_modal_add_role" data-placeholder="Select an option"
-                                    data-allow-clear="true" multiple="multiple">
-                                    <option></option>
-                                    @foreach ($permissions as $item)
-                                        <option value="{{ $item->name }}">{{ $item->name }}</option>
-                                    @endforeach
-                                </select>
-                                <!--end::Input-->
+                                @include('master.partials.permission-picker', ['pickerId' => 'add'])
                             </div>
                             <!--end::Input group-->
                         </div>
@@ -135,7 +188,7 @@
     </div>
 
     <div class="modal fade" tabindex="-1" id="kt_modal_edit_role">
-        <div class="modal-dialog modal-lg">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
                     <h3 class="modal-title">Edit Role</h3>
@@ -159,12 +212,12 @@
                 <!--begin::Form-->
                 <form id="kt_docs_form_edit_role" class="form" action="#" autocomplete="off">
                     <input type="hidden" name="role_id" id="role_id">
-                    <div class="modal-body py-10 px-lg-17">
+                    <div class="modal-body py-7 px-lg-10">
                         <!--begin::Scroll-->
                         <div class="scroll-y me-n7 pe-7" data-kt-scroll="true" data-kt-scroll-max-height="auto"
                             data-kt-scroll-offset="300px">
                             <!--begin::Input group-->
-                            <div class="fv-row mb-10">
+                            <div class="fv-row mb-7">
                                 <!--begin::Label-->
                                 <label class="required fw-semibold fs-6 mb-2">Nama Role</label>
                                 <!--end::Label-->
@@ -176,20 +229,11 @@
                             </div>
                             <!--end::Input group-->
                             <!--begin::Input group-->
-                            <div class="fv-row mb-10">
+                            <div class="fv-row mb-0">
                                 <!--begin::Label-->
                                 <label class="required fw-semibold fs-6 mb-2">Permission</label>
                                 <!--end::Label-->
-                                <!--begin::Input-->
-                                <select class="form-select form-select-solid" name="permission_edit" id="permission_edit"
-                                    data-control="select2" data-close-on-select="false"
-                                    data-dropdown-parent="#kt_modal_edit_role" data-placeholder="Select an option"
-                                    data-allow-clear="true" multiple="multiple">
-                                    @foreach ($permissions as $item)
-                                        <option value="{{ $item->name }}">{{ $item->name }}</option>
-                                    @endforeach
-                                </select>
-                                <!--end::Input-->
+                                @include('master.partials.permission-picker', ['pickerId' => 'edit'])
                             </div>
                             <!--end::Input group-->
                         </div>

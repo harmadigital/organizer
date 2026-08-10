@@ -4,9 +4,10 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
-use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\PermissionRegistrar;
 
 class UserSeeder extends Seeder
 {
@@ -16,23 +17,38 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         // Reset cached roles and permissions
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // create permissions
         $permissions = [
-            'dashboard',
-            'master-user',
-            'master-role',
-            'master-permission',
+            'dashboard.view',
+            'users.view',
+            'users.create',
+            'users.update',
+            'users.delete',
+            'users.reset-two-factor',
+            'roles.view',
+            'roles.create',
+            'roles.update',
+            'roles.delete',
+            'permissions.view',
+            'permissions.create',
+            'permissions.update',
+            'permissions.delete',
         ];
 
+        Permission::query()->delete();
+
         foreach ($permissions as $permission) {
-            Permission::firstOrCreate(['name' => $permission]);
+            Permission::create([
+                'name' => $permission,
+                'guard_name' => 'web',
+            ]);
         }
 
-        // create role and assign permissions
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
+
         $role = Role::firstOrCreate(['name' => 'Super Admin']);
-        $role->givePermissionTo(Permission::all());
+        $role->syncPermissions($permissions);
 
         // create user and assign role
         $user = User::firstOrCreate(
@@ -48,5 +64,7 @@ class UserSeeder extends Seeder
         );
 
         $user->assignRole($role);
+
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
     }
 }
