@@ -22,3 +22,6 @@ Meeting minutes, attendance, decisions and follow-ups are written in one call to
 
 ## Event files are stored through DocumentStorage
 Any uploaded file of an event (task evidence, media library) is stored with App\Services\DocumentStorage::put() on the private local disk and recorded with recordVersion(); delete stored paths with forget() if the surrounding transaction fails. Library items are documents with category library (kind file or link, optional division_id); task evidence has category evidence and is linked through document_links. Never serve one category through the other routes.
+
+## Kegiatan are saved only through SaveCalendarEntry and DeleteCalendarEntry
+Calendar kegiatan (calendar_entries) are written only by App\Actions\Calendar\SaveCalendarEntry (sets event and author, ends_on = starts_on when empty, clears times when starts_at is empty, audits calendar-entries.created/updated) and removed by DeleteCalendarEntry (hard delete, audited as calendar-entries.deleted). Who may do it is CalendarAuthority, checked by the caller.

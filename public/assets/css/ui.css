@@ -222,6 +222,9 @@ input.is-invalid + input.form-control,
 .ui-check             { flex-shrink:0; width:1.75rem; height:1.75rem; border-radius:50%; border:2px solid #a7aaad; background:#fff; display:inline-flex; align-items:center; justify-content:center; padding:0; color:transparent; }
 .ui-check:hover:not(:disabled), .ui-check:focus-visible { border-color:var(--bs-success); color:var(--bs-success); }
 .ui-check.is-done     { background:var(--bs-success); border-color:var(--bs-success); color:#fff; }
+/* Metronic memberi ikon la-* warna abu-abu; centang di lingkaran mengikuti status. */
+.ui-check.is-done i   { color:#fff; font-weight:700; }
+.ui-check:hover:not(:disabled) i, .ui-check:focus-visible i { color:var(--bs-success); }
 .ui-check:disabled    { cursor:default; }
 .ui-checklist-add     { display:block; width:100%; text-align:left; padding:.7rem 1.1rem; border:0; background:transparent; color:#2271b1; font-weight:600; }
 .ui-checklist-add:hover { background:#f0f6fc; }
@@ -282,6 +285,70 @@ input.is-invalid + input.form-control,
 .ui-library-actions   { display:flex; gap:.4rem; padding:.5rem .8rem .8rem; }
 .ui-empty-state       { display:flex; flex-direction:column; align-items:center; text-align:center; padding:2.5rem 1rem; border:1px dashed #dcdcde; border-radius:.6rem; }
 
+/* Kalender: warna per jenis lewat kelas (tanpa warna inline) */
+.ui-calendar-filters  { display:flex; flex-wrap:wrap; align-items:center; gap:.75rem 1.5rem; margin-bottom:1.25rem; }
+.ui-calendar-legend   { display:flex; flex-wrap:wrap; gap:.35rem 1rem; color:#50575e; font-size:.8rem; }
+.ui-calendar-legend-item { display:inline-flex; align-items:center; gap:.35rem; white-space:nowrap; }
+.ui-calendar-dot      { display:inline-block; flex-shrink:0; width:.65rem; height:.65rem; border-radius:50%; background:#c3c4c7; }
+.ui-calendar-dot--info      { background:var(--bs-info); }
+.ui-calendar-dot--primary   { background:var(--bs-primary); }
+.ui-calendar-dot--success   { background:var(--bs-success); }
+.ui-calendar-dot--warning   { background:var(--bs-warning); }
+.ui-calendar-dot--danger    { background:var(--bs-danger); }
+.ui-calendar-dot--secondary { background:#a7aaad; }
+.ui-calendar .fc-event.ui-cal-tone-info      { --fc-event-bg-color:var(--bs-info); --fc-event-border-color:var(--bs-info); --fc-event-text-color:#fff; }
+.ui-calendar .fc-event.ui-cal-tone-primary   { --fc-event-bg-color:var(--bs-primary); --fc-event-border-color:var(--bs-primary); --fc-event-text-color:#fff; }
+.ui-calendar .fc-event.ui-cal-tone-success   { --fc-event-bg-color:var(--bs-success); --fc-event-border-color:var(--bs-success); --fc-event-text-color:#fff; }
+.ui-calendar .fc-event.ui-cal-tone-warning   { --fc-event-bg-color:var(--bs-warning); --fc-event-border-color:var(--bs-warning); --fc-event-text-color:#fff; }
+.ui-calendar .fc-event.ui-cal-tone-danger    { --fc-event-bg-color:var(--bs-danger); --fc-event-border-color:var(--bs-danger); --fc-event-text-color:#fff; }
+.ui-calendar .fc-event.ui-cal-tone-secondary { --fc-event-bg-color:#a7aaad; --fc-event-border-color:#a7aaad; --fc-event-text-color:#fff; }
+.ui-calendar .fc-h-event, .ui-calendar .fc-v-event { background-color:var(--fc-event-bg-color); border-color:var(--fc-event-border-color); }
+.ui-calendar .fc-h-event .fc-event-main, .ui-calendar .fc-v-event .fc-event-main { color:var(--fc-event-text-color); }
+.ui-calendar .fc-daygrid-event-dot, .ui-calendar .fc-list-event-dot { border-color:var(--fc-event-border-color); }
+.ui-calendar .fc-event.is-done { opacity:.65; }
+.ui-calendar .fc-event.is-done .fc-event-title, .ui-calendar .fc-event.is-done .fc-list-event-title a { text-decoration:line-through; }
+.ui-calendar .fc-list-event-title a { color:#1d2327; }
+.ui-calendar-meta     { display:block; color:#646970; font-size:.8rem; margin-top:.15rem; }
+.ui-calendar.fc .fc-toolbar { flex-wrap:wrap; gap:.5rem; }
+.ui-calendar.fc .fc-toolbar-title { font-size:1.2rem; text-transform:capitalize; }
+.ui-calendar-detail-row { display:flex; gap:.75rem; padding:.55rem 0; border-bottom:1px dashed #e2e4e7; }
+.ui-calendar-detail-row:last-child { border-bottom:0; }
+.ui-calendar-detail-label { flex-shrink:0; width:6.5rem; color:#646970; font-size:.85rem; font-weight:600; }
+.ui-calendar-detail-value { color:#1d2327; min-width:0; overflow-wrap:anywhere; }
+.ui-calendar-badges    { display:flex; flex-wrap:wrap; gap:.35rem; margin-top:.5rem; }
+.ui-calendar-note      { margin-top:.75rem; padding:.75rem .9rem; border-radius:.475rem; background:#f6f7f7; overflow-wrap:anywhere; }
+
+/* Menu aksi tambahan di header ("Lainnya") */
+.ui-action-menu        { min-width:12rem; padding:.4rem; border:1px solid #e2e4e7; border-radius:.6rem; box-shadow:0 .5rem 1.5rem rgba(0,0,0,.08); }
+.ui-action-menu .dropdown-item { padding:.6rem .85rem; border-radius:.4rem; font-weight:500; }
+
+/* Laporan Kondisi */
+.ui-summary            { max-width:1500px; margin:0 auto; }
+.ui-summary-tile       { height:100%; padding:1.25rem 1.4rem; background:#fff; border:1px solid #e2e4e7; border-radius:.6rem; }
+.ui-summary-tile-label { color:#646970; font-size:.8rem; font-weight:600; text-transform:uppercase; letter-spacing:.03em; }
+.ui-summary-tile-value { color:#1d2327; font-size:1.9rem; font-weight:700; line-height:1.2; margin-top:.35rem; }
+.ui-summary-tile-note  { color:#646970; font-size:.85rem; margin-top:.35rem; }
+.ui-summary-compare    { display:flex; align-items:center; gap:.6rem; margin-top:.35rem; font-size:.8rem; }
+.ui-summary-compare-label { width:4.5rem; color:#646970; }
+.ui-summary-compare-value { width:2.75rem; text-align:right; color:#1d2327; font-weight:600; }
+.ui-summary-division   { display:block; width:100%; text-align:left; padding:.7rem .8rem; margin-bottom:.35rem; border:1px solid transparent; border-radius:.5rem; background:transparent; }
+.ui-summary-division:hover, .ui-summary-division:focus-visible { background:#f6f7f7; }
+.ui-summary-division.is-selected { background:#f0f6fc; border-color:#9ec2e6; }
+.ui-summary-division-head { display:flex; align-items:center; gap:.6rem; }
+.ui-summary-division-name { flex-grow:1; min-width:0; color:#1d2327; font-weight:600; }
+.ui-summary-division-percent { width:3rem; text-align:right; color:#1d2327; font-weight:700; }
+.ui-summary-division-meta { color:#646970; font-size:.8rem; margin-top:.3rem; }
+.ui-summary-stack      { display:flex; height:.6rem; margin-top:.45rem; border-radius:1rem; overflow:hidden; background:#f0f0f1; }
+.ui-summary-stack-part { flex-basis:0; }
+.ui-summary-legend     { display:flex; flex-wrap:wrap; gap:.4rem 1.2rem; margin-top:.75rem; color:#646970; font-size:.8rem; }
+.ui-summary-filter     { display:flex; flex-wrap:wrap; align-items:center; gap:.5rem 1rem; }
+.ui-summary-filter-select { min-width:240px; max-width:100%; }
+.ui-summary-row        { display:flex; align-items:flex-start; gap:.75rem; padding:.65rem 0; border-bottom:1px dashed #e2e4e7; }
+.ui-summary-row:last-child { border-bottom:0; }
+.ui-summary-schedule-row.is-done .ui-task-title { color:#8c8f94; text-decoration:line-through; }
+.ui-summary-stat       { display:flex; justify-content:space-between; gap:1rem; padding:.45rem 0; border-bottom:1px dashed #e2e4e7; font-size:.95rem; }
+.ui-summary-next       { padding:.85rem 1rem; margin-bottom:.75rem; border-radius:.5rem; background:#f0f6fc; }
+
 /* Responsive */
 @media (max-width:991.98px){ .ui-detail-grid{ grid-template-columns:1fr; } }
 @media (max-width:767.98px){
@@ -294,10 +361,19 @@ input.is-invalid + input.form-control,
   .ui-task-card .btn-complete{ width:100%; }
   .ui-checklist-row.is-subtask{ padding-left:2rem; }
   .ui-panel.card > .card-header, .ui-panel.card > .card-body, .ui-page-header{ padding:1rem; }
+  .ui-page-heading{ flex-wrap:wrap !important; gap:1rem; }
+  .ui-page-heading > :last-child{ width:100%; flex-shrink:1 !important; justify-content:flex-start !important; }
   .ui-committee-row{ flex-direction:column; }
   .ui-tree-children{ padding-left:.9rem; }
   .ui-tree-children > details::before, .ui-tree-children > .ui-tree-leaf::before{ left:-.9rem; width:.6rem; }
   .ui-toolbar-actions{ width:100%; margin-left:0; }
   .ui-toolbar-actions .btn{ width:100%; }
   .ui-search-box, .ui-search-box .form-control{ width:100%; }
+  .ui-calendar.fc .fc-toolbar-title{ font-size:1.1rem; }
+  .ui-calendar.fc .fc-header-toolbar{ flex-direction:row; flex-wrap:wrap; align-items:center; margin-bottom:1rem; }
+  .ui-calendar.fc .fc-header-toolbar .fc-toolbar-chunk:nth-child(2){ width:100%; margin-bottom:.25rem; }
+  .ui-calendar.fc .fc-header-toolbar .fc-toolbar-chunk:nth-child(1){ margin-bottom:0; }
+  .ui-calendar.fc .fc-toolbar.fc-footer-toolbar{ justify-content:center; }
+  .ui-calendar-detail-row{ flex-direction:column; gap:.15rem; }
+  .ui-calendar-item-footer [data-item-open], .ui-calendar-item-footer [data-item-calendar-link]{ flex:1 1 100%; }
 }

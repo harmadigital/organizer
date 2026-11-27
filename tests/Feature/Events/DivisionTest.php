@@ -2,11 +2,15 @@
 
 namespace Tests\Feature\Events;
 
+use App\Actions\Calendar\SaveCalendarEntry;
+use App\Actions\Meetings\SaveMeeting;
 use App\Enums\CommitteeRoleKind;
 use App\Models\AuditLog;
+use App\Models\CalendarEntry;
 use App\Models\Division;
 use App\Models\DivisionTemplate;
 use App\Models\Event;
+use App\Models\Meeting;
 use App\Models\User;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Tests\Concerns\BuildsCommittees;
@@ -109,6 +113,25 @@ class DivisionTest extends TestCase
 
         $this->assertModelMissing($empty);
         $this->assertModelExists($withHistory);
+    }
+
+    public function test_a_division_used_by_a_kegiatan_or_meeting_cannot_be_deleted(): void
+    {
+        $withKegiatan = $this->makeDivision($this->event, 'Seksi Perlengkapan');
+        $this->app->make(SaveCalendarEntry::class)->handle($this->event, new CalendarEntry, [
+            'title' => 'Survei lokasi', 'starts_on' => '2026-12-05', 'division_id' => $withKegiatan->id,
+        ], $this->organizer);
+        $withMeeting = $this->makeDivision($this->event, 'Seksi Acara');
+        $this->app->make(SaveMeeting::class)->handle($this->event, new Meeting, [
+            'title' => 'Rapat seksi', 'meets_on' => '2026-12-01', 'starts_at' => '19:00', 'division_id' => $withMeeting->id,
+        ], $this->organizer);
+
+        foreach ([$withKegiatan, $withMeeting] as $division) {
+            $this->actingAs($this->organizer)->postJson(route('events.divisions.delete', [$this->event, $division]))
+                ->assertStatus(422)
+                ->assertJsonPath('data', 'Seksi ini masih dipakai oleh rapat, tugas, program kerja, dokumen, atau kegiatan kalender. Pindahkan atau hapus data tersebut terlebih dahulu.');
+            $this->assertModelExists($division);
+        }
     }
 
     public function test_only_committee_managers_handle_divisions(): void

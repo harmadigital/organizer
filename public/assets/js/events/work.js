@@ -7,7 +7,8 @@
  *     "Tandai Selesai" (isi hasil dan foto/dokumen).
  *   - Per Program: setiap program beserta daftar tugasnya sebagai checklist, dengan tombol
  *     "Tambah tugas" di dalam program sehingga seksi dan program terisi sendiri.
- *   - Kalender untuk melihat tenggat.
+ *
+ * Tenggat tugas tampil di tab Kalender event, bersama rapat dan kegiatan panitia.
  *
  * Semua panitia melihat semua tugas dan bisa berkomentar; tidak ada review atau persetujuan.
  *
@@ -24,7 +25,6 @@ var WorkPage = (function () {
     var state = { programs: [], tasks: [], today: null, canCreateTasks: false };
     var filters = { search: '', division: '', hideDone: false };
     var currentView = null;
-    var calendar = null;
     var VIEW_KEY = 'organizer.work.view';
     var OPEN_STATUSES = ['todo', 'in_progress', 'blocked'];
 
@@ -440,67 +440,11 @@ var WorkPage = (function () {
         page.querySelector('[data-programs-empty]').classList.toggle('d-none', groups.length > 0);
     };
 
-    // ---- Kalender --------------------------------------------------------------------------
-
-    var toneColor = function (tone) {
-        return getComputedStyle(document.documentElement).getPropertyValue('--bs-' + tone).trim() || '#2271b1';
-    };
-
-    var dateOnly = function (date) {
-        return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
-    };
-
-    var calendarEvents = function () {
-        return state.tasks.filter(function (task) {
-            return task.due_on || task.starts_on;
-        }).map(function (task) {
-            var end = new Date((task.due_on || task.starts_on) + 'T00:00:00');
-
-            // Tanggal akhir di FullCalendar bersifat eksklusif.
-            end.setDate(end.getDate() + 1);
-
-            return {
-                id: String(task.id),
-                title: task.title,
-                start: task.starts_on || task.due_on,
-                end: dateOnly(end),
-                allDay: true,
-                url: task.url,
-                backgroundColor: toneColor(task.status.tone),
-                borderColor: toneColor(task.status.tone),
-            };
-        });
-    };
-
-    var renderCalendar = function () {
-        if (currentView !== 'calendar') {
-            return;
-        }
-
-        if (!calendar) {
-            calendar = new FullCalendar.Calendar(page.querySelector('[data-calendar]'), {
-                initialView: 'dayGridMonth',
-                locale: 'id',
-                firstDay: 1,
-                height: 'auto',
-                headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,listMonth' },
-                buttonText: { today: 'Hari ini', month: 'Bulan', list: 'Daftar' },
-                noEventsText: 'Tidak ada tugas pada periode ini.',
-                initialDate: state.today || undefined,
-            });
-            calendar.render();
-        }
-
-        calendar.removeAllEvents();
-        calendar.addEventSource(calendarEvents());
-    };
-
     // ---- Tampilan --------------------------------------------------------------------------
 
     var render = function () {
         renderMine();
         renderPrograms();
-        renderCalendar();
     };
 
     var showView = function (view) {
@@ -520,8 +464,6 @@ var WorkPage = (function () {
         } catch (storageError) {
             // Penyimpanan peramban tidak tersedia; tampilan tetap berfungsi.
         }
-
-        renderCalendar();
     };
 
     page.querySelectorAll('[data-view]').forEach(function (button) {

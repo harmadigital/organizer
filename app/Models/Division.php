@@ -79,6 +79,14 @@ class Division extends Model
     }
 
     /**
+     * @return HasMany<CalendarEntry, $this>
+     */
+    public function calendarEntries(): HasMany
+    {
+        return $this->hasMany(CalendarEntry::class);
+    }
+
+    /**
      * Ids of every division below this one, at any depth.
      *
      * @return list<int>

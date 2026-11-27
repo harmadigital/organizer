@@ -278,6 +278,7 @@ Setiap batch selesai jika memenuhi Definition of Done di spec bagian 12: migrati
 - **Tabel:** `calendar_entries` (hanya agenda manual). Rapat, jatuh tempo tugas, dan milestone dibaca langsung dari sumbernya oleh satu query service.
 - **Kriteria terima:** bagian AC-20 untuk tugas dan rapat. Mengubah jadwal rapat langsung tercermin di kalender tanpa record duplikat; setiap item menautkan ke sumbernya; user hanya melihat item dari event yang diikutinya.
 - **Test:** feature feed kalender per scope dan rentang tanggal; isolasi antar-event; event multi-hari.
+- **Status:** dikerjakan 27 Nov 2026, menunggu review. Empat kalender menjadi dua halaman: tab **Kalender** di header event (saringan seksi = kalender seksi) dan **Kalender Saya** di sidebar (pemegang `events.view` bisa memilih semua event organisasi). Agenda manual disebut "Kegiatan"; sub-tab Kalender di Program & Tugas dihapus. Rincian di tracker bagian 25.
 
 #### Batch 1.6 — Koordinasi lintas seksi, isu, dan risiko
 - **Lingkup:** request antar-seksi dengan alur status lengkap; pembuatan tugas dari request; isu (severity, eskalasi, penyelesaian); risiko (kemungkinan, dampak, mitigasi) dan konversi risiko menjadi isu.
@@ -495,7 +496,7 @@ Asumsi lain yang dipakai dokumen ini:
 
 ## 12. Langkah setelah review
 
-1. Review Media & Dokumen (tracker bagian 24).
-2. Batch 1.5 (kalender terpusat): rapat dan tenggat tugas dalam satu kalender.
+1. Review Batch 1.5 Kalender (tracker bagian 25).
+2. Batch 1.6 (koordinasi, isu, risiko); tenggat baru dari batch itu masuk kalender lewat `CalendarFeed`.
 3. Koreksi model data di [DATA_MODEL.md](DATA_MODEL.md) bila ada.
 4. Pengerjaan berlanjut satu batch per iterasi, dengan tracker diperbarui di akhir setiap batch.

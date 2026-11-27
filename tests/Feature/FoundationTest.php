@@ -128,6 +128,7 @@ class FoundationTest extends TestCase
                 route('master.venue.index'),
                 '>Event</span>',
                 route('events.index'),
+                route('calendar.index'),
                 route('master.event_category.index'),
             ], false);
     }

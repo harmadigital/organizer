@@ -1,7 +1,9 @@
 {{--
-    Urutan menu: Dashboard, User & Akses, Master Data, Event. Halaman di dalam sebuah event
-    dibuka lewat tab di header event, bukan lewat sidebar.
-    Setiap item dibungkus @can; menu hanya penunjuk, hak akses tetap diperiksa di server.
+    Urutan menu: Dashboard, User & Akses, Master Data, lalu grup Event paling akhir (Event,
+    Kalender Saya, Kategori Event). Kalender Saya satu-satunya halaman pribadi lintas event;
+    halaman di dalam sebuah event dibuka lewat tab di header event, bukan lewat sidebar.
+    Setiap item dibungkus @can, kecuali Event dan Kalender Saya yang terbuka untuk semua yang masuk;
+    menu hanya penunjuk, hak akses tetap diperiksa di server.
 --}}
 @php($menuLink = fn (bool $isActive) => 'menu-link'.($isActive ? ' active' : ''))
 
@@ -72,6 +74,13 @@
         <a class="{{ $menuLink(request()->routeIs('events.*')) }}" href="{{ route('events.index') }}">
             <span class="menu-icon"><i class="ki-duotone ki-calendar fs-2"><span class="path1"></span><span class="path2"></span></i></span>
             <span class="menu-title">Event</span>
+        </a>
+    </div>
+    {{-- Seperti Event, tanpa @can: setiap orang yang masuk boleh melihat kalendernya sendiri. --}}
+    <div class="menu-item">
+        <a class="{{ $menuLink(request()->routeIs('calendar.*')) }}" href="{{ route('calendar.index') }}">
+            <span class="menu-icon"><i class="ki-duotone ki-calendar-tick fs-2"><span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span><span class="path5"></span><span class="path6"></span></i></span>
+            <span class="menu-title">Kalender Saya</span>
         </a>
     </div>
     @can('event-categories.view')

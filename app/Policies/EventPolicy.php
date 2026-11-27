@@ -2,9 +2,11 @@
 
 namespace App\Policies;
 
+use App\Enums\CommitteeRoleKind;
 use App\Enums\EventAbility;
 use App\Models\Event;
 use App\Models\User;
+use App\Services\CalendarAuthority;
 use App\Services\EventAccess;
 use App\Services\LibraryAuthority;
 use App\Services\MeetingAuthority;
@@ -17,6 +19,7 @@ class EventPolicy
         private TaskAuthority $work,
         private MeetingAuthority $meetings,
         private LibraryAuthority $library,
+        private CalendarAuthority $calendar,
     ) {}
 
     public function create(User $user): bool
@@ -88,5 +91,35 @@ class EventPolicy
     public function viewLibrary(User $user, Event $event): bool
     {
         return $this->library->canView($user, $event);
+    }
+
+    /**
+     * The "Kalender" tab.
+     */
+    public function viewCalendar(User $user, Event $event): bool
+    {
+        return $this->calendar->canView($user, $event);
+    }
+
+    /**
+     * "Laporan Kondisi" is written for the core team and the supervisors: the Ketua, Wakil
+     * Ketua, Sekretaris, Bendahara and Komite / Pengawas of the event, and whoever oversees
+     * every event of the organization (events.view).
+     */
+    public function viewSummary(User $user, Event $event): bool
+    {
+        if ($user->can('events.view')) {
+            return true;
+        }
+
+        $permissions = $this->access->for($user, $event);
+
+        return $permissions->isActiveMember() && collect([
+            CommitteeRoleKind::Chair,
+            CommitteeRoleKind::Deputy,
+            CommitteeRoleKind::Secretary,
+            CommitteeRoleKind::Treasurer,
+            CommitteeRoleKind::Supervisor,
+        ])->contains(fn (CommitteeRoleKind $kind): bool => $permissions->holdsKind($kind));
     }
 }

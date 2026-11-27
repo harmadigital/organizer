@@ -151,9 +151,11 @@ Status tugas: `draft`, `todo`, `in_progress`, `blocked`, `pending_review`, `comp
 
 | Tabel | Kolom kunci | Catatan |
 |---|---|---|
-| `calendar_entries` | `organization_id`, `event_id` (nullable), `division_id` (nullable), `title`, `starts_at`, `ends_at`, `is_all_day`, `location`, `created_by` | Hanya agenda manual |
+| `calendar_entries` | `event_id` (wajib), `division_id` (nullable = Pengurus Inti / seluruh panitia), `user_id` (penulis), `title`, `starts_on`, `ends_on` (wajib; sama dengan `starts_on` untuk kegiatan satu hari), `starts_at`/`ends_at` (jam, nullable = seharian), `location`, `notes`, `created_by`, `updated_by` | Hanya **kegiatan** yang ditambahkan panitia sendiri (UI: "Kegiatan", bukan "Agenda"). `unique(id, event_id)`; foreign key komposit `(division_id, event_id)` ke `divisions` (restrict); indeks `(event_id, starts_on)`. Aturan di Form Request: `ends_on >= starts_on`, paling lama 31 hari, jam hanya untuk kegiatan satu hari, jam selesai setelah jam mulai |
 
-Rapat, jatuh tempo tugas, milestone, reservasi aset, dan rundown tidak disalin ke tabel ini. Satu query service menggabungkannya saat dibaca.
+Dibangun di Batch 1.5 (tracker bagian 25). Tidak ada `organization_id` (organisasi diambil dari event) dan tidak ada kegiatan tingkat organisasi; `is_all_day` diganti `starts_at` kosong. Tanggal dan jam adalah waktu dinding zona waktu organisasi, sama seperti `meetings`.
+
+Rapat, tenggat tugas, dan hari pelaksanaan event tidak disalin ke tabel ini: `App\Services\CalendarFeed` membacanya langsung dari `meetings`, `tasks` (dengan `task_assignees`), dan `events` saat kalender diminta, dengan rentang `>= from` dan `< until`. Milestone, reservasi aset, dan rundown belum ada modulnya; nanti ditambahkan sebagai satu metode pembaca baru di `CalendarFeed`, tanpa tabel baru.
 
 ### 5.5 Koordinasi, isu, risiko (Batch 1.6)
 

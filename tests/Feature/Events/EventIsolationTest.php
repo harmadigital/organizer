@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Events;
 
+use App\Actions\Calendar\SaveCalendarEntry;
 use App\Actions\Meetings\PostMeetingComment;
 use App\Actions\Meetings\SaveMeeting;
 use App\Actions\Work\AddTaskDependency;
@@ -10,6 +11,7 @@ use App\Actions\Work\PostTaskComment;
 use App\Actions\Work\SaveTask;
 use App\Actions\Work\SaveWorkProgram;
 use App\Enums\CommitteeRoleKind;
+use App\Models\CalendarEntry;
 use App\Models\Event;
 use App\Models\Meeting;
 use App\Models\Organization;
@@ -65,6 +67,7 @@ class EventIsolationTest extends TestCase
 
         $meeting = $this->app->make(SaveMeeting::class)->handle($event, new Meeting, ['title' => 'Rapat '.$suffix, 'meets_on' => '2026-12-01', 'starts_at' => '19:00'], $this->organizer);
         $meetingComment = $this->app->make(PostMeetingComment::class)->handle($meeting, $this->organizer, 'Komentar rapat '.$suffix);
+        $calendarEntry = $this->app->make(SaveCalendarEntry::class)->handle($event, new CalendarEntry, ['title' => 'Kegiatan '.$suffix, 'division_id' => $division->id, 'starts_on' => '2026-12-05'], $this->organizer);
 
         return [
             'event' => $event,
@@ -78,6 +81,7 @@ class EventIsolationTest extends TestCase
             'comment' => $comment,
             'meeting' => $meeting,
             'meetingComment' => $meetingComment,
+            'calendarEntry' => $calendarEntry,
         ];
     }
 
@@ -106,7 +110,7 @@ class EventIsolationTest extends TestCase
 
     public function test_every_event_route_is_covered(): void
     {
-        $this->assertGreaterThanOrEqual(37, count($this->eventRoutes()));
+        $this->assertGreaterThanOrEqual(61, count($this->eventRoutes()));
     }
 
     public function test_the_chair_of_one_event_reaches_nothing_of_another_event(): void
@@ -134,6 +138,8 @@ class EventIsolationTest extends TestCase
         $this->assertSame('Rapat B', $recordsOfB['meeting']->fresh()->title);
         $this->assertSame('Program B', $recordsOfB['program']->fresh()->title);
         $this->assertNotSoftDeleted($recordsOfB['document']);
+        $this->assertModelExists($recordsOfB['calendarEntry']);
+        $this->assertSame('Kegiatan B', $recordsOfB['calendarEntry']->fresh()->title);
     }
 
     public function test_records_of_another_event_cannot_be_reached_through_an_event_one_manages(): void
@@ -155,6 +161,8 @@ class EventIsolationTest extends TestCase
         $this->assertSame('Seksi B', $divisionB->fresh()->name);
         $this->assertTrue($assignmentB->fresh()->isActive());
         $this->assertSame('todo', $recordsOfB['task']->fresh()->status->value);
+        $this->assertModelExists($recordsOfB['calendarEntry']);
+        $this->assertSame('Kegiatan B', $recordsOfB['calendarEntry']->fresh()->title);
     }
 
     /**

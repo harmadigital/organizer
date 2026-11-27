@@ -204,6 +204,17 @@ class Event extends Model
     }
 
     /**
+     * Kegiatan added to the event calendar. Route parameter {calendarEntry} is resolved
+     * through this relation.
+     *
+     * @return HasMany<CalendarEntry, $this>
+     */
+    public function calendarEntries(): HasMany
+    {
+        return $this->hasMany(CalendarEntry::class);
+    }
+
+    /**
      * Route parameter {document} is resolved through this relation.
      *
      * @return HasMany<Document, $this>

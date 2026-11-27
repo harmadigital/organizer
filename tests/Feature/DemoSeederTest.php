@@ -6,6 +6,7 @@ use App\Enums\EventStatus;
 use App\Enums\MembershipStatus;
 use App\Enums\TaskStatus;
 use App\Enums\UserStatus;
+use App\Models\CalendarEntry;
 use App\Models\CommitteeRole;
 use App\Models\DivisionTemplate;
 use App\Models\Event;
@@ -46,6 +47,7 @@ class DemoSeederTest extends TestCase
             'work_programs' => WorkProgram::query()->count(),
             'tasks' => Task::query()->count(),
             'meetings' => Meeting::query()->count(),
+            'calendar_entries' => CalendarEntry::query()->count(),
         ];
     }
 
@@ -66,6 +68,7 @@ class DemoSeederTest extends TestCase
             'work_programs' => 3,
             'tasks' => 14,
             'meetings' => 2,
+            'calendar_entries' => 3,
         ], $this->counts());
 
         $organization = Organization::query()->sole();
@@ -116,6 +119,20 @@ class DemoSeederTest extends TestCase
         $this->assertSame(3, $christmas->tasks()->whereNotNull('parent_id')->count());
         $this->assertSame(1, $christmas->tasks()->has('dependencies')->count());
         $this->assertSame(0, $christmas->tasks()->where('status', 'completed')->whereNull('result')->count());
+    }
+
+    public function test_the_active_event_calendar_has_three_kegiatan_one_over_two_days(): void
+    {
+        $this->seed(DemoSeeder::class);
+
+        $entries = Event::query()->where('code', 'DEMO-NATAL-2026')->sole()->calendarEntries()->with(['division', 'author'])->orderBy('starts_on')->get();
+
+        $this->assertSame(['Survei lokasi', 'Latihan drama anak', 'Dekorasi gedung gereja'], $entries->pluck('title')->all());
+        $this->assertSame(['Seksi Perlengkapan', 'Seksi Acara', 'Seksi Perlengkapan'], $entries->pluck('division.name')->all());
+        $this->assertSame(['Maria Lestari', 'Ruth Hutapea', 'Maria Lestari'], $entries->pluck('author.name')->all());
+        $this->assertTrue($entries[2]->lastsSeveralDays());
+        $this->assertTrue($entries[2]->isAllDay());
+        $this->assertSame('09.00–11.00', $entries[0]->timeLabel());
     }
 
     public function test_demo_accounts_can_sign_in_with_the_demo_password(): void

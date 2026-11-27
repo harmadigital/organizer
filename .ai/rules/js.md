@@ -19,3 +19,6 @@ layouts/main_layout sets <base href> to the site root, so relative URLs and bare
 
 ## Rich text editors in modals
 Use the Metronic TinyMCE bundle (assets/plugins/custom/tinymce, v8, license_key gpl, base_url from asset()) only on pages that need it. In a Bootstrap modal create the modal with { focus: false } so editor dialogs can be typed in, prefer keyboard: false and backdrop: static for long texts, and call tinymce.triggerSave() before OrganizerHttp.submit.
+
+## Calendars are built with OrganizerCalendar
+Pages with a calendar load assets/js/organizer/calendar.js and call OrganizerCalendar.create(element, {feedUrl, params, today, storageKey, onItemClick, onDateClick}) instead of configuring FullCalendar themselves. A plain click on any item calls onItemClick to open the summary modal (filled by OrganizerCalendar.fillItemDetail); Ctrl/Cmd/Shift-click opens an item's page in a new tab. It sets the Indonesian locale, the organisation date as today, Daftar/Bulan only under 768px, colours through ui-cal-tone-* classes in ui.css (never inline colours) and puts item text in with textContent.

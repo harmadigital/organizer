@@ -24,6 +24,7 @@ use App\Models\Venue;
 use App\Services\CurrentOrganization;
 use App\Services\DisplayTime;
 use App\Services\EventAccess;
+use App\Services\EventSummary;
 use App\Services\MeetingAuthority;
 use App\Services\PeopleLookup;
 use App\Services\TaskAuthority;
@@ -143,6 +144,16 @@ class EventController extends Controller
             'canViewMeetings' => app(MeetingAuthority::class)->canView($request->user(), $event),
             ...$this->formOptions(),
         ]);
+    }
+
+    /**
+     * "Laporan Kondisi": the state of the whole event for the core team and supervisors.
+     */
+    public function summary(Request $request, Event $event, EventSummary $summary): JsonResponse
+    {
+        Gate::authorize('viewSummary', $event);
+
+        return $this->jsonSuccess($summary->build($request->user(), $event));
     }
 
     /**

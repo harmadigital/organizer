@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Enums\EventStatus;
 use App\Enums\MembershipStatus;
+use App\Models\CalendarEntry;
 use App\Models\CommitteeRole;
 use App\Models\Division;
 use App\Models\DivisionTemplate;
@@ -115,6 +116,7 @@ class AppServiceProvider extends ServiceProvider
             'meeting' => Meeting::class,
             'task' => Task::class,
             'document' => Document::class,
+            'calendar_entry' => CalendarEntry::class,
         ]);
     }
 }

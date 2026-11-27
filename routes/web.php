@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Events\CalendarController;
 use App\Http\Controllers\Events\CommitteeController;
 use App\Http\Controllers\Events\EventController;
 use App\Http\Controllers\Events\LibraryController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\Master\PermissionController;
 use App\Http\Controllers\Master\RoleController;
 use App\Http\Controllers\Master\UserController;
 use App\Http\Controllers\Master\VenueController;
+use App\Http\Controllers\MyCalendarController;
 use App\Http\Controllers\Organization\OrganizationProfileController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -138,6 +140,7 @@ Route::middleware(['auth:web', config('jetstream.auth_session'), 'verified', 'or
         Route::middleware('event.access')->prefix('{event}')->scopeBindings()->group(function () {
             Route::controller(EventController::class)->group(function () {
                 Route::get('/', 'overview')->name('overview');
+                Route::get('/summary', 'summary')->name('summary');
                 Route::get('/show', 'show')->name('show');
                 Route::post('/update', 'update')->name('update');
                 Route::post('/status', 'changeStatus')->name('status');
@@ -195,6 +198,16 @@ Route::middleware(['auth:web', config('jetstream.auth_session'), 'verified', 'or
                 Route::post('/meetings/{meeting}/comments/{comment}/delete', 'deleteComment')->name('meetings.comments.delete');
             });
 
+            // {calendarEntry} resolves through Event::calendarEntries().
+            Route::controller(CalendarController::class)->group(function () {
+                Route::get('/calendar', 'index')->name('calendar');
+                Route::get('/calendar/feed', 'feed')->name('calendar.feed');
+                Route::post('/calendar/insert', 'store')->name('calendar.insert');
+                Route::get('/calendar/{calendarEntry}/show', 'show')->name('calendar.show');
+                Route::post('/calendar/{calendarEntry}/update', 'update')->name('calendar.update');
+                Route::post('/calendar/{calendarEntry}/delete', 'delete')->name('calendar.delete');
+            });
+
             // {dependency}, {document} and {comment} resolve through the task, so they must belong to it.
             Route::controller(TaskController::class)->group(function () {
                 Route::post('/tasks/insert', 'store')->name('tasks.insert');
@@ -212,4 +225,15 @@ Route::middleware(['auth:web', config('jetstream.auth_session'), 'verified', 'or
                 Route::post('/tasks/{task}/documents/{document}/delete', 'deleteDocument')->name('tasks.documents.delete');
             });
         });
+    });
+
+// Kalender Saya: one person's calendar across their events. Kept outside the events. names so
+// the sidebar "Event" item does not light up on it; it filters by the person's memberships itself.
+Route::middleware(['auth:web', config('jetstream.auth_session'), 'verified', 'organization.configured'])
+    ->name('calendar.')
+    ->prefix('calendar')
+    ->controller(MyCalendarController::class)
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/feed', 'feed')->name('feed');
     });

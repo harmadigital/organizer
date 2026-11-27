@@ -63,7 +63,7 @@ enum EventAbility: string
             self::TaskManage => 'Membuat, menugaskan, dan mengubah tugas',
             self::TaskWork => 'Memperbarui tugas yang ditugaskan kepadanya',
             self::MeetingView => 'Melihat rapat dan notulen',
-            self::MeetingManage => 'Mengelola rapat, kehadiran, dan notulen',
+            self::MeetingManage => 'Mengelola rapat, kegiatan kalender, kehadiran, dan notulen',
             self::MinutesPublish => 'Mempublikasikan notulen',
             self::DecisionManage => 'Mencatat keputusan',
             self::CoordinationView => 'Melihat permintaan koordinasi',

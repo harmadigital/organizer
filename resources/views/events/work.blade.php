@@ -42,7 +42,6 @@
                 <ul class="nav nav-line-tabs nav-line-tabs-2x border-0 fs-6 fw-semibold" role="tablist" data-view-switch>
                     <li class="nav-item"><button type="button" class="nav-link text-active-primary active" data-view="mine" role="tab">Tugas Saya <span class="badge badge-light-primary ms-1" data-mine-count>0</span></button></li>
                     <li class="nav-item"><button type="button" class="nav-link text-active-primary" data-view="programs" role="tab">Per Program</button></li>
-                    <li class="nav-item"><button type="button" class="nav-link text-active-primary" data-view="calendar" role="tab">Kalender</button></li>
                 </ul>
                 <div class="card-toolbar gap-2">
                     @if ($canCreatePrograms)
@@ -99,11 +98,6 @@
                         <div class="fw-semibold text-gray-800 fs-5">Belum ada program atau tugas</div>
                         <div class="text-muted fs-7 mt-1">Mulai dengan menambah program kerja seksi, lalu isi tugas-tugasnya.</div>
                     </div>
-                </div>
-
-                <div class="d-none" data-view-panel="calendar">
-                    <div class="fs-7 text-muted mb-4">Tugas tampil pada tanggal mulai sampai tenggatnya. Tugas tanpa tanggal tidak muncul di kalender.</div>
-                    <div data-calendar></div>
                 </div>
             </div>
         </div>

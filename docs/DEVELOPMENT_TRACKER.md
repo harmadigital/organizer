@@ -1,7 +1,7 @@
 # Organizer — Development Tracker
 
 **Terakhir diperbarui:** 27 November 2026
-**Fase saat ini:** Phase 1, Media & Dokumen (Batch 1.7 sederhana) menunggu review (belum di-commit)
+**Fase saat ini:** Phase 1, Batch 1.5 Kalender menunggu review (belum di-commit)
 **Dokumen terkait:** [organizer.md](organizer.md) (master spec), [ui-ux_brief.md](ui-ux_brief.md) (acuan UI/UX), [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md), [DATA_MODEL.md](DATA_MODEL.md)
 
 Dokumen ini diperbarui di akhir setiap batch: status, migration, test yang benar-benar dijalankan beserta hasilnya, blocker, dan known issues.
@@ -15,7 +15,7 @@ Status yang dipakai: **Belum mulai**, **Dikerjakan**, **Menunggu review**, **Sel
 | Fase | Status | Catatan |
 |---|---|---|
 | Phase 0 — Audit dan perencanaan | Selesai | Disetujui 27 Nov 2026 bersama K-01 sampai K-04 |
-| Phase 1 — Core committee management | Dikerjakan | Batch 1.0–1.3 selesai; Batch 1.4 menunggu review; Batch 1.5 berikutnya |
+| Phase 1 — Core committee management | Dikerjakan | Batch 1.0–1.4 dan Media & Dokumen (1.7 sederhana) selesai; Batch 1.5 Kalender menunggu review; Batch 1.6 berikutnya |
 | Phase 2 — Finance, governance, reporting | Belum mulai | – |
 | Phase 3 — Advanced operational workflows | Belum mulai | Belum dirinci |
 | Phase 4 — Organizational intelligence | Belum mulai | Belum dirinci |
@@ -31,9 +31,9 @@ Status yang dipakai: **Belum mulai**, **Dikerjakan**, **Menunggu review**, **Sel
 | 1.2 | Event, kepanitiaan, kontrol akses | Selesai (di-merge ke `main` 27 Nov 2026) | AC-01, AC-02, AC-03 | – |
 | 1.3 | Program kerja, tugas, aktivitas, inti lampiran | Selesai (di `main`, commit 32e574a) | AC-01 (diperluas) | – |
 | 1.4 | Rapat, notulen, keputusan | Selesai (di `main`, commit 730378a) | AC-05 | – |
-| 1.5 | Kalender terpusat | Belum mulai | AC-20 (sebagian) | – |
+| 1.5 | Kalender terpusat: tab Kalender event dan Kalender Saya | Menunggu review (belum di-commit, bagian 25) | AC-20 (sebagian) | – |
 | 1.6 | Koordinasi, isu, risiko | Belum mulai | AC-06 | – |
-| 1.7 | Repositori dokumen | Versi sederhana "Media & Dokumen" menunggu review (dimajukan sebelum 1.5 atas permintaan pemilik produk) | AC-18 (sebagian) | – |
+| 1.7 | Repositori dokumen | Versi sederhana "Media & Dokumen" selesai (di `main`, commit 49946bf; dimajukan sebelum 1.5 atas permintaan pemilik produk) | AC-18 (sebagian) | – |
 | 1.8 | Notifikasi, pengumuman, komentar | Belum mulai | – | – |
 | 1.9 | Worksheet per peran, shell PWA | Belum mulai | AC-14 (sebagian), AC-22 | – |
 | 2.1 | Approval engine, delegasi, surat | Belum mulai | AC-12 | K-09, K-12 |
@@ -71,7 +71,7 @@ Status yang dipakai: **Belum mulai**, **Dikerjakan**, **Menunggu review**, **Sel
 | AC-17 | Pengawas mencatat temuan | 2.7 | Belum |
 | AC-18 | Export data donatur/insiden/lampiran privat | 1.7, 2.8 | Belum |
 | AC-19 | Bentrok booking venue/aset | 2.5 | Belum |
-| AC-20 | Kalender mencerminkan tugas, rapat, rundown | 1.5; rundown di Phase 3 | Belum |
+| AC-20 | Kalender mencerminkan tugas, rapat, rundown | 1.5; rundown di Phase 3 | Lulus untuk tugas dan rapat (test otomatis dan uji browser, Batch 1.5); rundown menunggu Phase 3 |
 | AC-21 | Koreksi transaksi terposting | 2.3 | Belum |
 | AC-22 | Logout PWA / jabatan dicabut | 1.9 | Belum |
 
@@ -196,6 +196,7 @@ Seeder (`php artisan db:seed`) dijalankan di database dev pada 27 Nov 2026 setel
 | 27 Nov 2026 | Batch 1.4 | Atas permintaan pemilik produk: form notulen bertab, absensi terkunci setelah rapat selesai, tampilan absensi diperbaiki. Rincian di bagian 23 |
 | 27 Nov 2026 | Batch 1.4 | Di-commit ke `main` (730378a) tanpa baris co-author atas permintaan pemilik produk |
 | 27 Nov 2026 | Batch 1.7 | Media & Dokumen versi sederhana, dimajukan atas permintaan pemilik produk; baris kartu angka di Ringkasan event dihapus. Rincian di bagian 24 |
+| 27 Nov 2026 | Batch 1.5 | Tab Kalender event dan halaman Kalender Saya; sub-tab Kalender di Program & Tugas dihapus atas keputusan pemilik produk. Rincian di bagian 25 |
 
 ---
 
@@ -696,3 +697,86 @@ Belum termasuk dari rencana Batch 1.7 awal: versi dokumen, status draf/final, ta
 
 Uji: `php artisan test --compact` 468 lulus, 12 dilewati (test baru `tests/Feature/Library/LibraryTest`); `library-check.js` 15 pemeriksaan lulus (tanpa kartu angka di Ringkasan, tab baru, unggah dua foto dan pratinjau, link dan validasinya, saringan, panitia lain melihat semua item, ponsel tanpa scroll horizontal).
 
+
+---
+
+## 25. Hasil Batch 1.5 — Kalender (27 Nov 2026)
+
+Keputusan pemilik produk: satu kalender per event (tab **Kalender**) dan satu kalender pribadi (**Kalender Saya**). Sub-tab Kalender di Program & Tugas dihapus, sehingga tidak ada dua kalender untuk hal yang sama.
+
+### Yang dibuat
+
+| Area | Isi |
+|---|---|
+| Tab Kalender | Di header event, antara **Rapat & Notulen** dan **Media & Dokumen** (route `events.calendar`). Tampilan Bulan, Minggu, Hari, dan Daftar; di ponsel hanya Daftar (bawaan) dan Bulan, dengan tombol di bawah kalender. Tampilan terakhir diingat di browser. "Hari ini" mengikuti tanggal zona waktu organisasi |
+| Isi kalender | **Hari pelaksanaan** event (ungu), **rapat** (biru, dengan jam), **tenggat tugas** (kuning; merah bila terlambat; abu-abu dan dicoret bila selesai), dan **kegiatan** yang ditambahkan panitia (hijau). Rapat, tugas, dan hari pelaksanaan dibaca langsung dari tabelnya oleh `CalendarFeed`: rapat yang dipindah jadwalnya langsung pindah di kalender, tanpa data ganda (AC-20). Tugas tanpa tenggat dan tugas dibatalkan tidak tampil |
+| Klik item | Atas permintaan pemilik produk (27 Nov 2026), klik jadwal apa pun membuka **jendela ringkasan** dulu, di tab Kalender dan Kalender Saya. Rapat: tanggal, jam, tempat, seksi, jumlah yang hadir (bila absensi sudah diisi), cuplikan agenda, dan label Notulen sudah ditulis / Akan datang / Belum ada notulen. Tenggat tugas: tenggat, program, seksi, penanggung jawab, yang mengerjakan, cuplikan keterangan, dan label Selesai / Terlambat / Belum selesai. Hari pelaksanaan: tanggal, tempat, tema. Kegiatan: tanggal, jam, tempat, seksi, keterangan, "Ditambahkan oleh", dengan **Ubah** dan **Hapus** bila boleh. Tombol **Buka halaman rapat / tugas / event** membuka halamannya; Ctrl/Cmd+klik (atau klik tengah) pada jadwal tetap langsung membuka halamannya di tab baru. Isi ringkasan disusun `CalendarFeed` (`summary`, `note`, `badges`, `open_label`) dengan eager loading, sehingga jumlah query tidak bertambah per item; cuplikan teks dibersihkan dari HTML dan paling panjang 300 karakter |
+| Kegiatan | Tombol **Tambah Kegiatan**, atau klik tanggal kosong di tampilan Bulan. Form: judul, tanggal, jam mulai/selesai (kosong = seharian), tempat; di "Pengaturan lainnya": seksi (bawaan seksi penambah; kosong = Pengurus Inti / seluruh panitia), sampai tanggal, keterangan. Kegiatan beberapa hari dicatat seharian (jam disembunyikan), paling lama 31 hari. Tanpa status, undangan, atau persetujuan; yang tidak perlu lagi dihapus. Audit `calendar-entries.created/updated/deleted` |
+| Siapa boleh | Semua panitia aktif melihat semua item dan boleh menambah kegiatan untuk seksi mana pun (seperti Media & Dokumen). Mengubah/menghapus: penambahnya selama masih panitia aktif, Sekretaris (kegiatan Pengurus Inti), koordinator seksinya (termasuk seksi di bawahnya), atau admin organisasi lewat `events.manage-work`. Memakai hak **MeetingManage** yang sudah ada; labelnya kini "Mengelola rapat, kegiatan kalender, kehadiran, dan notulen". Tidak ada yang berubah setelah event selesai, dibatalkan, atau diarsipkan |
+| Saringan | Satu pilihan seksi: Pengurus Inti atau satu seksi (termasuk sub-seksinya). Hari pelaksanaan selalu tampil. Ada keterangan warna di sampingnya |
+| Kalender Saya | Menu baru di sidebar grup Event (Event, **Kalender Saya**, Kategori Event), route `calendar.index`. Menampilkan hari pelaksanaan, semua rapat, dan semua kegiatan dari event tempat orang itu panitia aktif (event dibatalkan tidak ikut), ditambah tenggat tugas miliknya sendiri atau yang ia bantu. Hanya untuk dilihat; ringkasan kegiatan punya tautan **Buka kalender event**. Pemegang `events.view` bisa memilih **Semua event organisasi** (tanpa tenggat tugas). Orang tanpa event aktif melihat "Anda belum menjadi panitia aktif di event mana pun." dengan tautan ke daftar event |
+| Program & Tugas | Sub-tab Kalender beserta kode FullCalendar di `work.js` dihapus. Pilihan tampilan "Kalender" yang tersimpan di browser otomatis kembali ke Tugas Saya atau Per Program |
+| Hapus seksi | Sebelumnya menghapus seksi yang masih dipakai rapat, tugas, program kerja, atau dokumen berujung error 500. Kini ditolak dengan pesan "Seksi ini masih dipakai oleh rapat, tugas, program kerja, dokumen, atau kegiatan kalender. ..." (dokumen yang diarsipkan ikut dihitung) |
+| Data demo | Natal 2026: "Survei lokasi" (Seksi Perlengkapan, 5 Des 09.00–11.00, Gedung gereja), "Dekorasi gedung gereja" (Seksi Perlengkapan, 21–22 Des, seharian), "Latihan drama anak" (Seksi Acara, 19 Des 16.00–18.00, Aula serbaguna). Ditambahkan sekali; dilewati bila event sudah punya kegiatan |
+
+Kode utama: `App\Services\CalendarFeed` (satu-satunya tempat item kalender disusun), `App\Services\CalendarAuthority`, `App\Actions\Calendar\SaveCalendarEntry` dan `DeleteCalendarEntry`, `Events\CalendarController`, `MyCalendarController`, Form Request di `app/Http/Requests/Calendar`, skrip bersama `public/assets/js/organizer/calendar.js` (`OrganizerCalendar`) dengan skrip halaman `events/calendar.js` dan `my-calendar.js`, warna lewat kelas `ui-cal-tone-*` di `ui.css`.
+
+### Menyimpang dari rencana
+
+| Rencana | Yang dibuat | Alasan |
+|---|---|---|
+| Empat kalender: pribadi, seksi, event, organisasi | Dua halaman: tab Kalender (saringan seksi = kalender seksi) dan Kalender Saya (pilihan "Semua event organisasi" = kalender organisasi) | Lebih sederhana untuk panitia awam; tidak ada menu tambahan |
+| "Agenda manual" | Disebut **Kegiatan** di layar | "Agenda" sudah berarti daftar pokok bahasan rapat (tab Agenda di halaman rapat) |
+| `calendar_entries.organization_id`, `event_id` nullable, `is_all_day` | `event_id` wajib, tanpa `organization_id`, `user_id` penulis, `starts_on`/`ends_on` wajib, jam opsional (kosong = seharian), `notes` | Tidak ada kegiatan tingkat organisasi; tanpa jam berarti seharian; rentang tanggal cukup dibandingkan langsung |
+| Kalender pribadi berdasarkan relevansi (seksi/inti) | Semua rapat dan kegiatan dari event yang diikuti; tenggat hanya tugas milik sendiri atau yang dibantu | Semua panitia memang boleh melihat semuanya; aturan relevansi dan pertanyaan "rapat mana yang terkait saya" tidak diperlukan |
+| Milestone, rundown, reservasi aset, LPJ | Belum | Modulnya belum ada (milestone dihapus di bagian 19). `CalendarFeed` punya satu metode pembaca per sumber, jadi sumber baru tidak butuh tabel baru |
+| Hak baru untuk kalender | Memakai MeetingManage | Tidak menambah pengaturan di Jabatan Panitia |
+| Tautan "Lihat kalender" di kartu Rapat Berikutnya (Ringkasan) | Tidak dibuat | Tab Kalender sudah ada di header; Ringkasan baru saja dirampingkan |
+
+### Keterbatasan
+
+- Tidak ada pengingat, undangan, kegiatan berulang, pilihan warna, atau geser-lepas untuk memindah jadwal. Pengingat menunggu Batch 1.8 (sebaiknya membaca dari `CalendarFeed`).
+- Secara bawaan Ketua dan Wakil tidak memegang MeetingManage, sehingga tidak bisa mengubah kegiatan orang lain; hak ini bisa diberikan lewat Jabatan Panitia bila perlu.
+- Semua panitia aktif, termasuk Pengawas, boleh menambah kegiatan untuk seksi mana pun. Bila ingin dibatasi ke seksi sendiri atau Pengawas hanya membaca, perlu keputusan pemilik produk.
+- Hapus kegiatan bersifat permanen (isinya tetap tercatat di audit log).
+- Kalender Saya hanya untuk dilihat; kegiatan ditambahkan dari tab Kalender event.
+- Di ponsel enam tab header event tersusun dalam tiga baris (tanpa scroll ke samping).
+
+### Database dev
+
+Migration `2026_11_27_140849_create_calendar_entries_table` (tabel baru, aditif) sudah dijalankan di database dev pada 27 Nov 2026, setelah tab Kalender di dev gagal dengan "Table calendar_entries doesn't exist". Sebelumnya sudah diuji naik, turun, dan naik lagi pada berkas SQLite sementara, dan SQL MySQL-nya diperiksa dengan `migrate --pretend` (nama indeks di bawah 64 karakter). Tiga kegiatan demo belum ditambahkan ke dev; `php artisan db:seed --class=DemoSeeder` menambahkannya sekali.
+
+### Uji
+
+- `php artisan test --compact`: 524 lulus, 12 dilewati (bawaan Jetstream). Test baru: `tests/Feature/Calendar/EventCalendarTest` (22, termasuk isi ringkasan per jenis, label Terlambat/Selesai/Belum selesai dan notulen, HTML dibuang dari cuplikan, dan jumlah query yang tidak bertambah per item), `CalendarEntryTest` (16), `MyCalendarTest` (11). Diperluas: `EventIsolationTest` (parameter `calendarEntry`, minimal 61 route event), `DivisionTest` (seksi yang masih dipakai tidak bisa dihapus), `FoundationTest` (urutan sidebar dengan Kalender Saya), `DemoSeederTest` (tiga kegiatan, tidak bertambah saat diulang).
+- Uji browser `batch-1.5-check.js` pada database SQLite baru: 66 pemeriksaan lulus (tab dan urutan header, menu sidebar, Program & Tugas tanpa sub-tab Kalender, empat tampilan, warna dan tanda terlambat/selesai, bar kegiatan dua hari, saringan seksi, validasi, tambah kegiatan seharian lewat flatpickr dan kegiatan berjam, jam tersembunyi untuk kegiatan beberapa hari, detail/ubah/hapus, klik tanggal kosong, rapat/tugas/hari pelaksanaan membuka halamannya, judul `<b>x</b>` tampil sebagai teks, Kalender Saya dan pilihan semua event untuk admin, ponsel 390 px dengan Daftar/Bulan tanpa scroll ke samping, tanpa error JS atau server).
+- Uji browser `calendar-summary-check.js` (penerus `batch-1.5-check.js` setelah jendela ringkasan) pada database SQLite baru: 84 pemeriksaan lulus, termasuk klik rapat dan tugas membuka ringkasan tanpa pindah halaman, tombol Buka halaman rapat/tugas/event menuju halaman yang benar, Cmd+klik membuka rapat di tab baru, ringkasan kegiatan dengan Ubah/Hapus, Kalender Saya dengan baris Event dan Buka kalender event, judul `<b>x</b>` tetap teks, dan ringkasan di ponsel 390 px tanpa scroll ke samping.
+- `work-check2.js` diperbarui (memeriksa sub-tab Kalender sudah tidak ada) dan lulus 54 pemeriksaan; `library-check.js` diperbarui untuk tab baru dan lulus 18 pemeriksaan, masing-masing pada database baru.
+
+## 26. Laporan Kondisi, selesaikan subtugas dari tugas induk, header event yang lebih lega (27 Nov 2026)
+
+### Yang dibuat
+
+- **Laporan Kondisi** (tombol di header Ringkasan event): jendela layar penuh untuk Pengurus Inti (Ketua, Wakil Ketua, Sekretaris, Bendahara), Komite / Pengawas, dan pemegang `events.view`. Hak aksesnya `EventPolicy::viewSummary`; datanya dari `App\Services\EventSummary` lewat `GET /events/{event}/summary` (`events.summary`) dan dimuat ulang setiap kali dibuka. Isinya:
+  - kondisi keseluruhan (Sesuai jadwal / Perlu perhatian / Tertinggal / Belum ada tugas) dengan membandingkan pekerjaan selesai dan waktu persiapan yang sudah berjalan (dari mulai masa kepanitiaan atau tanggal event dibuat sampai hari pertama event). "Tertinggal" berarti selisihnya lebih dari 25 poin atau minimal seperempat tugas yang belum selesai sudah terlambat; "Perlu perhatian" berarti selisihnya lebih dari 10 poin atau ada tugas terlambat;
+  - hitung mundur ke hari pelaksanaan, pekerjaan selesai dibanding waktu, dan jumlah tugas terlambat;
+  - progres per seksi tingkat atas (subseksi dihitung ke induknya) sebagai batang selesai/belum/terlambat yang bisa diklik untuk menyaring, dan diagram donat status semua tugas (ApexCharts dari bundle Metronic);
+  - daftar Perlu Perhatian (terlambat dan dua minggu ke depan) dan Program Kerja (lewat periode atau punya tugas terlambat ditaruh paling atas), keduanya ikut saringan seksi;
+  - rapat berikutnya, rapat tanpa notulen, diagram kehadiran enam rapat terakhir, dan tindak lanjut rapat yang belum selesai;
+  - jadwal dua minggu dari `CalendarFeed`;
+  - kepanitiaan: panitia aktif, undangan yang belum dijawab, jabatan wajib yang kosong, seksi tanpa koordinator atau tanpa tugas, jumlah berkas Media & Dokumen, serta target peserta dan anggaran.
+- **Subtugas** bisa ditandai selesai langsung dari halaman tugas induknya lewat tombol "Tandai Selesai" di setiap baris. Tombol ini membuka form hasil yang sama dan hanya muncul bagi orang yang boleh menyelesaikan subtugas itu.
+- **Centang selesai** di daftar Program & Tugas sekarang putih di atas lingkaran hijau. Metronic mewarnai ikon `la-*` abu-abu.
+- **Header Ringkasan event**: tombol yang tampil hanya Laporan Kondisi, Ubah, dan Aktifkan Event (saat masih draf). Ubah Fase dan perubahan status lain (Tandai Selesai, Batalkan Event, dan seterusnya) dipindah ke menu "Lainnya". Di layar di bawah 768 px, tombol header di semua halaman turun ke bawah judul agar halaman tidak bisa digeser ke samping.
+
+### Keterbatasan
+
+- Laporan Kondisi hanya untuk dibaca di layar; belum ada cetak atau PDF.
+- Belum ada data anggaran atau risiko karena modulnya belum dibuat. Yang ditampilkan baru target anggaran dari profil event.
+- Hitungan tugas sama dengan kartu Progres Kerja (semua tugas kecuali yang dibatalkan), sedangkan persentase memakai bobot `WorkProgress`.
+
+### Uji
+
+- `tests/Feature/Events/EventSummaryTest` (6): siapa yang boleh membuka laporan (Ketua, Pengawas, Bendahara, dan organisasi boleh; koordinator, anggota seksi, dan undangan yang belum diterima tidak), hitungan per seksi tingkat atas, waktu persiapan, vonis kondisi, program lewat periode, rapat tanpa notulen, kehadiran, dan tindak lanjut. `TaskStatusTest` ditambah satu test untuk tombol Tandai Selesai pada subtugas.
+- `php artisan test --compact`: 531 lulus, 12 dilewati.
+- Uji browser pada SQLite baru: `summary-check.js` 13 lulus (termasuk diagram tergambar, saringan seksi lewat klik, muat ulang, buka ulang, ponsel 390 px, dan Bendahara bisa membuka laporan); `subtask-complete-check.js` (subtugas selesai dari halaman induk, progres naik); `header-check.js` 6 lulus (menu Lainnya membuka form Ubah Fase dan status, ponsel tanpa scroll ke samping).

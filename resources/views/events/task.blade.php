@@ -129,12 +129,21 @@
                             </div>
                             <div class="card-body pt-2">
                                 @forelse ($task->children as $child)
-                                    <div class="ui-check-row">
+                                    <div class="ui-check-row flex-wrap" data-subtask-row="{{ $child->id }}">
                                         {!! $statusLabel($child->status) !!}
                                         <a href="{{ route('events.tasks.detail', [$event, $child]) }}" class="ui-task-title flex-grow-1">{{ $child->title }}</a>
                                         <span class="text-muted fs-7">{{ $child->owner?->user->name ?? 'Belum ada penanggung jawab' }}</span>
                                         @if ($child->due_on)
                                             <span @class(['fs-7', 'ui-overdue' => $child->isOverdue($today), 'text-muted' => ! $child->isOverdue($today)])>{{ $dateLabel($child->due_on) }}</span>
+                                        @endif
+                                        @if (in_array($child->id, $completableSubtaskIds, true))
+                                            <button type="button" class="btn btn-sm btn-light-success py-1 px-3" data-subtask-complete
+                                                data-url="{{ route('events.tasks.complete', [$event, $child]) }}"
+                                                data-title="{{ $child->title }}"
+                                                data-result="{{ $child->result }}"
+                                                aria-label="Tandai selesai: {{ $child->title }}">
+                                                <i class="ki-duotone ki-check fs-5"></i> Tandai Selesai
+                                            </button>
                                         @endif
                                     </div>
                                 @empty

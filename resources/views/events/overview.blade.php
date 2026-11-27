@@ -237,10 +237,15 @@
         </div>
     @endcan
 
+    @can('viewSummary', $event)
+        @include('events.partials.summary-modal')
+    @endcan
+
     @include('events.partials.event-guide')
 @endsection
 
 @section('script')
     <script src="{{ asset('assets/js/events/form.js') }}"></script>
     <script src="{{ asset('assets/js/events/overview.js') }}"></script>
+    <script src="{{ asset('assets/js/events/summary.js') }}"></script>
 @endsection

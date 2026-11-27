@@ -13,3 +13,6 @@ App\Services\TaskAuthority decides who sees, changes (Ubah), finishes (Selesai) 
 
 ## Meeting authority lives in MeetingAuthority
 App\Services\MeetingAuthority: every active committee member (or MeetingView holder) sees every meeting and its minutes and may comment; scheduling, editing and writing minutes needs MeetingManage for the meeting division, or event-wide for core team meetings (division_id null). events.manage-work also grants MeetingManage on every event.
+
+## Calendar authority lives in CalendarAuthority
+App\Services\CalendarAuthority decides who sees the event Kalender tab (active members or EventView), who adds kegiatan (any active member, or MeetingManage anywhere, while the event is editable) and who changes or deletes one: its author while still an active member, or MeetingManage for its division (event-wide for core team kegiatan; events.manage-work grants it). Moving someone else's kegiatan to another division also needs MeetingManage there. EventPolicy::viewCalendar delegates to it.

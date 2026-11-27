@@ -58,6 +58,20 @@
         });
     });
 
+    // Subtugas bisa diselesaikan langsung dari daftar, dengan form hasil yang sama.
+    page.querySelectorAll('[data-subtask-complete]').forEach(function (completeButton) {
+        completeButton.addEventListener('click', function () {
+            TaskComplete.open({
+                url: completeButton.dataset.url,
+                title: completeButton.dataset.title,
+                result: completeButton.dataset.result,
+            }, function () {
+                rememberTab('rincian');
+                reload();
+            });
+        });
+    });
+
     var editButton = page.querySelector('[data-task-edit]');
 
     if (editButton && TaskForm) {

@@ -28,8 +28,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
 /**
- * The "Program & Tugas" tab: the person's own tasks, programs with their tasks, and a calendar. The page loads its data from data() and redraws it after
- * every change.
+ * The "Program & Tugas" tab: the person's own tasks and programs with their tasks. The page
+ * loads its data from data() and redraws it after every change. Task deadlines show on the
+ * event's Kalender tab (CalendarController).
  */
 class WorkController extends Controller
 {

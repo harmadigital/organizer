@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Actions\Calendar\SaveCalendarEntry;
 use App\Actions\Events\AssignCommitteeRole;
 use App\Actions\Events\ChangeEventPhase;
 use App\Actions\Events\ChangeEventStatus;
@@ -21,6 +22,7 @@ use App\Enums\CommitteeRoleKind;
 use App\Enums\EventPhase;
 use App\Enums\EventStatus;
 use App\Enums\UserStatus;
+use App\Models\CalendarEntry;
 use App\Models\CommitteeRole;
 use App\Models\Division;
 use App\Models\DivisionTemplate;
@@ -42,7 +44,8 @@ use Spatie\Permission\Models\Role;
  * Fictional sample data for trying the application: units, people with and without
  * login access, a sample role, division templates, event categories, venues, two events
  * with their committees (one active, one draft that still misses required roles), and work
- * programs, tasks and meetings with minutes for the active event.
+ * programs, tasks, meetings with minutes, shared links and calendar kegiatan for the
+ * active event.
  *
  * Run it on purpose with `php artisan db:seed --class=DemoSeeder`; DatabaseSeeder never
  * calls it. It only adds what is missing, so it is safe to run again, and it never
@@ -87,6 +90,7 @@ class DemoSeeder extends Seeder
             $this->work($organization);
             $this->meetings($organization);
             $this->library($organization);
+            $this->calendar($organization);
         });
 
         $this->command?->info('Data demo siap. Akun demo memakai kata sandi: '.self::DEMO_PASSWORD);
@@ -484,5 +488,49 @@ class DemoSeeder extends Seeder
 
         $add->link($christmas, 'https://www.example.com/demo/draft-materi-acara', 'Draft materi acara', $division('Seksi Acara'), $person('Ruth Hutapea'));
         $add->link($christmas, 'https://www.example.com/demo/referensi-dekorasi-natal', 'Referensi dekorasi Natal', $division('Seksi Perlengkapan'), $person('Maria Lestari'));
+    }
+
+    /**
+     * Three kegiatan on the Christmas event's calendar, one of them over two days. Added
+     * once: skipped when the calendar already has kegiatan.
+     */
+    private function calendar(Organization $organization): void
+    {
+        $christmas = Event::query()->forOrganization($organization)->where('code', 'DEMO-NATAL-2026')->first();
+
+        if ($christmas === null || $christmas->calendarEntries()->exists()) {
+            return;
+        }
+
+        $save = app(SaveCalendarEntry::class);
+        $person = fn (string $name): User => User::query()->where('name', $name)->sole();
+        $division = fn (string $name): ?int => $christmas->divisions()->where('name', $name)->value('id');
+
+        $save->handle($christmas, new CalendarEntry, [
+            'title' => 'Survei lokasi',
+            'division_id' => $division('Seksi Perlengkapan'),
+            'starts_on' => '2026-12-05',
+            'starts_at' => '09:00',
+            'ends_at' => '11:00',
+            'location' => 'Gedung gereja',
+            'notes' => 'Ukur panggung dan cek titik listrik untuk sound system.',
+        ], $person('Maria Lestari'));
+
+        $save->handle($christmas, new CalendarEntry, [
+            'title' => 'Dekorasi gedung gereja',
+            'division_id' => $division('Seksi Perlengkapan'),
+            'starts_on' => '2026-12-21',
+            'ends_on' => '2026-12-22',
+            'location' => 'Gedung gereja',
+        ], $person('Maria Lestari'));
+
+        $save->handle($christmas, new CalendarEntry, [
+            'title' => 'Latihan drama anak',
+            'division_id' => $division('Seksi Acara'),
+            'starts_on' => '2026-12-19',
+            'starts_at' => '16:00',
+            'ends_at' => '18:00',
+            'location' => 'Aula serbaguna',
+        ], $person('Ruth Hutapea'));
     }
 }

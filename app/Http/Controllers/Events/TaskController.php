@@ -57,7 +57,7 @@ class TaskController extends Controller
             'parent:id,title,status',
             'owner.user:id,name',
             'assignees.user:id,name',
-            'children' => fn ($children) => $children->with('owner.user:id,name')->orderBy('id'),
+            'children' => fn ($children) => $children->with(['owner.user:id,name', 'assignees:id'])->orderBy('id'),
             'dependencies:id,title,status',
             'dependents:id,title,status',
             'documents' => fn ($documents) => $documents->with(['latestVersion', 'owner:id,name'])->orderByDesc('document_links.id'),
@@ -66,6 +66,7 @@ class TaskController extends Controller
         ]);
 
         $canManage = $this->authority->canManage($actor, $task);
+        $task->children->each->setRelation('event', $event);
 
         return view('events.task', [
             'event' => $event,
@@ -74,6 +75,7 @@ class TaskController extends Controller
             'canComplete' => $this->authority->canComplete($actor, $task),
             'canComment' => $this->authority->canComment($actor, $task),
             'subtaskProgress' => $task->children->isEmpty() ? null : $progress->of($task->children),
+            'completableSubtaskIds' => $task->children->filter(fn (Task $child) => $this->authority->canComplete($actor, $child))->modelKeys(),
             'canManage' => $canManage,
             'canWork' => $this->authority->canWork($actor, $task),
             'canCreateSubtask' => $canManage && $task->parent_id === null,

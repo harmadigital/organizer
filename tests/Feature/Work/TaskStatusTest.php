@@ -164,6 +164,27 @@ class TaskStatusTest extends TestCase
         $this->assertSame(TaskStatus::Todo, $parent->fresh()->status);
     }
 
+    public function test_the_parent_page_offers_finishing_only_the_open_subtasks_the_person_works_on(): void
+    {
+        $workerMembership = $this->membershipOf($this->worker, $this->event);
+        $parent = $this->makeTask($this->event, [
+            'division_id' => $this->acara->id,
+            'owner_membership_id' => $this->membershipOf($this->coordinator, $this->event)->id,
+        ]);
+        $owned = $this->makeTask($this->event, ['title' => 'Konfirmasi pembaca Alkitab', 'parent_id' => $parent->id, 'owner_membership_id' => $workerMembership->id]);
+        $shared = $this->makeTask($this->event, ['title' => 'Konfirmasi kolektan', 'parent_id' => $parent->id], [$workerMembership]);
+        $someoneElses = $this->makeTask($this->event, ['title' => 'Konfirmasi pemusik', 'parent_id' => $parent->id]);
+        $finished = $this->makeTask($this->event, ['title' => 'Konfirmasi pemandu pujian', 'parent_id' => $parent->id, 'owner_membership_id' => $workerMembership->id]);
+        $this->completeDirectly($finished);
+
+        $page = $this->actingAs($this->worker)->get(route('events.tasks.detail', [$this->event, $parent]))->assertOk();
+
+        $page->assertSee('data-url="'.route('events.tasks.complete', [$this->event, $owned]).'"', false);
+        $page->assertSee('data-url="'.route('events.tasks.complete', [$this->event, $shared]).'"', false);
+        $page->assertDontSee('data-url="'.route('events.tasks.complete', [$this->event, $someoneElses]).'"', false);
+        $page->assertDontSee('data-url="'.route('events.tasks.complete', [$this->event, $finished]).'"', false);
+    }
+
     public function test_a_finished_task_cannot_be_finished_again(): void
     {
         $task = $this->taskOfTheWorker();
