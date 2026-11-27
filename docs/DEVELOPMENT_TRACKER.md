@@ -780,3 +780,43 @@ Migration `2026_11_27_140849_create_calendar_entries_table` (tabel baru, aditif)
 - `tests/Feature/Events/EventSummaryTest` (6): siapa yang boleh membuka laporan (Ketua, Pengawas, Bendahara, dan organisasi boleh; koordinator, anggota seksi, dan undangan yang belum diterima tidak), hitungan per seksi tingkat atas, waktu persiapan, vonis kondisi, program lewat periode, rapat tanpa notulen, kehadiran, dan tindak lanjut. `TaskStatusTest` ditambah satu test untuk tombol Tandai Selesai pada subtugas.
 - `php artisan test --compact`: 531 lulus, 12 dilewati.
 - Uji browser pada SQLite baru: `summary-check.js` 13 lulus (termasuk diagram tergambar, saringan seksi lewat klik, muat ulang, buka ulang, ponsel 390 px, dan Bendahara bisa membuka laporan); `subtask-complete-check.js` (subtugas selesai dari halaman induk, progres naik); `header-check.js` 6 lulus (menu Lainnya membuka form Ubah Fase dan status, ponsel tanpa scroll ke samping).
+
+## 27. Batch 1.8 — Notifikasi (27 Nov 2026)
+
+Batch 1.6 (permintaan antar-seksi, masalah dan risiko) dibatalkan oleh pemilik produk. Aplikasi pada dasarnya dipakai saat rapat dan saat menyelesaikan tugas, jadi 1.8 juga dibuat seringkas mungkin. Pengumuman sempat dibuat lalu dihapus atas permintaan pemilik produk: komunikasi tetap lewat grup WhatsApp, dan aplikasi cukup memberi notifikasi sebagai pengingat.
+
+### Yang dibuat
+
+- **Lonceng** di bar atas: latar biru dengan ikon putih dan angka merah untuk notifikasi yang belum dibaca. Dropdown-nya berisi 8 notifikasi terbaru, "Tandai semua dibaca", dan "Lihat semua notifikasi".
+- **Halaman Notifikasi** (`/notifications`) dengan pilihan Belum dibaca / Semua, dikelompokkan per hari. Klik sebuah notifikasi menandainya dibaca lalu membuka halaman dan tab yang dimaksud. Membuka halaman tugas atau rapat juga menandai notifikasinya dibaca.
+- **Kapan seseorang diberi tahu** (tidak pernah untuk tindakannya sendiri):
+  - undangan menjadi panitia;
+  - tugas baru (penanggung jawab dan anggota tugas yang baru ditambahkan);
+  - komentar di tugas (pembuat, penanggung jawab, anggota tugas, dan yang pernah berkomentar);
+  - rapat baru, jadwal rapat berubah (hari, jam, tempat, atau seksi), dan rapat dibatalkan. Sasarannya seksi rapat dan subseksinya, atau semua panitia untuk rapat Pengurus Inti;
+  - notulen tersedia (hanya saat pertama disimpan);
+  - pengingat H-1 untuk tenggat tugas dan rapat.
+- Tabel baru: `notifications` (bawaan Laravel ditambah `event_id` dan `subject`).
+
+### Menyimpang dari rencana
+
+| Rencana | Dibuat | Alasan |
+| --- | --- | --- |
+| Notifikasi lewat queue | Ditulis langsung setelah commit (`DB::afterCommit`), dengan id UUIDv5 dari peristiwa dan orangnya sehingga tidak pernah ganda | Dev dan hosting tidak perlu worker queue; jumlah penerima kecil |
+| Pengingat lewat scheduler | Dibuat saat orang membuka halaman (paling sering sekali per jam per orang) | Notifikasi hanya terlihat di dalam aplikasi, jadi hasilnya sama tanpa cron |
+| Pengumuman dengan konfirmasi baca | Tidak dibuat | Komunikasi tetap lewat grup WhatsApp |
+| Preferensi, mention, tabel `comments` umum | Tidak dibuat | Satu saluran dan sedikit jenis notifikasi; komentar sudah memberi tahu semua yang terlibat |
+| Tugas selesai dan komentar rapat memberi notifikasi | Tidak | Dikurangi agar lonceng tidak ramai |
+
+### Keterbatasan
+
+- Tidak ada email, WhatsApp, atau push; notifikasi hanya terlihat saat membuka aplikasi.
+- Pengingat H-1 baru dibuat saat orang membuka aplikasi pada hari sebelumnya.
+- Notifikasi lama tidak dihapus otomatis.
+
+### Uji
+
+- Test baru: `tests/Feature/Notifications` (TaskNoticesTest 7, MeetingNoticesTest 7, RemindersTest 3, NotificationInboxTest 6).
+- `php artisan test --compact`: 554 lulus, 12 dilewati.
+- Uji browser `notice-check.js` pada SQLite baru: angka dan warna lonceng, isi dropdown, membuka notifikasi, halaman Notifikasi dan Tandai semua dibaca, dan ponsel 390 px tanpa scroll ke samping.
+- Migration diuji naik, turun, dan naik lagi pada SQLite sementara.

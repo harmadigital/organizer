@@ -14,6 +14,7 @@ use App\Models\EventRoleAssignment;
 use App\Models\EventRoleRule;
 use App\Models\User;
 use App\Services\AuditLogger;
+use App\Services\CommitteeNotifier;
 use App\Services\EventAccess;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -23,6 +24,7 @@ class AssignCommitteeRole
     public function __construct(
         private AuditLogger $audit,
         private EventAccess $access,
+        private CommitteeNotifier $notifier,
     ) {}
 
     /**
@@ -85,6 +87,8 @@ class AssignCommitteeRole
                 organizationId: $event->organization_id,
                 actor: $actor,
             );
+
+            $this->notifier->invited($membership->setRelation('event', $event)->setRelation('user', $person), $role, $division, $actor);
 
             return $assignment;
         });

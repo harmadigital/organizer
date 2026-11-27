@@ -105,6 +105,9 @@
                         <!--begin::Navbar-->
                         <div class="app-navbar flex-shrink-0">
                             @include('layouts.partials.event-switcher')
+                            @auth
+                                @include('layouts.partials.notification-bell')
+                            @endauth
                             <!--begin::User menu-->
                             <div class="app-navbar-item ms-1 ms-md-4" id="kt_header_user_menu_toggle">
                                 <!--begin::Menu wrapper-->
@@ -355,6 +358,7 @@
     <script src="{{ asset('assets/js/organizer/http.js') }}"></script>
     <script src="{{ asset('assets/js/organizer/date-picker.js') }}"></script>
     <script src="{{ asset('assets/js/organizer/select.js') }}"></script>
+    <script src="{{ asset('assets/js/organizer/notifications.js') }}"></script>
     @stack('vendor_js')
     @yield('script')
     @if (session()->has('success'))

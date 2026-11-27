@@ -318,6 +318,26 @@ input.is-invalid + input.form-control,
 .ui-calendar-badges    { display:flex; flex-wrap:wrap; gap:.35rem; margin-top:.5rem; }
 .ui-calendar-note      { margin-top:.75rem; padding:.75rem .9rem; border-radius:.475rem; background:#f6f7f7; overflow-wrap:anywhere; }
 
+/* Lonceng dan Notifikasi */
+.ui-bell-button        { width:40px !important; height:40px !important; }
+.ui-bell-button i, .ui-bell-button:hover i, .ui-bell-button:focus i { font-size:1.5rem; color:#fff !important; }
+.ui-bell-button i [class^="path"]::before { opacity:1 !important; color:#fff !important; }
+.ui-bell-count         { box-shadow:0 0 0 2px #fff; }
+.ui-bell-count         { position:absolute; top:-2px; right:-4px; min-width:1.15rem; height:1.15rem; padding:0 .3rem; border-radius:1rem; background:var(--bs-danger); color:#fff; font-size:.7rem; font-weight:700; line-height:1.15rem; text-align:center; }
+.ui-bell-menu          { width:360px; max-width:calc(100vw - 32px); }
+.ui-bell-list          { max-height:60vh; overflow-y:auto; padding:.35rem; }
+.ui-notice             { display:flex; align-items:flex-start; gap:.75rem; padding:.7rem .75rem; border-radius:.5rem; color:inherit; }
+.ui-notice:hover, .ui-notice:focus-visible { background:#f6f7f7; }
+.ui-notice-icon        { flex-shrink:0; width:2.25rem; height:2.25rem; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; }
+.ui-notice-body        { flex-grow:1; min-width:0; display:flex; flex-direction:column; }
+.ui-notice-title       { color:#3c434a; font-size:.92rem; overflow-wrap:anywhere; }
+.ui-notice.is-unread .ui-notice-title { color:#1d2327; font-weight:600; }
+.ui-notice-line        { color:#646970; font-size:.82rem; margin-top:.1rem; overflow-wrap:anywhere; }
+.ui-notice-meta        { color:#8c8f94; font-size:.75rem; margin-top:.2rem; }
+.ui-notice-dot         { flex-shrink:0; width:.55rem; height:.55rem; margin-top:.45rem; border-radius:50%; background:var(--bs-primary); }
+.ui-notice-list .ui-notice { border-bottom:1px dashed #e2e4e7; border-radius:0; }
+.ui-notice-list .ui-notice:last-child { border-bottom:0; }
+
 /* Menu aksi tambahan di header ("Lainnya") */
 .ui-action-menu        { min-width:12rem; padding:.4rem; border:1px solid #e2e4e7; border-radius:.6rem; box-shadow:0 .5rem 1.5rem rgba(0,0,0,.08); }
 .ui-action-menu .dropdown-item { padding:.6rem .85rem; border-radius:.4rem; font-weight:500; }

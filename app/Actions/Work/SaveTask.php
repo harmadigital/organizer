@@ -9,13 +9,17 @@ use App\Models\Task;
 use App\Models\User;
 use App\Models\WorkProgram;
 use App\Services\AuditLogger;
+use App\Services\CommitteeNotifier;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class SaveTask
 {
-    public function __construct(private AuditLogger $audit) {}
+    public function __construct(
+        private AuditLogger $audit,
+        private CommitteeNotifier $notifier,
+    ) {}
 
     /**
      * Create or update a task and its collaborators.
@@ -61,6 +65,16 @@ class SaveTask
 
             if (! $isNew) {
                 $task->children()->update(['division_id' => $task->division_id, 'work_program_id' => $task->work_program_id]);
+            }
+
+            $ownerChanged = $isNew || array_key_exists('owner_membership_id', $changed);
+            $newlyInvolved = [
+                ...($ownerChanged && $task->owner_membership_id !== null ? [$task->owner_membership_id] : []),
+                ...array_diff($assigneesAfter, $assigneesBefore),
+            ];
+
+            if ($newlyInvolved !== [] && ! $task->status->isClosed()) {
+                $this->notifier->taskAssigned($task->setRelation('event', $event), array_values($newlyInvolved), $actor);
             }
 
             if ($isNew || $changed !== [] || $assigneesAfter !== $assigneesBefore) {

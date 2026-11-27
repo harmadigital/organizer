@@ -5,12 +5,16 @@ namespace App\Actions\Meetings;
 use App\Models\Meeting;
 use App\Models\User;
 use App\Services\AuditLogger;
+use App\Services\CommitteeNotifier;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class DeleteMeeting
 {
-    public function __construct(private AuditLogger $audit) {}
+    public function __construct(
+        private AuditLogger $audit,
+        private CommitteeNotifier $notifier,
+    ) {}
 
     /**
      * A meeting whose minutes were written is part of the committee's record and stays.
@@ -35,6 +39,7 @@ class DeleteMeeting
                 actor: $actor,
             );
 
+            $this->notifier->meetingCancelled($meeting, $actor);
             $meeting->delete();
         });
     }

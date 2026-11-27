@@ -285,6 +285,7 @@ Setiap batch selesai jika memenuhi Definition of Done di spec bagian 12: migrati
 - **Tabel:** `coordination_requests`, `coordination_request_items`, `coordination_fulfillments`, `issues`, `risks`.
 - **Kriteria terima:** AC-06. Penolakan, revisi, dan pembatalan wajib beralasan. Ketua melihat request yang terhambat atau terlambat.
 - **Test:** transisi status; hanya seksi tujuan yang bisa acknowledge/fulfil dan hanya seksi asal yang bisa verifikasi; relasi origin pada tugas turunan.
+- **Status:** dibatalkan 27 Nov 2026 oleh pemilik produk. Aplikasi pada dasarnya dipakai saat rapat dan saat menyelesaikan tugas; alur permintaan antar-seksi serta daftar masalah dan risiko dinilai terlalu rumit dan tidak akan dipakai. Tidak ada tabel yang dibuat.
 
 #### Batch 1.7 — Repositori dokumen
 - **Lingkup:** penelusuran per event/seksi/kategori; metadata, tag, versi, status draft/final; pratinjau; pencarian; tingkat sensitivitas.
@@ -298,6 +299,7 @@ Setiap batch selesai jika memenuhi Definition of Done di spec bagian 12: migrati
 - **Tabel:** `notifications` (bawaan Laravel), `notification_preferences`, `announcements`, `announcement_reads`, `comments`.
 - **Kriteria terima:** notifikasi dikirim lewat queue setelah commit; pengiriman ulang job tidak menghasilkan notifikasi ganda; mention hanya untuk anggota yang berhak mengakses record; isi rahasia tidak masuk ke judul notifikasi.
 - **Test:** idempotensi dispatch; target pengumuman per scope; mention ke non-anggota ditolak.
+- **Status:** dikerjakan 27 Nov 2026 dalam versi sederhana, menunggu review. Ada lonceng dan halaman Notifikasi sebagai pengingat. Pengumuman tidak dibuat karena komunikasi tetap lewat grup WhatsApp. Tidak ada preferensi, mention, tabel komentar umum, atau queue: notifikasi ditulis langsung setelah commit, dan pengingat H-1 dibuat saat orang membuka aplikasi. Rincian di tracker bagian 27.
 
 #### Batch 1.9 — Worksheet per peran dan shell PWA
 - **Lingkup:** worksheet pribadi; control center Ketua; worksheet Sekretaris; workspace seksi; dashboard Pengawas (read-only); dashboard organisasi dasar; layout mobile, manifest, service worker, halaman offline, pembersihan cache saat logout.

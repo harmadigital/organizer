@@ -9,6 +9,7 @@ use App\Models\Meeting;
 use App\Models\Task;
 use App\Models\User;
 use App\Services\AuditLogger;
+use App\Services\CommitteeNotifier;
 use App\Services\RichText;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -33,6 +34,7 @@ class SaveMinutes
         private AuditLogger $audit,
         private SaveTask $saveTask,
         private RichText $richText,
+        private CommitteeNotifier $notifier,
     ) {}
 
     /**
@@ -111,6 +113,10 @@ class SaveMinutes
                 organizationId: $event->organization_id,
                 actor: $actor,
             );
+
+            if ($version === 1) {
+                $this->notifier->minutesPublished($meeting->setRelation('event', $event), $actor);
+            }
 
             return count($newActionItems);
         });

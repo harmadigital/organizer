@@ -13,8 +13,7 @@
         @endisset
     </x-slot:actions>
     <div class="ui-subnav nav">
-        <a @class(['nav-link', 'active' => request()->routeIs('events.overview')]) href="{{ route('events.overview', $event) }}">Ringkasan</a>
-        @can('viewCommittee', $event)
+        <a @class(['nav-link', 'active' => request()->routeIs('events.overview')]) href="{{ route('events.overview', $event) }}">Ringkasan</a>        @can('viewCommittee', $event)
             <a @class(['nav-link', 'active' => request()->routeIs('events.committee')]) href="{{ route('events.committee', $event) }}">Panitia</a>
         @endcan
         @can('viewWork', $event)

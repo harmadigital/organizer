@@ -17,6 +17,7 @@ use App\Http\Controllers\Master\RoleController;
 use App\Http\Controllers\Master\UserController;
 use App\Http\Controllers\Master\VenueController;
 use App\Http\Controllers\MyCalendarController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Organization\OrganizationProfileController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -225,6 +226,17 @@ Route::middleware(['auth:web', config('jetstream.auth_session'), 'verified', 'or
                 Route::post('/tasks/{task}/documents/{document}/delete', 'deleteDocument')->name('tasks.documents.delete');
             });
         });
+    });
+
+// The lonceng: a person's own notices from every event they belong to.
+Route::middleware(['auth:web', config('jetstream.auth_session'), 'verified', 'organization.configured'])
+    ->name('notifications.')
+    ->prefix('notifications')
+    ->controller(NotificationController::class)
+    ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/read-all', 'readAll')->name('read_all');
+        Route::get('/{notification}/open', 'open')->whereUuid('notification')->name('open');
     });
 
 // Kalender Saya: one person's calendar across their events. Kept outside the events. names so

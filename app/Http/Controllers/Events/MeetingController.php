@@ -21,6 +21,7 @@ use App\Models\MeetingComment;
 use App\Services\DisplayTime;
 use App\Services\MeetingAuthority;
 use App\Services\MinutesPdf;
+use App\Services\NotificationInbox;
 use App\Services\RichText;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
@@ -72,6 +73,7 @@ class MeetingController extends Controller
     {
         Gate::authorize('viewMeetings', $event);
 
+        app(NotificationInbox::class)->markSubjectRead($request->user(), 'meeting:'.$meeting->getKey());
         $meeting->load([
             'division:id,name',
             'minutesAuthor:id,name',

@@ -24,6 +24,7 @@ use App\Models\EventMembership;
 use App\Models\Task;
 use App\Models\TaskComment;
 use App\Services\DisplayTime;
+use App\Services\NotificationInbox;
 use App\Services\TaskAuthority;
 use App\Services\WorkProgress;
 use Illuminate\Contracts\View\View;
@@ -51,6 +52,7 @@ class TaskController extends Controller
         abort_unless($this->authority->canView($request->user(), $task), 403);
 
         $actor = $request->user();
+        app(NotificationInbox::class)->markSubjectRead($actor, 'task:'.$task->getKey());
         $task->load([
             'division:id,name',
             'program:id,title',

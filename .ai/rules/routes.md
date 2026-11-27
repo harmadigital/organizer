@@ -13,3 +13,6 @@ Under /events/{event}/tasks/{task}, the parameters {dependency}, {document} and 
 
 ## Kalender Saya is the only cross-event personal route
 Kalender Saya (calendar.*, /calendar) is the only cross-event route for one person. It sits outside the events. route names so the sidebar Event item does not light up, and it filters by the person's active memberships itself (CalendarFeed::forPerson). Everything about one event stays under /events/{event}; {calendarEntry} resolves through Event::calendarEntries().
+
+## Notifikasi is personal
+The lonceng routes (notifications.index, notifications.open/{uuid}, notifications.read_all) are personal and outside the events group; open only follows a same-site path (single leading slash) and 404s for notices of other people or of events the person left.

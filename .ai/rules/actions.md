@@ -25,3 +25,6 @@ Any uploaded file of an event (task evidence, media library) is stored with App\
 
 ## Kegiatan are saved only through SaveCalendarEntry and DeleteCalendarEntry
 Calendar kegiatan (calendar_entries) are written only by App\Actions\Calendar\SaveCalendarEntry (sets event and author, ends_on = starts_on when empty, clears times when starts_at is empty, audits calendar-entries.created/updated) and removed by DeleteCalendarEntry (hard delete, audited as calendar-entries.deleted). Who may do it is CalendarAuthority, checked by the caller.
+
+## Notices go only through CommitteeNotifier
+Lonceng notices are written only by App\Services\CommitteeNotifier (one method per fact) from the actions: SaveTask (new owner/collaborators), PostTaskComment, SaveMeeting (scheduled, or day/time/place/division changed), DeleteMeeting (cancelled, earlier notices removed), SaveMinutes (first version only), AssignCommitteeRole (invitation). Rows go into Laravel notifications after commit with a UUIDv5 id from the fact and the person (insertOrIgnore), never to the actor, never for a locked event, and never with comment or result text. Tomorrow reminders are written by remindersFor() when the person opens a page; there is no queue worker or scheduler.

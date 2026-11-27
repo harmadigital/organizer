@@ -20,8 +20,10 @@ use App\Models\Task;
 use App\Models\User;
 use App\Models\Venue;
 use App\Models\WorkProgram;
+use App\Services\CommitteeNotifier;
 use App\Services\CurrentOrganization;
 use App\Services\DisplayTime;
+use App\Services\NotificationInbox;
 use Illuminate\Database\Console\Migrations\FreshCommand;
 use Illuminate\Database\Console\Migrations\RefreshCommand;
 use Illuminate\Database\Console\Migrations\ResetCommand;
@@ -55,6 +57,32 @@ class AppServiceProvider extends ServiceProvider
         $this->prohibitDataLossCommands();
         $this->restrictPolymorphicTypes();
         $this->shareEventSwitcher();
+        $this->shareNotifications();
+    }
+
+    /**
+     * The lonceng in the header. Opening any page also writes the person's reminders for
+     * tomorrow (at most once an hour).
+     */
+    private function shareNotifications(): void
+    {
+        View::composer('layouts.partials.notification-bell', function ($view): void {
+            $user = Auth::user();
+
+            if ($user === null) {
+                $view->with(['bellUnread' => 0, 'bellNotices' => []]);
+
+                return;
+            }
+
+            $this->app->make(CommitteeNotifier::class)->remindersFor($user);
+            $inbox = $this->app->make(NotificationInbox::class);
+
+            $view->with([
+                'bellUnread' => $inbox->unreadCount($user),
+                'bellNotices' => $inbox->latest($user),
+            ]);
+        });
     }
 
     /**
