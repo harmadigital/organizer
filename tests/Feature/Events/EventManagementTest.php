@@ -209,7 +209,7 @@ class EventManagementTest extends TestCase
         $this->actingAs($viewer)->getJson(route('events.data', ['search' => 'retret']))->assertJsonPath('recordsFiltered', 1);
     }
 
-    public function test_the_overview_shows_profile_objectives_readiness_and_history(): void
+    public function test_the_overview_shows_profile_objectives_and_history_without_committee_panels(): void
     {
         $this->actingAs($this->organizer)->postJson(route('events.insert'), $this->payload())->assertCreated();
         $event = Event::query()->sole();
@@ -220,13 +220,11 @@ class EventManagementTest extends TestCase
             ->assertSee('Damai di Bumi')
             ->assertSee('Rp 75.000.000')
             ->assertSee('Target: 1.000 orang')
-            ->assertSee('Jabatan Wajib')
-            ->assertSee('data-required-role="Ketua" data-filled="1"', false)
-            ->assertSee('data-required-role="Bendahara" data-filled="0"', false)
-            ->assertSee('1/4')
             ->assertSee('Event dibuat sebagai Draf')
             ->assertSee('data-status-target="active"', false)
-            ->assertSeeInOrder(['ui-page-header', 'ui-subnav', 'ui-stat-card'], false);
+            ->assertSeeInOrder(['ui-page-header', 'ui-subnav', 'Profil Event'], false)
+            ->assertDontSee('ui-stat-card', false)
+            ->assertDontSee('data-readiness', false);
     }
 
     public function test_inside_an_event_the_sidebar_only_highlights_event_and_the_switcher_shows_it(): void

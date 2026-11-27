@@ -24,7 +24,6 @@ use App\Models\Venue;
 use App\Services\CurrentOrganization;
 use App\Services\DisplayTime;
 use App\Services\EventAccess;
-use App\Services\EventReadiness;
 use App\Services\MeetingAuthority;
 use App\Services\PeopleLookup;
 use App\Services\TaskAuthority;
@@ -123,23 +122,12 @@ class EventController extends Controller
         return $this->jsonSuccess(['id' => $event->getKey(), 'url' => route('events.overview', $event)], 201);
     }
 
-    public function overview(Request $request, Event $event, EventReadiness $readiness, DisplayTime $displayTime, TaskAuthority $work, WorkProgress $progress): View
+    public function overview(Request $request, Event $event, DisplayTime $displayTime, TaskAuthority $work, WorkProgress $progress): View
     {
         $event->load(['category', 'venue', 'unit', 'responsibleUser', 'objectives', 'statusHistories.actor']);
 
-        $members = $event->memberships()->selectRaw('status, count(*) as total')->groupBy('status')->pluck('total', 'status');
-        $requiredRoles = $readiness->requiredRoles($event);
-
         return view('events.overview', [
             'event' => $event,
-            'requiredRoles' => $requiredRoles,
-            'stats' => [
-                'active_members' => (int) ($members[MembershipStatus::Active->value] ?? 0),
-                'pending_invitations' => (int) ($members[MembershipStatus::Invited->value] ?? 0),
-                'divisions' => $event->divisions()->count(),
-                'required_filled' => $requiredRoles->where('is_filled', true)->count(),
-                'required_total' => $requiredRoles->count(),
-            ],
             'objectivesByType' => $event->objectives->groupBy(fn ($objective) => $objective->type->value),
             'objectiveTypes' => ObjectiveType::cases(),
             'history' => $event->statusHistories->map(fn ($entry): array => [

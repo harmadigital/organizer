@@ -270,11 +270,23 @@ input.is-invalid + input.form-control,
 .ui-attendance-column--present .ui-attendance-toggle:hover, .ui-attendance-column--present .ui-attendance-toggle:focus-visible { background:#f6f7f7; color:#b42335; border-color:#f1b8c0; }
 .ui-attendance-empty  { display:none; padding:1.25rem .75rem; text-align:center; color:#8c8f94; font-size:.85rem; }
 .ui-attendance-list:not(:has(.ui-attendance-person:not(.d-none))) .ui-attendance-empty { display:block; }
+.ui-choice-group--two { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+.ui-library-grid      { display:grid; grid-template-columns:repeat(auto-fill, minmax(210px, 1fr)); gap:1rem; }
+.ui-library-item      { display:flex; flex-direction:column; border:1px solid #e2e4e7; border-radius:.6rem; background:#fff; overflow:hidden; }
+.ui-library-thumb     { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.35rem; aspect-ratio:4 / 3; background:#f6f7f7; border-bottom:1px solid #eceef0; overflow:hidden; }
+.ui-library-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+.ui-library-thumb--document { background:#f0f6fc; }
+.ui-library-thumb--link { background:#f2f9fb; }
+.ui-library-ext       { color:#50575e; font-size:.75rem; font-weight:700; letter-spacing:.03em; max-width:90%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.ui-library-body      { padding:.7rem .8rem .3rem; min-width:0; }
+.ui-library-actions   { display:flex; gap:.4rem; padding:.5rem .8rem .8rem; }
 .ui-empty-state       { display:flex; flex-direction:column; align-items:center; text-align:center; padding:2.5rem 1rem; border:1px dashed #dcdcde; border-radius:.6rem; }
 
 /* Responsive */
 @media (max-width:991.98px){ .ui-detail-grid{ grid-template-columns:1fr; } }
 @media (max-width:767.98px){
+  .ui-choice-group--two{ grid-template-columns:1fr; }
+  .ui-library-grid{ grid-template-columns:repeat(2, minmax(0, 1fr)); gap:.6rem; }
   .ui-attendance{ grid-template-columns:1fr; }
   .ui-choice-group{ grid-template-columns:1fr; }
   [data-task-tabs], [data-meeting-tabs]{ flex-wrap:nowrap; overflow-x:auto; overflow-y:hidden; white-space:nowrap; }

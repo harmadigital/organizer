@@ -6,19 +6,16 @@ use App\Models\Document;
 use App\Models\Task;
 use App\Models\User;
 use App\Services\AuditLogger;
+use App\Services\DocumentStorage;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class AttachTaskDocument
 {
-    /**
-     * Private disk: files are only ever served through an authorized download route.
-     */
-    public const DISK = 'local';
-
-    public function __construct(private AuditLogger $audit) {}
+    public function __construct(
+        private AuditLogger $audit,
+        private DocumentStorage $storage,
+    ) {}
 
     /**
      * Store an uploaded file as a new document and link it to the task as evidence.
@@ -26,32 +23,20 @@ class AttachTaskDocument
     public function handle(Task $task, UploadedFile $file, ?string $title, User $actor): Document
     {
         $event = $task->event;
-        $path = $file->storeAs(
-            'events/'.$event->getKey().'/documents',
-            Str::uuid()->toString().'.'.strtolower($file->guessExtension() ?? $file->getClientOriginalExtension()),
-            self::DISK,
-        );
+        $path = $this->storage->put($event, $file);
 
         try {
             return DB::transaction(function () use ($task, $event, $file, $title, $actor, $path): Document {
                 $document = Document::create([
                     'organization_id' => $event->organization_id,
                     'event_id' => $event->getKey(),
-                    'title' => filled($title) ? trim($title) : pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME),
+                    'title' => filled($title) ? trim($title) : $this->storage->defaultTitle($file),
                     'category' => 'evidence',
                     'owner_user_id' => $actor->getKey(),
                 ]);
 
-                $version = $document->versions()->create([
-                    'version_no' => 1,
-                    'disk' => self::DISK,
-                    'path' => $path,
-                    'original_name' => $file->getClientOriginalName(),
-                    'mime_type' => $file->getMimeType(),
-                    'size_bytes' => $file->getSize(),
-                    'sha256' => hash_file('sha256', $file->getRealPath()),
-                    'uploaded_by' => $actor->getKey(),
-                ]);
+                $this->storage->recordVersion($document, $file, $path, $actor);
+                $version = $document->latestVersion()->first();
 
                 $task->documents()->attach($document->getKey(), ['purpose' => 'evidence', 'linked_by' => $actor->getKey()]);
 
@@ -73,7 +58,7 @@ class AttachTaskDocument
                 return $document;
             });
         } catch (\Throwable $exception) {
-            Storage::disk(self::DISK)->delete($path);
+            $this->storage->forget([$path]);
 
             throw $exception;
         }
@@ -96,7 +81,7 @@ class AttachTaskDocument
                 }
             });
         } catch (\Throwable $exception) {
-            Storage::disk(self::DISK)->delete(array_map(fn (Document $document) => $document->latestVersion->path, $documents));
+            $this->storage->forget(array_map(fn (Document $document) => $document->latestVersion->path, $documents));
 
             throw $exception;
         }

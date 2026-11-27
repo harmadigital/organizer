@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Events\CommitteeController;
 use App\Http\Controllers\Events\EventController;
+use App\Http\Controllers\Events\LibraryController;
 use App\Http\Controllers\Events\MeetingController;
 use App\Http\Controllers\Events\TaskController;
 use App\Http\Controllers\Events\WorkController;
@@ -169,6 +170,14 @@ Route::middleware(['auth:web', config('jetstream.auth_session'), 'verified', 'or
                 Route::get('/programs/{program}/show', 'showProgram')->name('programs.show');
                 Route::post('/programs/{program}/update', 'updateProgram')->name('programs.update');
                 Route::post('/programs/{program}/delete', 'deleteProgram')->name('programs.delete');
+            });
+
+            // {document} is resolved through Event::documents(); the controller only serves library items.
+            Route::controller(LibraryController::class)->group(function () {
+                Route::get('/library', 'index')->name('library');
+                Route::post('/library/insert', 'store')->name('library.insert');
+                Route::get('/library/{document}/download', 'download')->name('library.download');
+                Route::post('/library/{document}/delete', 'delete')->name('library.delete');
             });
 
             // {comment} under a meeting resolves through the meeting's own comments.

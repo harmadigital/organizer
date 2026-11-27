@@ -8,6 +8,7 @@ use App\Actions\Events\ChangeEventStatus;
 use App\Actions\Events\CreateDivisionsFromTemplates;
 use App\Actions\Events\SaveDivision;
 use App\Actions\Events\SaveEvent;
+use App\Actions\Library\AddLibraryItems;
 use App\Actions\Meetings\SaveMeeting;
 use App\Actions\Meetings\SaveMinutes;
 use App\Actions\Organization\ProvisionDefaultCommitteeRoles;
@@ -23,6 +24,7 @@ use App\Enums\UserStatus;
 use App\Models\CommitteeRole;
 use App\Models\Division;
 use App\Models\DivisionTemplate;
+use App\Models\Document;
 use App\Models\Event;
 use App\Models\EventCategory;
 use App\Models\Meeting;
@@ -84,6 +86,7 @@ class DemoSeeder extends Seeder
             $this->events($organization);
             $this->work($organization);
             $this->meetings($organization);
+            $this->library($organization);
         });
 
         $this->command?->info('Data demo siap. Akun demo memakai kata sandi: '.self::DEMO_PASSWORD);
@@ -461,5 +464,25 @@ class DemoSeeder extends Seeder
             'location' => 'Aula serbaguna',
             'agenda' => "Kesiapan tiap seksi\nGladi bersih",
         ], $organizer);
+    }
+
+    /**
+     * Two shared links in the Christmas event's media library. Added once: skipped when the
+     * library already has items.
+     */
+    private function library(Organization $organization): void
+    {
+        $christmas = Event::query()->forOrganization($organization)->where('code', 'DEMO-NATAL-2026')->first();
+
+        if ($christmas === null || $christmas->documents()->where('category', Document::LIBRARY)->exists()) {
+            return;
+        }
+
+        $add = app(AddLibraryItems::class);
+        $person = fn (string $name): User => User::query()->where('name', $name)->sole();
+        $division = fn (string $name): ?int => $christmas->divisions()->where('name', $name)->value('id');
+
+        $add->link($christmas, 'https://www.example.com/demo/draft-materi-acara', 'Draft materi acara', $division('Seksi Acara'), $person('Ruth Hutapea'));
+        $add->link($christmas, 'https://www.example.com/demo/referensi-dekorasi-natal', 'Referensi dekorasi Natal', $division('Seksi Perlengkapan'), $person('Maria Lestari'));
     }
 }

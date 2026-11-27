@@ -273,11 +273,16 @@
                                     <div class="ui-file-row" data-document-row="{{ $document->id }}">
                                         <i class="ki-duotone ki-document fs-2x text-primary"><span class="path1"></span><span class="path2"></span></i>
                                         <div class="flex-grow-1 min-w-0">
-                                            <a href="{{ route('events.tasks.documents.download', [$event, $task, $document]) }}" class="ui-task-title d-block text-truncate">{{ $document->title }}</a>
+                                            @php($fileUrl = route('events.tasks.documents.download', [$event, $task, $document]))
+                                            <a href="{{ $document->isPdf() ? $fileUrl.'?preview=1' : $fileUrl }}" @if ($document->isPdf()) target="_blank" rel="noopener" @endif class="ui-task-title d-block text-truncate">{{ $document->title }}</a>
                                             <div class="text-muted fs-8 text-truncate">
                                                 {{ $document->latestVersion?->original_name }} · {{ number_format(($document->latestVersion?->size_bytes ?? 0) / 1024, 0, ',', '.') }} KB · {{ $document->owner?->name }}
                                             </div>
                                         </div>
+                                        @if ($document->isPdf())
+                                            <a href="{{ $fileUrl }}?preview=1" target="_blank" rel="noopener" class="btn btn-sm btn-light-primary flex-shrink-0" data-document-preview>Lihat</a>
+                                        @endif
+                                        <a href="{{ $fileUrl }}" class="btn btn-sm btn-icon btn-light flex-shrink-0" title="Unduh" aria-label="Unduh {{ $document->title }}"><i class="las la-download fs-3"></i></a>
                                         @if ($event->isEditable() && ($canManage || ($canWork && $document->owner_user_id === auth()->id())))
                                             <button type="button" class="btn btn-sm btn-icon btn-light-danger flex-shrink-0" data-document-remove="{{ route('events.tasks.documents.delete', [$event, $task, $document]) }}"
                                                 data-title="{{ $document->title }}" title="Hapus file" aria-label="Hapus file {{ $document->title }}">

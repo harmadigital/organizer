@@ -186,9 +186,9 @@ class TaskController extends Controller
         $version = $document->latestVersion;
         abort_if($version === null || ! Storage::disk($version->disk)->exists($version->path), 404);
 
-        // Photos may be shown on the page as a preview; everything else is downloaded.
-        if ($request->boolean('preview') && in_array($version->mime_type, ['image/jpeg', 'image/png', 'image/webp'], true)) {
-            return Storage::disk($version->disk)->response($version->path, $version->original_name);
+        // Photos and PDFs may be opened in the browser; everything else is downloaded.
+        if ($request->boolean('preview') && $document->canPreview()) {
+            return Storage::disk($version->disk)->response($version->path, $version->original_name, ['X-Content-Type-Options' => 'nosniff']);
         }
 
         return Storage::disk($version->disk)->download($version->path, $version->original_name);

@@ -19,3 +19,6 @@ A task has no start or blocked step: it stays open (todo) until App\Actions\Work
 
 ## Minutes are saved only through SaveMinutes
 Meeting minutes, attendance, decisions and follow-ups are written in one call to App\Actions\Meetings\SaveMinutes: it locks the meeting row, refuses a save started from an older minutes_version (so double submits never create duplicate tasks), stores a meeting_minutes_versions row, replaces decisions, syncs attendees and turns each new follow-up into exactly one task (via SaveTask) in the meeting division or the core team. There are no invitations, RSVP or review steps.
+
+## Event files are stored through DocumentStorage
+Any uploaded file of an event (task evidence, media library) is stored with App\Services\DocumentStorage::put() on the private local disk and recorded with recordVersion(); delete stored paths with forget() if the surrounding transaction fails. Library items are documents with category library (kind file or link, optional division_id); task evidence has category evidence and is linked through document_links. Never serve one category through the other routes.

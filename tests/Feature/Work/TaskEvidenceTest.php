@@ -137,16 +137,22 @@ class TaskEvidenceTest extends TestCase
         $this->assertSame(2, $this->task->documents()->count());
     }
 
-    public function test_a_photo_can_be_shown_on_the_page_while_other_files_are_always_downloaded(): void
+    public function test_photos_and_pdfs_open_in_the_browser_while_office_files_are_downloaded(): void
     {
         $attach = $this->app->make(AttachTaskDocument::class);
         $photo = $attach->handle($this->task, UploadedFile::fake()->image('panggung.jpg'), null, $this->organizer);
         $pdf = $attach->handle($this->task, UploadedFile::fake()->create('nota.pdf', 10, 'application/pdf'), null, $this->organizer);
+        $word = $attach->handle($this->task, UploadedFile::fake()->create('surat.docx', 10, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'), null, $this->organizer);
+        $open = fn ($document) => $this->actingAs($this->worker)->get(route('events.tasks.documents.download', [$this->event, $this->task, $document, 'preview' => 1]))->assertOk();
 
-        $preview = $this->actingAs($this->worker)->get(route('events.tasks.documents.download', [$this->event, $this->task, $photo, 'preview' => 1]))->assertOk();
-        $this->assertStringStartsWith('inline', $preview->headers->get('Content-Disposition'));
+        $this->assertStringStartsWith('inline', $open($photo)->headers->get('Content-Disposition'));
 
-        $this->actingAs($this->worker)->get(route('events.tasks.documents.download', [$this->event, $this->task, $pdf, 'preview' => 1]))->assertDownload('nota.pdf');
+        $pdfResponse = $open($pdf);
+        $this->assertStringStartsWith('inline', $pdfResponse->headers->get('Content-Disposition'));
+        $this->assertSame('application/pdf', $pdfResponse->headers->get('Content-Type'));
+        $this->assertSame('nosniff', $pdfResponse->headers->get('X-Content-Type-Options'));
+
+        $open($word)->assertDownload('surat.docx');
     }
 
     public function test_every_committee_member_downloads_task_files_and_nobody_else(): void

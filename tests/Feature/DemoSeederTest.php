@@ -112,6 +112,7 @@ class DemoSeederTest extends TestCase
 
         $this->assertSame(['completed', 'todo'], $statuses);
         $this->assertSame(3, $christmas->tasks()->withCount('comments')->get()->sum('comments_count'));
+        $this->assertSame(['Draft materi acara', 'Referensi dekorasi Natal'], $christmas->documents()->where('category', 'library')->orderBy('title')->pluck('title')->all());
         $this->assertSame(3, $christmas->tasks()->whereNotNull('parent_id')->count());
         $this->assertSame(1, $christmas->tasks()->has('dependencies')->count());
         $this->assertSame(0, $christmas->tasks()->where('status', 'completed')->whereNull('result')->count());

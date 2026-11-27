@@ -9,8 +9,9 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * A stored file, possibly referenced by several records through document_links.
- * Files live on the private disk and are only served through an authorized route.
+ * A stored file or a link. Task evidence (category "evidence") is referenced by its task
+ * through document_links; items of the event's shared media library have category
+ * "library". Files live on the private disk and are only served through an authorized route.
  */
 class Document extends Model
 {
@@ -21,7 +22,40 @@ class Document extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = ['organization_id', 'event_id', 'title', 'category', 'sensitivity', 'owner_user_id'];
+    protected $fillable = ['organization_id', 'event_id', 'division_id', 'title', 'kind', 'url', 'category', 'sensitivity', 'owner_user_id'];
+
+    public const LIBRARY = 'library';
+
+    public function isLink(): bool
+    {
+        return $this->kind === 'link';
+    }
+
+    public function isImage(): bool
+    {
+        return ! $this->isLink() && in_array($this->latestVersion?->mime_type, ['image/jpeg', 'image/png', 'image/webp'], true);
+    }
+
+    public function isPdf(): bool
+    {
+        return ! $this->isLink() && $this->latestVersion?->mime_type === 'application/pdf';
+    }
+
+    /**
+     * Photos and PDFs open in the browser; office documents can only be downloaded.
+     */
+    public function canPreview(): bool
+    {
+        return $this->isImage() || $this->isPdf();
+    }
+
+    /**
+     * @return BelongsTo<Division, $this>
+     */
+    public function division(): BelongsTo
+    {
+        return $this->belongsTo(Division::class);
+    }
 
     /**
      * @return HasMany<DocumentVersion, $this>

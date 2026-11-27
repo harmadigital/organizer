@@ -6,6 +6,7 @@ use App\Enums\EventAbility;
 use App\Models\Event;
 use App\Models\User;
 use App\Services\EventAccess;
+use App\Services\LibraryAuthority;
 use App\Services\MeetingAuthority;
 use App\Services\TaskAuthority;
 
@@ -15,6 +16,7 @@ class EventPolicy
         private EventAccess $access,
         private TaskAuthority $work,
         private MeetingAuthority $meetings,
+        private LibraryAuthority $library,
     ) {}
 
     public function create(User $user): bool
@@ -78,5 +80,13 @@ class EventPolicy
     public function viewMeetings(User $user, Event $event): bool
     {
         return $this->meetings->canView($user, $event);
+    }
+
+    /**
+     * The "Media & Dokumen" tab.
+     */
+    public function viewLibrary(User $user, Event $event): bool
+    {
+        return $this->library->canView($user, $event);
     }
 }

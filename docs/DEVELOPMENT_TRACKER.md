@@ -1,7 +1,7 @@
 # Organizer — Development Tracker
 
 **Terakhir diperbarui:** 27 November 2026
-**Fase saat ini:** Phase 1, Batch 1.4 menunggu review (belum di-commit)
+**Fase saat ini:** Phase 1, Media & Dokumen (Batch 1.7 sederhana) menunggu review (belum di-commit)
 **Dokumen terkait:** [organizer.md](organizer.md) (master spec), [ui-ux_brief.md](ui-ux_brief.md) (acuan UI/UX), [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md), [DATA_MODEL.md](DATA_MODEL.md)
 
 Dokumen ini diperbarui di akhir setiap batch: status, migration, test yang benar-benar dijalankan beserta hasilnya, blocker, dan known issues.
@@ -30,10 +30,10 @@ Status yang dipakai: **Belum mulai**, **Dikerjakan**, **Menunggu review**, **Sel
 | 1.1 | Organisasi dan master data, ditambah penggabungan Anggota ke User (bagian 11) | Selesai (di-push ke `main` 27 Nov 2026) | – | – |
 | 1.2 | Event, kepanitiaan, kontrol akses | Selesai (di-merge ke `main` 27 Nov 2026) | AC-01, AC-02, AC-03 | – |
 | 1.3 | Program kerja, tugas, aktivitas, inti lampiran | Selesai (di `main`, commit 32e574a) | AC-01 (diperluas) | – |
-| 1.4 | Rapat, notulen, keputusan | Menunggu review (di `main`, belum di-commit) | AC-05 | – |
+| 1.4 | Rapat, notulen, keputusan | Selesai (di `main`, commit 730378a) | AC-05 | – |
 | 1.5 | Kalender terpusat | Belum mulai | AC-20 (sebagian) | – |
 | 1.6 | Koordinasi, isu, risiko | Belum mulai | AC-06 | – |
-| 1.7 | Repositori dokumen | Belum mulai | AC-18 (sebagian) | – |
+| 1.7 | Repositori dokumen | Versi sederhana "Media & Dokumen" menunggu review (dimajukan sebelum 1.5 atas permintaan pemilik produk) | AC-18 (sebagian) | – |
 | 1.8 | Notifikasi, pengumuman, komentar | Belum mulai | – | – |
 | 1.9 | Worksheet per peran, shell PWA | Belum mulai | AC-14 (sebagian), AC-22 | – |
 | 2.1 | Approval engine, delegasi, surat | Belum mulai | AC-12 | K-09, K-12 |
@@ -194,6 +194,8 @@ Seeder (`php artisan db:seed`) dijalankan di database dev pada 27 Nov 2026 setel
 | 27 Nov 2026 | Batch 1.4 | Rapat & Notulen tanpa undangan, RSVP, atau review. Rincian di bagian 21 |
 | 27 Nov 2026 | Batch 1.4 | Atas permintaan pemilik produk: editor notulen lengkap, unduh PDF, tab Absensi. Dependency baru `dompdf/dompdf` dan `symfony/html-sanitizer` (disetujui). Rincian di bagian 22 |
 | 27 Nov 2026 | Batch 1.4 | Atas permintaan pemilik produk: form notulen bertab, absensi terkunci setelah rapat selesai, tampilan absensi diperbaiki. Rincian di bagian 23 |
+| 27 Nov 2026 | Batch 1.4 | Di-commit ke `main` (730378a) tanpa baris co-author atas permintaan pemilik produk |
+| 27 Nov 2026 | Batch 1.7 | Media & Dokumen versi sederhana, dimajukan atas permintaan pemilik produk; baris kartu angka di Ringkasan event dihapus. Rincian di bagian 24 |
 
 ---
 
@@ -671,4 +673,26 @@ Uji: `php artisan test --compact` 455 lulus, 12 dilewati (test baru `AttendanceT
 Data demo dan test yang mencatat absensi rapat lampau kini menulisnya langsung, karena absensi rapat lampau terkunci.
 
 Uji: `php artisan test --compact` lulus penuh; `meetings-check.js` 42 pemeriksaan lulus dua kali berturut-turut, termasuk absensi terkunci pada rapat lampau dan tidak ada scroll horizontal di ponsel.
+
+---
+
+## 24. Media & Dokumen (Batch 1.7 versi sederhana) dan Ringkasan tanpa kartu angka (27 Nov 2026)
+
+Diminta pemilik produk: tempat bersama di setiap event untuk mengunggah foto/dokumen atau mengirim link, yang bisa dilakukan dan dilihat semua panitia. Contoh: tim dekorasi mengunggah foto "Contoh dekorasi", seksi acara mengirim link "Draft materi acara". Upload dibatasi gambar dan dokumen.
+
+| Area | Isi |
+|---|---|
+| Tab | **Media & Dokumen** di header event (route `events.library`) |
+| Tambah | Semua panitia aktif: unggah foto/dokumen (JPG, PNG, WEBP, PDF, Word, Excel, PowerPoint; maksimal 10 file × 10 MB sekali unggah; jenis diperiksa dari isi file) atau tambah link (hanya http/https), dengan judul dan seksi (bawaan: seksi pengunggah, kosong = Pengurus Inti). Beberapa file memakai judul yang sama; semua tersimpan atau tidak sama sekali |
+| Lihat | Semua panitia aktif (dan organisasi lewat DocumentView). Kartu galeri: pratinjau foto, ikon dan ekstensi untuk dokumen, domain untuk link; saring per jenis (Semua/Foto/Dokumen/Link), per seksi, dan cari judul |
+| Hapus | Pengunggahnya, atau pemegang DocumentManage untuk seksi item itu (bawaan: Sekretaris dan Bendahara untuk semua, koordinator seksi untuk seksinya; organisasi lewat `events.manage-work`). Dokumen diarsipkan (soft delete); file tetap tersimpan |
+| Penyimpanan | Tabel `documents` yang sama dengan bukti tugas, kategori `library`; kolom baru `division_id`, `kind` (file/link), `url` (migration `add_library_fields_to_documents_table`, sudah dijalankan di dev). File di disk privat lewat `DocumentStorage` (dipakai juga oleh unggah bukti tugas) dan diunduh lewat route yang memeriksa hak akses; bukti tugas tidak bisa diambil lewat route Media & Dokumen |
+| Audit | `library.files-added`, `library.link-added`, `library.removed` |
+| Pratinjau | Foto dan **PDF** terbuka langsung di browser (tombol **Lihat**, tab baru, penampil PDF bawaan browser) dan tetap bisa diunduh; berlaku juga untuk lampiran tugas. Word, Excel, dan PowerPoint hanya bisa diunduh karena browser tidak dapat menampilkannya tanpa layanan luar |
+| Data demo | Dua link: "Draft materi acara" (Seksi Acara) dan "Referensi dekorasi Natal" (Seksi Perlengkapan); sudah ditambahkan ke dev |
+| Ringkasan event | Baris kartu angka (Panitia Aktif, Menunggu Konfirmasi, Seksi, Jabatan Wajib Terisi) dan kartu Jabatan Wajib dihapus; susunan panitia dilihat di tab Panitia. Aturan aktivasi (AC-03) tetap ditegakkan di server: event tidak bisa diaktifkan selama ada jabatan wajib kosong, dan pesan errornya menyebut jabatannya |
+
+Belum termasuk dari rencana Batch 1.7 awal: versi dokumen, status draf/final, tag, dan tingkat kerahasiaan. Tambahkan bila nanti dibutuhkan.
+
+Uji: `php artisan test --compact` 468 lulus, 12 dilewati (test baru `tests/Feature/Library/LibraryTest`); `library-check.js` 15 pemeriksaan lulus (tanpa kartu angka di Ringkasan, tab baru, unggah dua foto dan pratinjau, link dan validasinya, saringan, panitia lain melihat semua item, ponsel tanpa scroll horizontal).
 

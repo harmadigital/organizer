@@ -23,6 +23,9 @@
         @can('viewMeetings', $event)
             <a @class(['nav-link', 'active' => request()->routeIs('events.meetings', 'events.meetings.*')]) href="{{ route('events.meetings', $event) }}">Rapat &amp; Notulen</a>
         @endcan
+        @can('viewLibrary', $event)
+            <a @class(['nav-link', 'active' => request()->routeIs('events.library', 'events.library.*')]) href="{{ route('events.library', $event) }}">Media &amp; Dokumen</a>
+        @endcan
     </div>
 </x-ui.page-header>
 

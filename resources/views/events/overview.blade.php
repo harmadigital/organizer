@@ -5,64 +5,8 @@
         @include('events.partials.header', ['actionsView' => 'events.partials.overview-actions'])
 
         <div class="row g-5">
-            @foreach ([
-                ['Panitia Aktif', $stats['active_members'], 'Sudah menerima undangan', 'primary', 'ki-people', 5],
-                ['Menunggu Konfirmasi', $stats['pending_invitations'], 'Undangan belum dijawab', 'warning', 'ki-time', 2],
-                ['Seksi', $stats['divisions'], 'Termasuk sub-seksi', 'info', 'ki-element-11', 4],
-                ['Jabatan Wajib Terisi', $stats['required_filled'].'/'.$stats['required_total'], 'Syarat untuk mengaktifkan event', $stats['required_filled'] === $stats['required_total'] ? 'success' : 'danger', 'ki-shield-tick', 3],
-            ] as [$label, $value, $footer, $tone, $icon, $paths])
-                <div class="col-sm-6 col-xl-3">
-                    <div class="ui-stat-card">
-                        <div class="d-flex align-items-center justify-content-between mb-3">
-                            <span class="ui-stat-label">{{ $label }}</span>
-                            <div class="ui-stat-icon ui-stat-icon--{{ $tone }}">
-                                <i class="ki-duotone {{ $icon }} fs-2">
-                                    @for ($path = 1; $path <= $paths; $path++)
-                                        <span class="path{{ $path }}"></span>
-                                    @endfor
-                                </i>
-                            </div>
-                        </div>
-                        <div class="ui-stat-value">{{ $value }}</div>
-                        <div class="ui-stat-footer">{{ $footer }}</div>
-                    </div>
-                </div>
-            @endforeach
-        </div>
-
-        <div class="row g-5">
             <div class="col-xl-8">
                 <div class="ui-detail-stack">
-                    @if ($requiredRoles->isNotEmpty())
-                        <div class="card ui-panel" data-readiness>
-                            <div class="card-header">
-                                <div class="card-title">
-                                    <h3>Jabatan Wajib</h3>
-                                </div>
-                            </div>
-                            <div class="card-body">
-                                <div class="ui-panel-description mt-0 mb-5">Event hanya dapat diaktifkan bila setiap jabatan wajib dipegang oleh panitia yang sudah menerima undangan.</div>
-                                <div class="row g-4">
-                                    @foreach ($requiredRoles as $requirement)
-                                        <div class="col-md-6">
-                                            <div class="d-flex align-items-center gap-3 border border-gray-300 rounded p-4" data-required-role="{{ $requirement['rule']->committeeRole->name }}" data-filled="{{ $requirement['is_filled'] ? '1' : '0' }}">
-                                                @if ($requirement['is_filled'])
-                                                    <i class="ki-duotone ki-check-circle fs-2 text-success"><span class="path1"></span><span class="path2"></span></i>
-                                                @else
-                                                    <i class="ki-duotone ki-cross-circle fs-2 text-danger"><span class="path1"></span><span class="path2"></span></i>
-                                                @endif
-                                                <div>
-                                                    <div class="fw-semibold text-gray-800">{{ $requirement['rule']->committeeRole->name }}</div>
-                                                    <div class="text-muted fs-7">{{ $requirement['is_filled'] ? $requirement['holders'].' orang' : 'Belum terisi' }}</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
-                    @endif
-
                     <div class="card ui-panel">
                         <div class="card-header">
                             <div class="card-title"><h3>Profil Event</h3></div>

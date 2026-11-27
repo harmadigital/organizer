@@ -290,6 +290,7 @@ Setiap batch selesai jika memenuhi Definition of Done di spec bagian 12: migrati
 - **Tabel:** memperluas tabel dokumen dari Batch 1.3; `document_tags`.
 - **Kriteria terima:** bagian AC-18 untuk lampiran privat. Dokumen final tidak bisa ditimpa, hanya diberi versi baru. Nama file disanitasi.
 - **Test:** akses per sensitivitas; versi; penolakan tipe file berbahaya.
+- **Status:** versi sederhana "Media & Dokumen" dikerjakan 27 Nov 2026, dimajukan sebelum Batch 1.5 atas permintaan pemilik produk (foto/dokumen/link oleh semua panitia, tanpa versi, status, tag, atau sensitivitas); rincian di tracker bagian 24.
 
 #### Batch 1.8 — Notifikasi, pengumuman, komentar
 - **Lingkup:** inbox notifikasi (baca/belum, tautan aksi); preferensi; pengumuman umum/per jabatan/per seksi dengan konfirmasi baca; komentar kontekstual dengan mention.
@@ -494,7 +495,7 @@ Asumsi lain yang dipakai dokumen ini:
 
 ## 12. Langkah setelah review
 
-1. Review hasil Batch 1.4 (tracker bagian 21).
+1. Review Media & Dokumen (tracker bagian 24).
 2. Batch 1.5 (kalender terpusat): rapat dan tenggat tugas dalam satu kalender.
 3. Koreksi model data di [DATA_MODEL.md](DATA_MODEL.md) bila ada.
 4. Pengerjaan berlanjut satu batch per iterasi, dengan tracker diperbarui di akhir setiap batch.
