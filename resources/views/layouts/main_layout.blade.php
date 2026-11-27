@@ -104,6 +104,7 @@
                         <!--end::Menu wrapper-->
                         <!--begin::Navbar-->
                         <div class="app-navbar flex-shrink-0">
+                            @include('layouts.partials.event-switcher')
                             <!--begin::User menu-->
                             <div class="app-navbar-item ms-1 ms-md-4" id="kt_header_user_menu_toggle">
                                 <!--begin::Menu wrapper-->
@@ -350,7 +351,10 @@
             }
         }
     </script>
+    <script src="{{ asset('assets/js/flatpickr-id.js') }}"></script>
     <script src="{{ asset('assets/js/organizer/http.js') }}"></script>
+    <script src="{{ asset('assets/js/organizer/date-picker.js') }}"></script>
+    <script src="{{ asset('assets/js/organizer/select.js') }}"></script>
     @stack('vendor_js')
     @yield('script')
     @if (session()->has('success'))

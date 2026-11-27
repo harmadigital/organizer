@@ -2,9 +2,21 @@
 
 namespace Database\Seeders;
 
+use App\Actions\Events\AssignCommitteeRole;
+use App\Actions\Events\ChangeEventPhase;
+use App\Actions\Events\ChangeEventStatus;
+use App\Actions\Events\CreateDivisionsFromTemplates;
+use App\Actions\Events\SaveDivision;
+use App\Actions\Events\SaveEvent;
 use App\Actions\Organization\ProvisionDefaultCommitteeRoles;
+use App\Enums\CommitteeRoleKind;
+use App\Enums\EventPhase;
+use App\Enums\EventStatus;
 use App\Enums\UserStatus;
+use App\Models\CommitteeRole;
+use App\Models\Division;
 use App\Models\DivisionTemplate;
+use App\Models\Event;
 use App\Models\EventCategory;
 use App\Models\Organization;
 use App\Models\OrganizationUnit;
@@ -16,7 +28,8 @@ use Spatie\Permission\Models\Role;
 
 /**
  * Fictional sample data for trying the application: units, people with and without
- * login access, a sample role, division templates, event categories and venues.
+ * login access, a sample role, division templates, event categories, venues, and two
+ * events with their committees (one active, one draft that still misses required roles).
  *
  * Run it on purpose with `php artisan db:seed --class=DemoSeeder`; DatabaseSeeder never
  * calls it. It only adds what is missing, so it is safe to run again, and it never
@@ -57,6 +70,7 @@ class DemoSeeder extends Seeder
             $this->divisionTemplates($organization);
             $this->eventCategories($organization);
             $this->venues($organization);
+            $this->events($organization);
         });
 
         $this->command?->info('Data demo siap. Akun demo memakai kata sandi: '.self::DEMO_PASSWORD);
@@ -225,6 +239,79 @@ class DemoSeeder extends Seeder
                 ['organization_id' => $organization->id, 'name' => $name],
                 ['address' => $address, 'capacity' => $capacity, 'notes' => $notes, 'is_active' => $isActive],
             );
+        }
+    }
+
+    /**
+     * Two events built through the application's own actions, so they obey every committee rule.
+     */
+    private function events(Organization $organization): void
+    {
+        $organizer = User::query()->where('username', 'demo.admin')->sole();
+        $person = fn (string $name): User => User::query()->where('email', str($name)->lower()->replace(' ', '.')->append('@'.self::EMAIL_DOMAIN)->value())->sole();
+        $role = fn (CommitteeRoleKind $kind): CommitteeRole => CommitteeRole::query()->forOrganization($organization)->where('kind', $kind)->sole();
+        $assign = fn (Event $event, string $name, CommitteeRoleKind $kind, ?Division $division = null, bool $accepted = true) => app(AssignCommitteeRole::class)
+            ->handle($event, $person($name), $role($kind), $division, true, null, $accepted, $organizer);
+
+        if (! Event::query()->forOrganization($organization)->where('code', 'DEMO-NATAL-2026')->exists()) {
+            $christmas = app(SaveEvent::class)->handle(new Event, [
+                'code' => 'DEMO-NATAL-2026',
+                'name' => 'Perayaan Natal 2026',
+                'theme' => 'Damai di Bumi',
+                'subtheme' => 'Lukas 2:14',
+                'event_category_id' => EventCategory::query()->forOrganization($organization)->where('name', 'Perayaan Hari Raya')->value('id'),
+                'venue_id' => Venue::query()->forOrganization($organization)->where('name', 'Gedung Gereja Utama')->value('id'),
+                'starts_on' => '2026-12-24',
+                'ends_on' => '2026-12-25',
+                'committee_starts_on' => '2026-10-01',
+                'committee_ends_on' => '2027-01-31',
+                'target_participants' => 800,
+                'budget_target_amount' => 75000000,
+                'description' => 'Ibadah malam Natal dan perayaan Natal jemaat. Data demo.',
+            ], [
+                ['type' => 'goal', 'description' => 'Merayakan kelahiran Kristus bersama seluruh jemaat.', 'target' => null],
+                ['type' => 'target', 'description' => 'Jemaat dewasa, remaja, dan anak.', 'target' => '800 orang'],
+                ['type' => 'indicator', 'description' => 'Kehadiran pada ibadah malam Natal.', 'target' => '700 orang'],
+            ], $organizer);
+
+            $templates = DivisionTemplate::query()->forOrganization($organization)
+                ->whereIn('name', ['Seksi Acara', 'Seksi Konsumsi', 'Seksi Perlengkapan', 'Seksi Multimedia & Sound'])
+                ->get();
+            app(CreateDivisionsFromTemplates::class)->handle($christmas, $templates, $organizer);
+            $division = fn (string $name): Division => $christmas->divisions()->where('name', $name)->sole();
+
+            $assign($christmas, 'Timotius Halim', CommitteeRoleKind::Chair);
+            $assign($christmas, 'Maria Lestari', CommitteeRoleKind::Secretary);
+            $assign($christmas, 'Debora Simanjuntak', CommitteeRoleKind::Treasurer);
+            $assign($christmas, 'Ester Manurung', CommitteeRoleKind::Supervisor);
+            $assign($christmas, 'Ruth Hutapea', CommitteeRoleKind::DivisionCoordinator, $division('Seksi Acara'));
+            $assign($christmas, 'Priskila Gultom', CommitteeRoleKind::DivisionMember, $division('Seksi Acara'));
+            $assign($christmas, 'Markus Wibowo', CommitteeRoleKind::DivisionCoordinator, $division('Seksi Multimedia & Sound'));
+            $assign($christmas, 'Daniel Kurniawan', CommitteeRoleKind::DivisionMember, $division('Seksi Multimedia & Sound'));
+
+            app(ChangeEventStatus::class)->handle($christmas, EventStatus::Active, 'Panitia inti sudah lengkap. Data demo.', $organizer);
+            app(ChangeEventPhase::class)->handle($christmas, EventPhase::Preparation, 'Data demo.', $organizer);
+        }
+
+        if (! Event::query()->forOrganization($organization)->where('code', 'DEMO-RETRET-2027')->exists()) {
+            $retreat = app(SaveEvent::class)->handle(new Event, [
+                'code' => 'DEMO-RETRET-2027',
+                'name' => 'Retret Pemuda 2027',
+                'theme' => 'Berakar dan Bertumbuh',
+                'event_category_id' => EventCategory::query()->forOrganization($organization)->where('name', 'Retret & Pembinaan')->value('id'),
+                'venue_id' => Venue::query()->forOrganization($organization)->where('name', 'Wisma Retret Bukit Doa')->value('id'),
+                'organization_unit_id' => OrganizationUnit::query()->forOrganization($organization)->where('name', 'Komisi Pemuda')->value('id'),
+                'starts_on' => '2027-03-12',
+                'ends_on' => '2027-03-14',
+                'target_participants' => 120,
+                'description' => 'Masih disusun: bendahara dan pengawas belum ditetapkan. Data demo.',
+            ], [], $organizer);
+
+            $program = app(SaveDivision::class)->handle($retreat, new Division, ['name' => 'Seksi Acara', 'sort_order' => 10], $organizer);
+
+            $assign($retreat, 'Lidia Pardede', CommitteeRoleKind::Chair);
+            $assign($retreat, 'Timotius Halim', CommitteeRoleKind::Secretary);
+            $assign($retreat, 'Samuel Tanoto', CommitteeRoleKind::DivisionCoordinator, $program, accepted: false);
         }
     }
 }

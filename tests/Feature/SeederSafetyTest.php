@@ -34,7 +34,7 @@ class SeederSafetyTest extends TestCase
     {
         $this->seed(DatabaseSeeder::class);
 
-        $custom = Permission::create(['name' => 'events.create', 'guard_name' => 'web']);
+        $custom = Permission::create(['name' => 'reports.export', 'guard_name' => 'web']);
         $customRole = Role::create(['name' => 'Panitia Pusat']);
         $customRole->givePermissionTo([$custom, 'users.view']);
         Role::findByName(PermissionSeeder::SUPER_ADMIN_ROLE)->givePermissionTo($custom);
@@ -43,10 +43,10 @@ class SeederSafetyTest extends TestCase
 
         $this->assertModelExists($custom);
         $this->assertEqualsCanonicalizing(
-            ['events.create', 'users.view'],
+            ['reports.export', 'users.view'],
             $customRole->fresh()->permissions->pluck('name')->all(),
         );
-        $this->assertTrue(Role::findByName(PermissionSeeder::SUPER_ADMIN_ROLE)->hasPermissionTo('events.create'));
+        $this->assertTrue(Role::findByName(PermissionSeeder::SUPER_ADMIN_ROLE)->hasPermissionTo('reports.export'));
     }
 
     public function test_the_organization_admin_role_manages_the_organization_and_its_people_but_not_roles(): void
@@ -56,7 +56,7 @@ class SeederSafetyTest extends TestCase
         $organizationAdmin = Role::findByName(PermissionSeeder::ORGANIZATION_ADMIN_ROLE);
 
         $this->assertEqualsCanonicalizing(
-            ['dashboard.view', ...PermissionSeeder::ORGANIZATION_PERMISSIONS, ...PermissionSeeder::PEOPLE_PERMISSIONS],
+            ['dashboard.view', ...PermissionSeeder::ORGANIZATION_PERMISSIONS, ...PermissionSeeder::PEOPLE_PERMISSIONS, ...PermissionSeeder::EVENT_PERMISSIONS],
             $organizationAdmin->permissions->pluck('name')->all(),
         );
         $this->assertTrue($organizationAdmin->hasPermissionTo('users.manage-access'));

@@ -1,7 +1,7 @@
 # Organizer — Development Tracker
 
 **Terakhir diperbarui:** 27 November 2026
-**Fase saat ini:** Phase 1, Batch 1.1 menunggu review
+**Fase saat ini:** Phase 1, Batch 1.2 menunggu review
 **Dokumen terkait:** [organizer.md](organizer.md) (master spec), [ui-ux_brief.md](ui-ux_brief.md) (acuan UI/UX), [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md), [DATA_MODEL.md](DATA_MODEL.md)
 
 Dokumen ini diperbarui di akhir setiap batch: status, migration, test yang benar-benar dijalankan beserta hasilnya, blocker, dan known issues.
@@ -15,7 +15,7 @@ Status yang dipakai: **Belum mulai**, **Dikerjakan**, **Menunggu review**, **Sel
 | Fase | Status | Catatan |
 |---|---|---|
 | Phase 0 — Audit dan perencanaan | Selesai | Disetujui 27 Nov 2026 bersama K-01 sampai K-04 |
-| Phase 1 — Core committee management | Dikerjakan | Batch 1.0 disetujui; Batch 1.1 menunggu review; Batch 1.2 berikutnya |
+| Phase 1 — Core committee management | Dikerjakan | Batch 1.0 dan 1.1 selesai; Batch 1.2 menunggu review; Batch 1.3 berikutnya |
 | Phase 2 — Finance, governance, reporting | Belum mulai | – |
 | Phase 3 — Advanced operational workflows | Belum mulai | Belum dirinci |
 | Phase 4 — Organizational intelligence | Belum mulai | Belum dirinci |
@@ -27,8 +27,8 @@ Status yang dipakai: **Belum mulai**, **Dikerjakan**, **Menunggu review**, **Sel
 | Batch | Lingkup | Status | Skenario AC | Blocker |
 |---|---|---|---|---|
 | 1.0 | Fondasi: locale, audit log, helper AJAX, lapisan `ui-*`, seeder aman, baseline test | Selesai (disetujui 27 Nov 2026) | – | – |
-| 1.1 | Organisasi dan master data, ditambah penggabungan Anggota ke User (bagian 11) | Menunggu review | – | – |
-| 1.2 | Event, kepanitiaan, kontrol akses | Belum mulai | AC-01, AC-02, AC-03 | – |
+| 1.1 | Organisasi dan master data, ditambah penggabungan Anggota ke User (bagian 11) | Selesai (di-push ke `main` 27 Nov 2026) | – | – |
+| 1.2 | Event, kepanitiaan, kontrol akses | Menunggu review (branch `batch-1.2-event-committee`, belum di-commit) | AC-01, AC-02, AC-03 | – |
 | 1.3 | Program kerja, tugas, aktivitas, inti lampiran | Belum mulai | – | – |
 | 1.4 | Rapat, notulen, keputusan | Belum mulai | AC-05 | – |
 | 1.5 | Kalender terpusat | Belum mulai | AC-20 (sebagian) | – |
@@ -52,9 +52,9 @@ Status yang dipakai: **Belum mulai**, **Dikerjakan**, **Menunggu review**, **Sel
 
 | ID | Skenario | Batch | Status |
 |---|---|---|---|
-| AC-01 | Akses lintas event lewat URL, API, file, export | 1.2, diperluas tiap batch | Belum |
-| AC-02 | User dengan jabatan berbeda di dua event | 1.2 | Belum |
-| AC-03 | Aktivasi tanpa jabatan wajib; event tanpa wakil | 1.2 | Belum |
+| AC-01 | Akses lintas event lewat URL, API, file, export | 1.2, diperluas tiap batch | Lulus (test otomatis, Batch 1.2) |
+| AC-02 | User dengan jabatan berbeda di dua event | 1.2 | Lulus (test otomatis, Batch 1.2) |
+| AC-03 | Aktivasi tanpa jabatan wajib; event tanpa wakil | 1.2 | Lulus (test otomatis, Batch 1.2) |
 | AC-04 | Clone event | 2.9 | Belum |
 | AC-05 | Notulen dipublikasikan, action item menjadi tugas | 1.4 | Belum |
 | AC-06 | Permintaan mikrofon antar-seksi | 1.6 | Belum |
@@ -142,6 +142,8 @@ Kolom terakhir menunjukkan status tiap temuan setelah Batch 1.0.
 | 27 Nov 2026 (K-15 + Role) | `php artisan test --compact` | 279 test: 267 lulus, 12 dilewati, 0 gagal (1.171 asersi) |
 | 27 Nov 2026 (K-15 + Role) | Chrome headless, 57 pemeriksaan termasuk login akun baru dan pencabutan akses di sesi browser kedua | Lulus penuh |
 | 27 Nov 2026 (Demo) | `php artisan test --compact` | 286 test: 274 lulus, 12 dilewati, 0 gagal (1.201 asersi) |
+| 27 Nov 2026 (Batch 1.2) | `php artisan test --compact` | 345 test: 333 lulus, 12 dilewati, 0 gagal |
+| 27 Nov 2026 (Batch 1.2) | Chrome headless, 36 pemeriksaan alur event dan kepanitiaan, dua akun | Lulus penuh |
 
 12 test yang dilewati adalah test bawaan Jetstream untuk fitur yang dinonaktifkan (registrasi, reset password, verifikasi email, API token).
 
@@ -156,6 +158,7 @@ Pengecekan browser dilakukan mulai Batch 1.1 (bagian 10). Skrip uji browser bers
 | Boilerplate | 6 migration bawaan (users, cache, jobs, two factor, personal access tokens, permission) | Ya, batch 1 | – |
 | 1.0 | `2026_11_27_080401_create_audit_logs_table` | Ya, batch 2 (dijalankan pemilik repo) | `down()` menghapus tabel `audit_logs`. Tabel baru, tidak menyentuh tabel lain |
 | K-15 | `2026_11_27_085355_drop_members_table`, `2026_11_27_085356_add_directory_columns_to_users_table` | Ya, batch 3 (dijalankan agen atas keputusan opsi B; `members` kosong saat itu) | Drop menolak jalan bila `members` berisi. Rollback `users` menolak jalan selama ada user tanpa username, email, atau password |
+| 1.2 | `create_events_table`, `create_event_objectives_table`, `create_event_status_histories_table`, `create_event_role_rules_table`, `create_divisions_table`, `create_event_memberships_table`, `create_event_role_assignments_table` | Ya, batch 4 (dijalankan pemilik repo) | Tujuh tabel baru; `migrate:rollback --step=7` sudah diuji |
 | 1.1 | `create_organizations_table`, `create_organization_units_table`, `create_members_table`, `create_committee_roles_table`, `create_division_templates_table`, `create_event_categories_table`, `create_venues_table`, `create_committee_role_abilities_table` (27 Nov 2026) | Ya, batch 2 (dijalankan pemilik repo) | Delapan tabel baru. Rollback harus berurutan terbalik karena foreign key; `migrate:rollback --step=8` sudah diuji |
 
 Semua migration sudah diuji naik, turun, dan naik lagi pada berkas SQLite sementara. Pernyataan SQL MySQL untuk Batch 1.0 diperiksa dengan `migrate --pretend`; untuk Batch 1.1 struktur tabel `members` di MySQL dicek langsung setelah migration dijalankan.
@@ -178,6 +181,9 @@ Seeder (`php artisan db:seed`) dijalankan di database dev pada 27 Nov 2026 setel
 | 27 Nov 2026 | Menu | Atas permintaan pemilik produk: grup menu baru "User & Akses" di bawah Dashboard berisi User dan Role & Permission |
 | 27 Nov 2026 | Role | Atas permintaan pemilik produk: halaman Role & Permission dibangun ulang dengan pola UI baru |
 | 27 Nov 2026 | Demo | `DemoSeeder` dibuat dan dijalankan di database dev atas permintaan pemilik produk untuk trial |
+| 27 Nov 2026 | Batch 1.2 | Event, kepanitiaan, dan hak akses per event. Rincian di bagian 13 |
+| 27 Nov 2026 | Menu | Atas permintaan pemilik produk: grup Organisasi menjadi Master Data (item datar, termasuk Profil Organisasi); grup Event (Event, Kategori Event) di paling bawah |
+| 27 Nov 2026 | UI | Atas permintaan pemilik produk: semua tanggal memakai flatpickr, semua dropdown memakai select2 (autocomplete untuk data dari server), form event menjadi stepper, bagan organisasi di modal layar penuh, susunan panitia sebagai tree view, menu event dihapus dari sidebar. Rincian di bagian 14 |
 
 ---
 
@@ -330,3 +336,63 @@ Akun demo (kata sandi `Demo-2026!`, khusus lingkungan lokal):
 | `demo.bendahara`, `demo.pemuda` | Tanpa role organisasi | Login tanpa menu admin; nantinya mendapat hak lewat jabatan panitia (Batch 1.2) |
 
 Dijalankan di database dev pada 27 Nov 2026: organisasi yang sudah ada dipakai, sehingga database kini berisi 13 user (12 demo + admin).
+
+---
+
+## 13. Hasil Batch 1.2 — Event, kepanitiaan, dan hak akses
+
+### Yang dibuat
+
+| Area | Isi |
+|---|---|
+| Event | Buat dan ubah event: identitas, tanggal, masa panitia, venue/lokasi, unit dan penanggung jawab, target peserta dan anggaran, tujuan/sasaran/indikator. Kode otomatis `EVT-<tahun>-<urut>` bila dikosongkan |
+| Status dan fase | Draf → Aktif → Selesai → Arsip, Batal dari Draf/Aktif, buka kembali dengan alasan. Fase bebas berpindah. Semua perubahan tercatat di riwayat status dan audit |
+| Gate aktivasi (AC-03) | Event tidak bisa diaktifkan selama ada jabatan wajib yang belum dipegang panitia yang sudah bersedia; pesan menyebut jabatannya. Wakil Ketua tidak wajib |
+| Aturan jabatan per event | Salinan aturan "wajib" dan "satu pemegang utama" diambil saat event dibuat, sehingga perubahan default di Master Data tidak mengubah event berjalan |
+| Kepanitiaan | Seksi dan sub-seksi (manual atau dari template), penugasan jabatan seluruh event atau per seksi, pemegang utama dan pendamping, uraian tugas, mengakhiri jabatan dengan alasan, mencabut keanggotaan |
+| Undangan | Orang yang ditugaskan diundang dan baru mendapat akses setelah menerima (halaman Event). Pengelola bisa mengonfirmasi atas nama orang tanpa akses login; konfirmasi tercatat atas nama pengelola |
+| Hak akses per event (AC-02) | `EventAccess` menggabungkan semua jabatan aktif seseorang; jabatan seksi hanya berlaku di seksinya dan sub-seksinya. Tidak ada pergantian peran |
+| Siapa menetapkan siapa | Ketua dan Pengawas ditetapkan organisasi (`events.manage-committee`); pengelola panitia (Ketua) menetapkan jabatan lain; koordinator seksi menambah anggota di seksinya |
+| Pemisahan kewenangan | Pengawas tidak bisa sekaligus menjadi pelaksana, dan sebaliknya. Tidak ada yang bisa mengeluarkan diri sendiri atau mengakhiri jabatannya sendiri |
+| Isolasi (AC-01) | Non-anggota mendapat 404 untuk semua route event; seksi, penugasan, dan keanggotaan event lain tidak bisa dicapai lewat URL event sendiri. Test otomatis mencakup setiap route ber-`{event}` |
+| Tampilan | Halaman Event (undangan, Event Saya, Semua Event), Ringkasan (kartu, jabatan wajib, profil, tujuan, riwayat), Panitia (bagan organisasi, pengurus inti, seksi), event switcher di header, menu konteks event di sidebar |
+| Permission organisasi | `events.view`, `events.create`, `events.update`, `events.manage-committee`, `events.change-status`; dimiliki Super Admin dan Organization Admin |
+| Data demo | Dua event: Perayaan Natal 2026 (aktif, panitia lengkap) dan Retret Pemuda 2027 (draf, Bendahara dan Pengawas kosong, undangan `demo.pemuda` menunggu) |
+
+Perubahan lintas modul: semua `ValidationException` dari aksi kini dijawab dalam envelope `{status, data, errors}` untuk AJAX, sehingga pesan aturan domain tampil di dialog.
+
+### Menyimpang dari rencana
+
+| Rencana | Yang dibuat | Alasan |
+|---|---|---|
+| Tabel `event_required_roles` | `event_role_rules` (kolom `is_required`, `is_singleton`) | Satu tabel untuk kedua aturan; nama lama menyesatkan karena tidak semua barisnya wajib |
+| Tabel `invitations` dengan tautan bertoken | Ditunda | Undangan dijawab di aplikasi; orang tanpa login dikonfirmasi pengelola. Tautan undangan lewat email butuh konfigurasi mail produksi |
+| Ubah aturan jabatan per event dari layar | Belum ada | Default dari Master Data sudah cukup untuk AC-03; layar pengaturan menyusul bila dibutuhkan |
+| Aktivasi oleh Ketua | Hanya organisasi (`events.change-status`) | Otorisasi event adalah keputusan organisasi; Ketua mengatur fase |
+| `event_objectives.actual_value` | Belum dibuat | Diisi saat evaluasi (Batch 2.8) |
+
+### Keterbatasan
+
+- Undangan belum memberi notifikasi; penerima melihatnya di halaman Event (notifikasi di Batch 1.8).
+- Halaman Panitia memuat ulang setelah setiap perubahan; cukup untuk ukuran panitia biasa.
+- Event tidak bisa dihapus, hanya dibatalkan atau diarsipkan.
+- Riwayat jabatan yang sudah berakhir tersimpan dan teraudit, tetapi belum ditampilkan sebagai daftar di layar.
+
+---
+
+## 14. Penyesuaian antarmuka (27 Nov 2026)
+
+Diminta pemilik produk saat review Batch 1.2.
+
+| Area | Perubahan |
+|---|---|
+| Tanggal | Semua input tanggal memakai flatpickr dari bundle Metronic dengan bahasa Indonesia (`public/assets/js/flatpickr-id.js`), termasuk di ponsel. Nilai dikirim `YYYY-MM-DD`, tampil "3 April 2027". Tanggal selesai tidak bisa dipilih sebelum tanggal mulai |
+| Dropdown | Semua `<select>` memakai select2 dengan teks bahasa Indonesia. Daftar yang diambil dari server memakai autocomplete dengan pencarian dan paging: orang (penanggung jawab event, tambah panitia) dan unit induk. Daftar orang tidak lagi dimuat penuh ke halaman |
+| Form event | Stepper lima langkah: Identitas, Waktu & Tempat, Sasaran, Deskripsi, Tujuan. Field wajib diperiksa sebelum lanjut; error dari server membawa form ke langkah yang bermasalah. Saat mengubah, Simpan tersedia di setiap langkah. Lebar kolom disesuaikan dengan isi |
+| Panitia | Susunan panitia berupa tree view yang bisa dibuka/tutup (Pengurus Inti → jabatan → orang; Seksi → sub-seksi → jabatan → orang). Bagan organisasi yang lebih rinci (pengawas, pendamping, anggota seksi, sub-seksi, status undangan) dibuka lewat tombol Lihat Bagan dalam modal layar penuh |
+| Sidebar | Menu Ringkasan/Panitia milik event dihapus dari sidebar; halaman event dibuka lewat tab di header dan event switcher |
+| Perilaku | Esc saat kalender atau dropdown terbuka hanya menutupnya, tidak menutup modal. Pesan error sebuah field hilang begitu field itu diubah. Pesan aturan domain dari server tampil di dialog (envelope JSON) |
+
+Penjaga otomatis: `FoundationTest` gagal bila ada view yang memakai input tanggal native atau `<select>` tanpa select2.
+
+Uji: `php artisan test --compact` 343 lulus; uji browser alur event 49 pemeriksaan dan stepper 32 pemeriksaan, lulus penuh pada database baru.

@@ -107,10 +107,29 @@ class OrganizationUnitTest extends MasterRecordTestCase
         $candidate = $this->createRecord(['name' => 'Calon Induk']);
         $this->createRecord(['name' => 'Organisasi Lain'], Organization::factory()->create());
 
-        $this->actingAs($this->manager())->getJson($this->url('options', ['except' => $editing->id]))
+        $child = $this->createRecord(['name' => 'Anak dari yang Diubah', 'parent_id' => $editing->id]);
+        $manager = $this->manager();
+
+        $this->actingAs($manager)->getJson($this->url('options', ['except' => $editing->id]))
             ->assertOk()
-            ->assertJsonCount(1, 'data')
-            ->assertJsonPath('data.0.id', $candidate->id);
+            ->assertJsonCount(1, 'data.results')
+            ->assertJsonPath('data.results.0.id', $candidate->id)
+            ->assertJsonPath('data.results.0.text', 'Calon Induk')
+            ->assertJsonPath('data.more', false);
+
+        $this->actingAs($manager)->getJson($this->url('options', ['search' => 'anak']))
+            ->assertJsonCount(1, 'data.results')
+            ->assertJsonPath('data.results.0.id', $child->id);
+    }
+
+    public function test_editing_a_unit_sends_its_parents_name_for_the_remote_dropdown(): void
+    {
+        $parent = $this->createRecord(['name' => 'Bidang Pembinaan']);
+        $child = $this->createRecord(['name' => 'Komisi Anak', 'parent_id' => $parent->id]);
+
+        $this->actingAs($this->manager())->getJson($this->url('show', [$child]))
+            ->assertJsonPath('data.parent_id', $parent->id)
+            ->assertJsonPath('data.parent_id_label', 'Bidang Pembinaan');
     }
 
     public function test_a_unit_with_users_cannot_be_deleted(): void

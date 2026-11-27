@@ -140,6 +140,34 @@ var OrganizerHttp = (function () {
     };
 
     /**
+     * Begitu field yang ditandai error diubah, tandanya hilang. Berlaku juga untuk flatpickr
+     * dan select2, yang memicu event change pada field aslinya.
+     */
+    var clearErrorOnChange = function (changeEvent) {
+        var field = changeEvent.target;
+
+        if (!field.classList || !field.classList.contains('is-invalid')) {
+            return;
+        }
+
+        field.classList.remove('is-invalid');
+
+        var row = field.closest('.fv-row') || field.parentNode;
+
+        row.querySelectorAll('[data-organizer-error]').forEach(function (message) {
+            message.remove();
+        });
+    };
+
+    document.addEventListener('input', clearErrorOnChange);
+    document.addEventListener('change', clearErrorOnChange);
+
+    // select2 memicu change lewat jQuery, yang tidak sampai ke listener addEventListener.
+    if (typeof jQuery !== 'undefined') {
+        jQuery(document).on('change', 'select', clearErrorOnChange);
+    }
+
+    /**
      * Tampilkan error sebagai dialog. Pesan dipasang sebagai teks, bukan HTML.
      */
     var showError = function (error) {

@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Events\CommitteeController;
+use App\Http\Controllers\Events\EventController;
 use App\Http\Controllers\Master\CommitteeRoleController;
 use App\Http\Controllers\Master\DivisionTemplateController;
 use App\Http\Controllers\Master\EventCategoryController;
@@ -114,3 +116,44 @@ Route::middleware(['auth:web', config('jetstream.auth_session'), 'verified'])->g
         });
     });
 });
+
+Route::middleware(['auth:web', config('jetstream.auth_session'), 'verified', 'organization.configured'])
+    ->name('events.')
+    ->prefix('events')
+    ->group(function () {
+        Route::get('/', [EventController::class, 'index'])->name('index');
+        Route::get('/data', [EventController::class, 'data'])->middleware('can:events.view')->name('data');
+        Route::post('/insert', [EventController::class, 'insert'])->middleware('can:events.create')->name('insert');
+        Route::get('/people-options', [EventController::class, 'peopleOptions'])->name('people_options');
+        Route::post('/{event}/invitation/{response}', [EventController::class, 'respondToInvitation'])
+            ->whereIn('response', ['accept', 'decline'])
+            ->name('invitation.respond');
+
+        // Everything below belongs to one event: people outside it get "not found", and
+        // a division, assignment or membership of another event cannot be reached through it.
+        Route::middleware('event.access')->prefix('{event}')->scopeBindings()->group(function () {
+            Route::controller(EventController::class)->group(function () {
+                Route::get('/', 'overview')->name('overview');
+                Route::get('/show', 'show')->name('show');
+                Route::post('/update', 'update')->name('update');
+                Route::post('/status', 'changeStatus')->name('status');
+                Route::post('/phase', 'changePhase')->name('phase');
+                Route::get('/people-options', 'eventPeopleOptions')->name('event_people_options');
+            });
+
+            Route::controller(CommitteeController::class)->group(function () {
+                Route::get('/committee', 'show')->name('committee');
+                Route::post('/divisions/insert', 'storeDivision')->name('divisions.insert');
+                Route::post('/divisions/from-templates', 'divisionsFromTemplates')->name('divisions.from_templates');
+                Route::get('/divisions/{division}/show', 'showDivision')->name('divisions.show');
+                Route::post('/divisions/{division}/update', 'updateDivision')->name('divisions.update');
+                Route::post('/divisions/{division}/delete', 'deleteDivision')->name('divisions.delete');
+                Route::post('/assignments/insert', 'assign')->name('assignments.insert');
+                Route::get('/assignments/{assignment}/show', 'showAssignment')->name('assignments.show');
+                Route::post('/assignments/{assignment}/update', 'updateAssignment')->name('assignments.update');
+                Route::post('/assignments/{assignment}/end', 'endAssignment')->name('assignments.end');
+                Route::post('/memberships/{membership}/confirm', 'confirmMembership')->name('memberships.confirm');
+                Route::post('/memberships/{membership}/revoke', 'revokeMembership')->name('memberships.revoke');
+            });
+        });
+    });

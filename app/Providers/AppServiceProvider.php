@@ -2,9 +2,15 @@
 
 namespace App\Providers;
 
+use App\Enums\EventStatus;
+use App\Enums\MembershipStatus;
 use App\Models\CommitteeRole;
+use App\Models\Division;
 use App\Models\DivisionTemplate;
+use App\Models\Event;
 use App\Models\EventCategory;
+use App\Models\EventMembership;
+use App\Models\EventRoleAssignment;
 use App\Models\Organization;
 use App\Models\OrganizationUnit;
 use App\Models\User;
@@ -16,6 +22,8 @@ use Illuminate\Database\Console\Migrations\RefreshCommand;
 use Illuminate\Database\Console\Migrations\ResetCommand;
 use Illuminate\Database\Console\WipeCommand;
 use Illuminate\Database\Eloquent\Relations\Relation;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Spatie\Permission\Models\Role;
 
@@ -41,6 +49,28 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->prohibitDataLossCommands();
         $this->restrictPolymorphicTypes();
+        $this->shareEventSwitcher();
+    }
+
+    /**
+     * Events the signed-in person serves in, for the switcher in the header.
+     */
+    private function shareEventSwitcher(): void
+    {
+        View::composer('layouts.partials.event-switcher', function ($view): void {
+            $user = Auth::user();
+            $organizationId = $this->app->make(CurrentOrganization::class)->id();
+
+            $view->with('switcherEvents', $user === null || $organizationId === null ? collect() : Event::query()
+                ->forOrganization($organizationId)
+                ->whereIn('status', [EventStatus::Draft, EventStatus::Active])
+                ->whereHas('memberships', fn ($memberships) => $memberships
+                    ->where('user_id', $user->getKey())
+                    ->where('status', MembershipStatus::Active))
+                ->orderBy('starts_on')
+                ->limit(8)
+                ->get(['id', 'organization_id', 'code', 'name', 'status']));
+        });
     }
 
     /**
@@ -73,6 +103,10 @@ class AppServiceProvider extends ServiceProvider
             'event_category' => EventCategory::class,
             'venue' => Venue::class,
             'role' => Role::class,
+            'event' => Event::class,
+            'division' => Division::class,
+            'event_membership' => EventMembership::class,
+            'event_role_assignment' => EventRoleAssignment::class,
         ]);
     }
 }

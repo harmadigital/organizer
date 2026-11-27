@@ -23,8 +23,8 @@
         </div>
         <div class="fv-row mb-7">
             <label class="fw-semibold fs-6 mb-2" for="master_parent_id">Unit Induk</label>
-            <select name="parent_id" id="master_parent_id" class="form-select form-select-solid" data-control="select2"
-                data-dropdown-parent="#kt_modal_master" data-placeholder="Tidak ada (unit tingkat atas)" data-allow-clear="true">
+            <select name="parent_id" id="master_parent_id" class="form-select form-select-solid"
+                data-select-remote="{{ route('master.organization_unit.options') }}" data-placeholder="Tidak ada (unit tingkat atas)" data-allow-clear="true">
                 <option></option>
             </select>
             <div class="fs-7 text-muted mt-2">Kosongkan bila unit ini berdiri langsung di bawah organisasi.</div>

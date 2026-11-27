@@ -7,8 +7,11 @@
             @if ($subtitle)
                 <p class="ui-page-subtitle">{{ $subtitle }}</p>
             @endif
+            @isset($meta)
+                <div class="d-flex flex-wrap align-items-center gap-2 mt-3">{{ $meta }}</div>
+            @endisset
         </div>
-        <div class="d-flex flex-shrink-0 align-items-center gap-3">
+        <div class="d-flex flex-shrink-0 flex-wrap justify-content-end align-items-center gap-3">
             {{ $actions ?? '' }}
             @if ($guide)
                 <button type="button" class="btn btn-icon btn-outline btn-outline-primary" data-bs-toggle="modal"

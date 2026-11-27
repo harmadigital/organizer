@@ -246,13 +246,14 @@ Setiap batch selesai jika memenuhi Definition of Done di spec bagian 12: migrati
 - **Catatan:** mengubah perilaku seeder menyentuh test `test_it_replaces_legacy_permissions_when_seeding_the_boilerplate`. Perlu persetujuan (K-04).
 
 #### Batch 1.1 — Organisasi dan master data
-- **Status:** dikerjakan 27 November 2026, menunggu review. Rincian hasil dan penyimpangan dari rencana di tracker bagian 10.
+- **Status:** selesai 27 November 2026. Rincian di tracker bagian 10 dan 11.
 - **Lingkup:** profil organisasi; unit/bidang pelayanan; direktori anggota (dengan atau tanpa akun); master jabatan panitia dan pemetaan ability; template seksi; kategori event; venue. Pencarian, filter, aktif/nonaktif, cek duplikasi.
 - **Tabel:** `organizations`, `organization_units`, `members`, `committee_roles`, `committee_role_abilities`, `division_templates`, `event_categories`, `venues`.
 - **Kriteria terima:** master yang sudah direferensikan tidak bisa dihapus, hanya dinonaktifkan; anggota bisa dibuat tanpa akun dan ditautkan ke akun belakangan; email/telepon duplikat ditolak dengan pesan jelas; seluruh akses dibatasi permission tingkat organisasi.
 - **Test:** CRUD per master (happy path, validasi, 403); larangan hapus saat direferensikan; tautan anggota–akun unik.
 
 #### Batch 1.2 — Event, kepanitiaan, dan kontrol akses
+- **Status:** dikerjakan 27 November 2026, menunggu review. Rincian dan penyimpangan di tracker bagian 13.
 - **Lingkup:** CRUD event dan tujuan/indikator; lifecycle status dan phase dengan histori; committee builder (jabatan, seksi/sub-seksi, koordinator, anggota, job description); undangan dan penerimaan; bagan organisasi; daftar event per user dan event switcher; `EventAccess`, Policy, middleware `event.access`; gate aktivasi.
 - **Tabel:** `events`, `event_objectives`, `event_status_history`, `event_required_roles`, `divisions`, `event_memberships`, `event_role_assignments`, `invitations`.
 - **Kriteria terima:** AC-01, AC-02, AC-03. Event tidak bisa diaktifkan jika jabatan wajib kosong; event tanpa wakil ketua sah. Pencabutan membership langsung menutup akses. Seksi induk harus dari event yang sama dan tidak boleh membentuk siklus.
@@ -491,7 +492,7 @@ Asumsi lain yang dipakai dokumen ini:
 
 ## 12. Langkah setelah review
 
-1. Review hasil Batch 1.1 dan penggabungan Anggota ke User (tracker bagian 10 dan 11).
-2. Batch 1.2 memakai `user_id` sebagai rujukan keanggotaan event.
+1. Review hasil Batch 1.2 (tracker bagian 13).
+2. Batch 1.3 (program kerja, tugas, aktivitas, lampiran) memakai `EventAccess` dan ability seksi yang sudah ada.
 3. Koreksi model data di [DATA_MODEL.md](DATA_MODEL.md) bila ada.
 4. Pengerjaan berlanjut satu batch per iterasi, dengan tracker diperbarui di akhir setiap batch.

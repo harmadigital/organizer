@@ -171,12 +171,15 @@ var OrganizerMasterCrud = (function () {
             dataTable.ajax.reload(null, false);
         };
 
-        var setFieldValue = function (field, value) {
+        var setFieldValue = function (field, value, record) {
             if (field instanceof RadioNodeList) {
                 return;
             }
 
-            if (field.type === 'checkbox') {
+            if (field.hasAttribute('data-select-remote')) {
+                // Pilihan remote belum ada di halaman; label dikirim server sebagai <field>_label.
+                OrganizerSelect.setValue(field, value, record[field.name + '_label']);
+            } else if (field.type === 'checkbox') {
                 field.checked = isTruthy(value);
             } else if (field.tagName === 'SELECT') {
                 $(field).val(value === null || value === undefined ? '' : String(value)).trigger('change');
@@ -190,7 +193,11 @@ var OrganizerMasterCrud = (function () {
             OrganizerHttp.clearFieldErrors(form);
 
             form.querySelectorAll('select').forEach(function (select) {
-                $(select).trigger('change');
+                if (select.hasAttribute('data-select-remote')) {
+                    OrganizerSelect.reset(select);
+                } else {
+                    $(select).trigger('change');
+                }
             });
 
             if (config.onReset) {
@@ -203,7 +210,7 @@ var OrganizerMasterCrud = (function () {
                 var field = form.elements[name];
 
                 if (field) {
-                    setFieldValue(field, record[name]);
+                    setFieldValue(field, record[name], record);
                 }
             });
 

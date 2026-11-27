@@ -2,14 +2,18 @@
 
 namespace Tests\Feature;
 
+use App\Enums\EventStatus;
+use App\Enums\MembershipStatus;
 use App\Enums\UserStatus;
 use App\Models\CommitteeRole;
 use App\Models\DivisionTemplate;
+use App\Models\Event;
 use App\Models\EventCategory;
 use App\Models\Organization;
 use App\Models\OrganizationUnit;
 use App\Models\User;
 use App\Models\Venue;
+use App\Services\EventReadiness;
 use Database\Seeders\DatabaseSeeder;
 use Database\Seeders\DemoSeeder;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
@@ -34,6 +38,7 @@ class DemoSeederTest extends TestCase
             'division_templates' => DivisionTemplate::query()->count(),
             'event_categories' => EventCategory::query()->count(),
             'venues' => Venue::query()->count(),
+            'events' => Event::query()->count(),
         ];
     }
 
@@ -50,6 +55,7 @@ class DemoSeederTest extends TestCase
             'division_templates' => 10,
             'event_categories' => 6,
             'venues' => 6,
+            'events' => 2,
         ], $this->counts());
 
         $organization = Organization::query()->sole();
@@ -70,6 +76,21 @@ class DemoSeederTest extends TestCase
         $this->assertTrue(User::query()->where('username', 'demo.admin')->sole()->hasRole('Organization Admin'));
         $this->assertTrue(User::query()->where('username', 'demo.sekretariat')->sole()->hasRole(DemoSeeder::SAMPLE_ROLE));
         $this->assertFalse(User::query()->where('name', 'Ruth Hutapea')->sole()->canSignIn());
+    }
+
+    public function test_it_adds_an_active_event_and_a_draft_that_still_misses_required_roles(): void
+    {
+        $this->seed(DemoSeeder::class);
+
+        $christmas = Event::query()->where('code', 'DEMO-NATAL-2026')->sole();
+        $retreat = Event::query()->where('code', 'DEMO-RETRET-2027')->sole();
+
+        $this->assertSame(EventStatus::Active, $christmas->status);
+        $this->assertSame(4, $christmas->divisions()->count());
+        $this->assertSame(8, $christmas->assignments()->active()->count());
+        $this->assertSame(EventStatus::Draft, $retreat->status);
+        $this->assertSame(['Bendahara', 'Komite / Pengawas'], app(EventReadiness::class)->missingRequiredRoles($retreat));
+        $this->assertSame(MembershipStatus::Invited, $retreat->memberships()->whereHas('user', fn ($user) => $user->where('username', 'demo.pemuda'))->sole()->status);
     }
 
     public function test_demo_accounts_can_sign_in_with_the_demo_password(): void

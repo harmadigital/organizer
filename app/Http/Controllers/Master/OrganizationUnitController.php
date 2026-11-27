@@ -34,22 +34,45 @@ class OrganizationUnitController extends MasterRecordController
     }
 
     /**
-     * Units that may be chosen as a parent, for the form's select box.
+     * Units that may be chosen as a parent, for the form's remote dropdown. The unit being
+     * edited and the units below it are left out, since choosing them would form a cycle.
      */
     public function options(Request $request): JsonResponse
     {
-        $units = OrganizationUnit::query()
-            ->forOrganization($this->organization->id())
-            ->when($request->integer('except'), fn ($query, int $unitId) => $query->whereKeyNot($unitId))
-            ->orderBy('name')
-            ->get(['id', 'name', 'is_active']);
+        $perPage = 20;
+        $excluded = [];
 
-        return $this->jsonSuccess($units);
+        if ($request->filled('except')) {
+            $unit = OrganizationUnit::query()->forOrganization($this->organization->id())->find($request->integer('except'));
+            $excluded = $unit === null ? [] : [$unit->getKey(), ...$unit->descendantIds()];
+        }
+
+        $query = OrganizationUnit::query()
+            ->forOrganization($this->organization->id())
+            ->whereKeyNot($excluded)
+            ->orderBy('name')
+            ->orderBy('id');
+
+        $this->applySearch($query, $request->string('search')->trim()->value());
+
+        $units = $query->forPage(max(1, $request->integer('page', 1)), $perPage + 1)->get(['id', 'name', 'is_active']);
+
+        return $this->jsonSuccess([
+            'results' => $units->take($perPage)->map(fn (OrganizationUnit $unit): array => [
+                'id' => $unit->getKey(),
+                'text' => $unit->name,
+                'description' => $unit->is_active ? null : 'Nonaktif',
+            ])->values()->all(),
+            'more' => $units->count() > $perPage,
+        ]);
     }
 
     public function show(OrganizationUnit $organizationUnit): JsonResponse
     {
-        return $this->jsonSuccess($organizationUnit);
+        return $this->jsonSuccess([
+            ...$organizationUnit->toArray(),
+            'parent_id_label' => $organizationUnit->parent?->name,
+        ]);
     }
 
     public function insert(SaveOrganizationUnitRequest $request): JsonResponse

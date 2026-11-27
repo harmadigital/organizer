@@ -42,6 +42,7 @@ class PermissionSeeder extends Seeder
         'permissions.update',
         'permissions.delete',
         ...self::ORGANIZATION_PERMISSIONS,
+        ...self::EVENT_PERMISSIONS,
     ];
 
     /**
@@ -72,6 +73,20 @@ class PermissionSeeder extends Seeder
         'venues.create',
         'venues.update',
         'venues.delete',
+    ];
+
+    /**
+     * Running events across the organization. Inside an event, what someone may do
+     * comes from their committee roles; these permissions reach every event.
+     *
+     * @var list<string>
+     */
+    public const EVENT_PERMISSIONS = [
+        'events.view',
+        'events.create',
+        'events.update',
+        'events.manage-committee',
+        'events.change-status',
     ];
 
     /**
@@ -130,7 +145,7 @@ class PermissionSeeder extends Seeder
             ->givePermissionTo(self::PERMISSIONS);
 
         Role::firstOrCreate(['name' => self::ORGANIZATION_ADMIN_ROLE, 'guard_name' => 'web'])
-            ->givePermissionTo(['dashboard.view', ...self::ORGANIZATION_PERMISSIONS, ...self::PEOPLE_PERMISSIONS]);
+            ->givePermissionTo(['dashboard.view', ...self::ORGANIZATION_PERMISSIONS, ...self::PEOPLE_PERMISSIONS, ...self::EVENT_PERMISSIONS]);
 
         $registrar->forgetCachedPermissions();
     }

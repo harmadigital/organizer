@@ -1,10 +1,8 @@
-@extends('layouts.main_layout', ['title' => 'Kategori Event', 'breadcrum' => ['Master Data', 'Kategori Event']])
+@extends('layouts.main_layout', ['title' => 'Kategori Event', 'breadcrum' => ['Event', 'Kategori Event']])
 
 @section('content')
     <div class="ui-page">
-        <x-ui.page-header title="Master Data" subtitle="Data acuan yang dipakai saat membentuk event dan kepanitiaan." guide="#kt_modal_guide">
-            @include('master.partials.subnav')
-        </x-ui.page-header>
+        <x-ui.page-header title="Kategori Event" subtitle="Pengelompokan event sejenis untuk penyaringan dan perbandingan dari tahun ke tahun." guide="#kt_modal_guide" />
 
         <div class="card ui-panel">
             <div class="card-body">

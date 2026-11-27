@@ -66,7 +66,9 @@ Catatan:
 
 ---
 
-## 4. Event dan kepanitiaan (Batch 1.2)
+## 4. Event dan kepanitiaan (Batch 1.2, sudah dibuat)
+
+Yang benar-benar dibuat berbeda dari usulan awal di bawah dalam tiga hal: aturan jabatan per event bernama `event_role_rules` (kolom `is_required`, `is_singleton`, tanpa `max_holders`); tabel `invitations` ditunda (undangan dijawab di aplikasi lewat status keanggotaan); riwayat status bernama `event_status_histories`. Keunikan penugasan aktif dan pemegang utama ditegakkan database lewat kolom `active_key` dan `primary_key` yang terisi selama penugasan aktif. Keanggotaan dan seksi pada penugasan, serta induk seksi, memakai foreign key komposit `(id, event_id)` sehingga tidak bisa merujuk event lain.
 
 ```mermaid
 erDiagram

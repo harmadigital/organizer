@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Organization;
 use App\Models\User;
 use App\Providers\AppServiceProvider;
 use App\Services\DisplayTime;
@@ -11,6 +12,7 @@ use Illuminate\Database\Console\Migrations\RefreshCommand;
 use Illuminate\Database\Console\Migrations\ResetCommand;
 use Illuminate\Database\Console\WipeCommand;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Tests\TestCase;
 
@@ -79,9 +81,14 @@ class FoundationTest extends TestCase
             'assets/css/style.bundle.css',
             'assets/css/ui.css',
             'assets/js/scripts.bundle.js',
+            'assets/js/flatpickr-id.js',
             'assets/js/organizer/http.js',
+            'assets/js/organizer/date-picker.js',
+            'assets/js/organizer/select.js',
             'assets/js/master/role.js',
         ], false);
+        $this->assertFileExists(public_path('assets/js/flatpickr-id.js'));
+        $this->assertFileExists(public_path('assets/js/organizer/date-picker.js'));
         $this->assertFileExists(public_path('assets/css/ui.css'));
         $this->assertFileExists(public_path('assets/js/organizer/http.js'));
     }
@@ -97,27 +104,32 @@ class FoundationTest extends TestCase
             ->assertSee(route('master.role.index'), false);
     }
 
-    public function test_user_and_role_management_have_their_own_menu_group_right_below_the_dashboard(): void
+    public function test_the_sidebar_groups_follow_the_agreed_order(): void
     {
         $this->seed(DatabaseSeeder::class);
+        Organization::factory()->create();
         $admin = User::query()->where('username', 'superadmin')->sole();
 
-        $response = $this->actingAs($admin)->get(route('master.role.index'))->assertOk();
+        $response = $this->actingAs($admin)->get(route('dashboard.index'))->assertOk();
 
         $response->assertDontSee('Master User &amp; Role', false)
-            ->assertDontSee('Master &amp; Seting', false)
+            ->assertDontSee('>Organisasi</span>', false)
+            ->assertDontSee('menu-accordion', false)
             ->assertSeeInOrder([
                 '<span class="menu-title">Dashboard</span>',
-                'User &amp; Akses',
+                '>User &amp; Akses</span>',
                 route('master.user.index'),
                 route('master.role.index'),
-                '>Organisasi</span>',
-                '<span class="menu-title">Master Data</span>',
+                '>Master Data</span>',
+                route('organization.profile.index'),
+                route('master.organization_unit.index'),
+                route('master.committee_role.index'),
+                route('master.division_template.index'),
+                route('master.venue.index'),
+                '>Event</span>',
+                route('events.index'),
+                route('master.event_category.index'),
             ], false);
-
-        $masterDataGroup = str($response->getContent())->after('<span class="menu-title">Master Data</span>')->before('<!--end:Menu sub-->');
-        $this->assertFalse($masterDataGroup->contains(route('master.user.index')));
-        $this->assertFalse($masterDataGroup->contains(route('master.role.index')));
     }
 
     public function test_a_user_manager_sees_only_the_user_menu(): void
@@ -131,7 +143,7 @@ class FoundationTest extends TestCase
             ->assertSee('User &amp; Akses', false)
             ->assertSee(route('master.user.index'), false)
             ->assertDontSee(route('master.role.index'), false)
-            ->assertDontSee('<span class="menu-title">Master Data</span>', false)
+            ->assertDontSee('>Master Data</span>', false)
             ->assertDontSee(route('organization.profile.index'), false);
     }
 
@@ -146,6 +158,34 @@ class FoundationTest extends TestCase
             ->assertSee('Dashboard')
             ->assertDontSee(route('master.user.index'), false)
             ->assertDontSee(route('master.role.index'), false);
+    }
+
+    public function test_no_view_uses_the_browsers_native_date_or_time_inputs(): void
+    {
+        $offenders = collect(File::allFiles(resource_path('views')))
+            ->filter(fn ($file) => preg_match('/type=["\'](date|datetime-local|time|month|week)["\']/i', $file->getContents()) === 1)
+            ->map(fn ($file) => $file->getRelativePathname())
+            ->values()
+            ->all();
+
+        $this->assertSame([], $offenders, 'Use <input type="text" data-date-picker> (flatpickr) instead of native date inputs.');
+    }
+
+    public function test_every_dropdown_is_select2_and_remote_ones_use_autocomplete(): void
+    {
+        $offenders = [];
+
+        foreach (File::allFiles(resource_path('views')) as $file) {
+            preg_match_all('/<select\b[^>]*>/s', $file->getContents(), $matches);
+
+            foreach ($matches[0] as $tag) {
+                if (! str_contains($tag, 'data-control="select2"') && ! str_contains($tag, 'data-select-remote=')) {
+                    $offenders[] = $file->getRelativePathname();
+                }
+            }
+        }
+
+        $this->assertSame([], array_values(array_unique($offenders)), 'Every <select> needs data-control="select2", or data-select-remote when its options come from the server.');
     }
 
     public function test_a_guest_opening_the_home_page_is_sent_to_login(): void

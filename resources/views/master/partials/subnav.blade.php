@@ -11,10 +11,6 @@
         <a class="nav-link {{ request()->routeIs('master.division_template.*') ? 'active' : '' }}"
             href="{{ route('master.division_template.index') }}">Template Seksi</a>
     @endcan
-    @can('event-categories.view')
-        <a class="nav-link {{ request()->routeIs('master.event_category.*') ? 'active' : '' }}"
-            href="{{ route('master.event_category.index') }}">Kategori Event</a>
-    @endcan
     @can('venues.view')
         <a class="nav-link {{ request()->routeIs('master.venue.*') ? 'active' : '' }}"
             href="{{ route('master.venue.index') }}">Venue</a>
