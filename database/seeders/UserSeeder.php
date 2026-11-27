@@ -5,66 +5,52 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\PermissionRegistrar;
 
 class UserSeeder extends Seeder
 {
+    private const LOCAL_ONLY_PASSWORD = '123123123';
+
     /**
-     * Run the database seeds.
+     * Create the first administrator account when it does not exist yet.
      */
     public function run(): void
     {
-        // Reset cached roles and permissions
-        app()[PermissionRegistrar::class]->forgetCachedPermissions();
+        $password = $this->resolvePassword();
 
-        $permissions = [
-            'dashboard.view',
-            'users.view',
-            'users.create',
-            'users.update',
-            'users.delete',
-            'users.reset-two-factor',
-            'roles.view',
-            'roles.create',
-            'roles.update',
-            'roles.delete',
-            'permissions.view',
-            'permissions.create',
-            'permissions.update',
-            'permissions.delete',
-        ];
+        if ($password === null) {
+            $this->command?->warn('Administrator account not seeded: set SEED_ADMIN_PASSWORD to create it in this environment.');
 
-        Permission::query()->delete();
-
-        foreach ($permissions as $permission) {
-            Permission::create([
-                'name' => $permission,
-                'guard_name' => 'web',
-            ]);
+            return;
         }
 
-        app()[PermissionRegistrar::class]->forgetCachedPermissions();
+        $admin = config('organizer.seed_admin');
 
-        $role = Role::firstOrCreate(['name' => 'Super Admin']);
-        $role->syncPermissions($permissions);
-
-        // create user and assign role
         $user = User::firstOrCreate(
             [
-                'email' => 'admin@boilerplate.com',
-                'username' => 'superadmin',
+                'email' => $admin['email'],
+                'username' => $admin['username'],
             ],
             [
-                'name' => 'Super Admin',
-                'password' => Hash::make('123123123'),
+                'name' => $admin['name'],
+                'password' => Hash::make($password),
                 'email_verified_at' => now(),
             ]
         );
 
-        $user->assignRole($role);
+        $user->assignRole(PermissionSeeder::SUPER_ADMIN_ROLE);
+    }
 
-        app()[PermissionRegistrar::class]->forgetCachedPermissions();
+    /**
+     * The well-known default password is only ever used on a developer machine or in tests.
+     */
+    private function resolvePassword(): ?string
+    {
+        $configured = config('organizer.seed_admin.password');
+
+        if (filled($configured)) {
+            return $configured;
+        }
+
+        return app()->environment(['local', 'testing']) ? self::LOCAL_ONLY_PASSWORD : null;
     }
 }

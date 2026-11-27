@@ -1,320 +1,218 @@
-@extends('layouts.main_layout',['title'=>'Master','breadcrum'=>['Master','User']])
+@extends('layouts.main_layout', ['title' => 'User', 'breadcrum' => ['User & Akses', 'User']])
 
 @section('content')
-<div class="col-xxl-12 mb-7" data-user-section="header">
-    <div class="card">
-        <div class="card-header card-header-stretch">
-            <div class="card-title">
-                <h3 class="m-0 text-gray-800">Manajemen Pengguna</h3>
+    <div class="ui-page">
+        <x-ui.page-header title="User"
+            subtitle="Daftar orang dalam organisasi: panitia, pengurus, dan administrator. Akses login bersifat opsional."
+            guide="#kt_modal_guide">
+            <div class="ui-subnav nav">
+                <a class="nav-link active" href="{{ route('master.user.index') }}">User</a>
+                @can('roles.view')
+                    <a class="nav-link" href="{{ route('master.role.index') }}">Role & Permission</a>
+                @endcan
             </div>
-            <div class="card-toolbar">
-                <ul class="nav nav-stretch nav-line-tabs nav-line-tabs-2x border-transparent fs-5 fw-bold">
-                    <li class="nav-item">
-                        <a class="nav-link text-active-primary ms-0 me-10 py-5 active" href="{{ route('master.user.index') }}">
-                            User
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-active-primary ms-0 me-10 py-5" href="{{ route('master.role.index') }}">
-                            Role & Permission
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
+        </x-ui.page-header>
 
-<div class="row g-5 g-xl-8 mb-7" data-user-section="counter">
-    <div class="col-md-4">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body d-flex align-items-center gap-3 py-4">
-                <span class="symbol symbol-40px symbol-circle bg-light-primary">
-                    <span class="symbol-label"><i class="ki-duotone ki-profile-user fs-2 text-primary"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i></span>
-                </span>
-                <div>
-                    <div class="fs-2 fw-bold text-gray-800">{{ $userSummary['total'] }}</div>
-                    <div class="text-muted fw-semibold fs-7">Total User</div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card h-100 border border-success border-dashed bg-light-success">
-            <div class="card-body d-flex align-items-center gap-3 py-4">
-                <span class="symbol symbol-40px symbol-circle">
-                    <span class="symbol-label bg-success"><i class="ki-solid ki-check fs-2 text-white"></i></span>
-                </span>
-                <div>
-                    <div class="fs-2 fw-bold text-success">{{ $userSummary['active'] }}</div>
-                    <div class="text-success fw-semibold fs-7">Active</div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card h-100 border border-danger border-dashed bg-light-danger">
-            <div class="card-body d-flex align-items-center gap-3 py-4">
-                <span class="symbol symbol-40px symbol-circle">
-                    <span class="symbol-label bg-danger"><i class="ki-solid ki-cross fs-2 text-white"></i></span>
-                </span>
-                <div>
-                    <div class="fs-2 fw-bold text-danger">{{ $userSummary['inactive'] }}</div>
-                    <div class="text-danger fw-semibold fs-7">Inactive</div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="col-xxl-12 mb-7" data-user-section="filter">
-    <div class="card">
-        <div class="card-body py-6">
-            <div class="row g-5">
-                <div class="col-lg-5">
-                    <div class="position-relative">
-                        <i class="ki-duotone ki-magnifier fs-3 position-absolute top-50 translate-middle-y ms-5"><span class="path1"></span><span class="path2"></span></i>
-                        <input type="text" id="search_user_name" class="form-control form-control-solid ps-14" placeholder="Cari nama, email...">
-                    </div>
-                </div>
-                <div class="col-lg-4">
-                    <select id="filter_user_role" class="form-select form-select-solid" data-control="select2" data-hide-search="true" data-placeholder="Semua Role">
-                        <option value=""></option>
-                        @foreach ($roles as $role)
-                            <option value="{{ $role->name }}">{{ $role->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-lg-3">
-                    <select id="filter_user_status" class="form-select form-select-solid" data-control="select2" data-hide-search="true" data-placeholder="Semua Status">
-                        <option value=""></option>
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-        <div class="card-footer d-flex justify-content-end gap-2 py-3">
-            <button type="button" id="filter_user_submit" class="btn btn-sm btn-light-primary px-4">
-                <i class="ki-duotone ki-filter fs-3"><span class="path1"></span><span class="path2"></span></i> Filter
-            </button>
-            @can('users.create')
-                <button type="button" class="btn btn-sm btn-primary px-4" data-bs-toggle="modal" data-bs-target="#kt_modal_add_user">
-                    <i class="ki-duotone ki-plus fs-3"></i> Tambah User
-                </button>
-            @endcan
-        </div>
-    </div>
-</div>
-
-<div class="col-xxl-12" data-user-section="list">
-    <div class="card">
-        <div class="card-header">
-            <div class="card-title">
-                <h3 class="m-0 text-gray-800">List Data User</h3>
-            </div>
-        </div>
-        <div class="card-body py-6">
-            <div class="table-responsive">
-                <table id="kt_datatable_user" class="table align-middle table-row-dashed fs-6 gy-5">
-                    <thead>
-                        <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
-                            <th>#</th>
-                            <th>Nama</th>
-                            <th>Username</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Diedit Terakhir</th>
-                            <th class="text-end min-w-100px">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-gray-600 fw-semibold">
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<div class="modal fade" id="kt_modal_add_user" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Tambah User Baru</h3>
-                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
-                    <i class="las la-times fs-2"></i>
-                </div>
-            </div>
-
-            <form id="kt_docs_form_add_user" class="form" action="#" autocomplete="off">
-                @csrf
-                <div class="modal-body py-10 px-lg-17">
-                    <div class="scroll-y me-n7 pe-7" data-kt-scroll="true" data-kt-scroll-max-height="auto">
-                        <div class="mb-7">
-                            <h4 class="mb-4">Informasi Akun</h4>
-                            <div class="fv-row mb-7">
-                                <label class="required fw-semibold fs-6 mb-2">Nama Lengkap</label>
-                                <input type="text" name="name" id="name" class="form-control form-control-solid" placeholder="Masukkan nama lengkap user"/>
-                            </div>
-                            <div class="fv-row mb-7">
-                                <label class="required fw-semibold fs-6 mb-2">Email</label>
-                                <input type="email" name="email" id="email" class="form-control form-control-solid" placeholder="contoh@domain.com"/>
-                            </div>
-                            <div class="fv-row mb-7">
-                                <label class="required fw-semibold fs-6 mb-2">Username</label>
-                                <input type="text" name="username" id="username" class="form-control form-control-solid" placeholder="Masukkan username unik"/>
+        <div class="row g-5">
+            @foreach ([
+                ['total', 'Total User', 'Seluruh orang dalam daftar', 'primary', 'ki-people', 5],
+                ['active', 'User Aktif', 'Dapat ditugaskan dalam kepanitiaan', 'success', 'ki-check-circle', 2],
+                ['with_login', 'Memiliki Akses Login', 'Dapat masuk ke aplikasi', 'info', 'ki-key', 2],
+            ] as [$key, $label, $footer, $tone, $icon, $paths])
+                <div class="col-sm-6 col-xl-4">
+                    <div class="ui-stat-card">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <span class="ui-stat-label">{{ $label }}</span>
+                            <div class="ui-stat-icon ui-stat-icon--{{ $tone }}">
+                                <i class="ki-duotone {{ $icon }} fs-2">
+                                    @for ($path = 1; $path <= $paths; $path++)
+                                        <span class="path{{ $path }}"></span>
+                                    @endfor
+                                </i>
                             </div>
                         </div>
+                        <div class="ui-stat-value" data-user-stat="{{ $key }}">{{ number_format($summary[$key], 0, ',', '.') }}</div>
+                        <div class="ui-stat-footer">{{ $footer }}</div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
 
-                        <div class="separator separator-dashed my-9"></div>
+        <div class="card ui-panel">
+            <div class="card-body">
+                <x-ui.list-toolbar search-placeholder="Cari nama, username, email, atau telepon..." add-label="Tambah User"
+                    :can-create="auth()->user()->can('users.create')" :status-filter="false">
+                    <x-slot:filters>
+                        <div class="w-100 w-md-175px">
+                            <select class="form-select form-select-solid" data-control="select2" data-placeholder="Semua Unit"
+                                data-allow-clear="true" aria-label="Saring menurut unit pelayanan" data-master-filter="organization_unit_id">
+                                <option></option>
+                                @foreach ($units as $unit)
+                                    <option value="{{ $unit->id }}">{{ $unit->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="w-100 w-md-175px">
+                            <select class="form-select form-select-solid" data-control="select2" data-hide-search="true"
+                                data-placeholder="Semua Role" data-allow-clear="true" aria-label="Saring menurut role" data-master-filter="role">
+                                <option></option>
+                                @foreach ($roles as $role)
+                                    <option value="{{ $role }}">{{ $role }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="w-100 w-md-150px">
+                            <select class="form-select form-select-solid" data-control="select2" data-hide-search="true"
+                                data-placeholder="Semua Status" data-allow-clear="true" aria-label="Saring menurut status" data-master-filter="status">
+                                <option></option>
+                                @foreach ($statuses as $status)
+                                    <option value="{{ $status->value }}">{{ $status->label() }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="w-100 w-md-200px">
+                            <select class="form-select form-select-solid" data-control="select2" data-hide-search="true"
+                                data-placeholder="Semua Akses" data-allow-clear="true" aria-label="Saring menurut akses login" data-master-filter="access">
+                                <option></option>
+                                <option value="with">Memiliki akses login</option>
+                                <option value="without">Tanpa akses login</option>
+                            </select>
+                        </div>
+                    </x-slot:filters>
+                </x-ui.list-toolbar>
 
-                        <div class="mb-7">
-                            <h4 class="mb-4">Keamanan</h4>
-                            <div class="row" data-kt-password-meter="true">
-                                <div class="col-md-6 fv-row mb-7">
-                                    <label class="required fw-semibold fs-6 mb-2">Password</label>
-                                    <div class="position-relative mb-3">
-                                        <input class="form-control form-control-solid" type="password" placeholder="Masukkan password" name="password" id="password" autocomplete="off" />
-                                        <span class="btn btn-sm btn-icon position-absolute translate-middle top-50 end-0 me-n2" data-kt-password-meter-control="visibility">
-                                            <i class="bi bi-eye-slash fs-2"></i>
-                                            <i class="bi bi-eye fs-2 d-none"></i>
-                                        </span>
-                                    </div>
-                                    <div class="d-flex align-items-center mb-3" data-kt-password-meter-control="highlight">
-                                        <div class="flex-grow-1 bg-secondary bg-active-success rounded h-5px me-2"></div>
-                                        <div class="flex-grow-1 bg-secondary bg-active-success rounded h-5px me-2"></div>
-                                        <div class="flex-grow-1 bg-secondary bg-active-success rounded h-5px me-2"></div>
-                                        <div class="flex-grow-1 bg-secondary bg-active-success rounded h-5px"></div>
-                                    </div>
-                                    <div class="text-muted">Gunakan 8 karakter atau lebih dengan campuran huruf, angka & simbol.</div>
-                                </div>
-                                <div class="col-md-6 fv-row mb-7">
-                                    <label class="required fw-semibold fs-6 mb-2">Konfirmasi Password</label>
-                                    <input class="form-control form-control-solid" type="password" placeholder="Ulangi password" name="password_confirmation" id="password_confirmation" autocomplete="off" />
-                                </div>
+                <x-ui.master-table :columns="['Nama', 'Kontak', 'Unit Pelayanan', 'Akses Login', 'Role']" permission="users" />
+            </div>
+        </div>
+    </div>
+
+    <x-ui.form-modal size="modal-lg">
+        <div class="fv-row mb-7">
+            <label class="required fw-semibold fs-6 mb-2" for="master_name">Nama Lengkap</label>
+            <input type="text" name="name" id="master_name" class="form-control form-control-solid" placeholder="Nama lengkap" maxlength="150">
+        </div>
+
+        <div class="row g-7 mb-7">
+            <div class="col-md-6 fv-row">
+                <label class="fw-semibold fs-6 mb-2" for="master_email">Email</label>
+                <input type="email" name="email" id="master_email" class="form-control form-control-solid" placeholder="nama@contoh.com" maxlength="255">
+            </div>
+            <div class="col-md-6 fv-row">
+                <label class="fw-semibold fs-6 mb-2" for="master_phone">Nomor Telepon</label>
+                <input type="tel" name="phone" id="master_phone" class="form-control form-control-solid" placeholder="081234567890" maxlength="30" inputmode="tel">
+            </div>
+        </div>
+
+        <div class="row g-7 mb-7">
+            <div class="col-md-6 fv-row">
+                <label class="fw-semibold fs-6 mb-2" for="master_organization_unit_id">Unit Pelayanan</label>
+                <select name="organization_unit_id" id="master_organization_unit_id" class="form-select form-select-solid" data-control="select2"
+                    data-dropdown-parent="#kt_modal_master" data-placeholder="Pilih unit" data-allow-clear="true">
+                    <option></option>
+                    @foreach ($units as $unit)
+                        <option value="{{ $unit->id }}">{{ $unit->name }}{{ $unit->is_active ? '' : ' (nonaktif)' }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-md-6 fv-row">
+                <label class="required fw-semibold fs-6 mb-2" for="master_status">Status</label>
+                <select name="status" id="master_status" class="form-select form-select-solid" data-control="select2" data-hide-search="true"
+                    data-dropdown-parent="#kt_modal_master">
+                    @foreach ($statuses as $status)
+                        <option value="{{ $status->value }}">{{ $status->label() }}</option>
+                    @endforeach
+                </select>
+                <div class="fs-7 text-muted mt-2">User nonaktif tidak dapat masuk dan tidak ditawarkan untuk penugasan baru.</div>
+            </div>
+        </div>
+
+        <div class="fv-row mb-7">
+            <label class="fw-semibold fs-6 mb-2" for="master_notes">Catatan</label>
+            <textarea name="notes" id="master_notes" class="form-control form-control-solid" rows="2" maxlength="2000" placeholder="Keterangan tambahan bila diperlukan"></textarea>
+        </div>
+
+        @can('users.manage-access')
+            <div class="separator my-7"></div>
+
+            <div data-user-access>
+                <h4 class="fw-bold fs-5 mb-1">Akses Login</h4>
+                <div class="fs-7 text-muted mb-5">Aktifkan hanya untuk orang yang perlu masuk ke aplikasi.</div>
+
+                <div class="notice d-none bg-light-warning rounded border-warning border border-dashed p-4 mb-5" data-user-access-notice>
+                    <div class="fw-semibold text-gray-700 fs-7" data-user-access-notice-text></div>
+                </div>
+
+                <fieldset data-user-access-fieldset>
+                    <input type="hidden" name="login_enabled" value="0">
+                    <div class="fv-row mb-7">
+                        <label class="form-check form-switch form-check-custom form-check-solid">
+                            <input class="form-check-input" type="checkbox" name="login_enabled" value="1" data-user-login-switch>
+                            <span class="form-check-label fw-semibold text-gray-800">Dapat masuk ke aplikasi</span>
+                        </label>
+                    </div>
+
+                    <div class="d-none" data-user-access-fields>
+                        <div class="row g-7 mb-7">
+                            <div class="col-md-6 fv-row">
+                                <label class="required fw-semibold fs-6 mb-2" for="master_username">Nama Pengguna</label>
+                                <input type="text" name="username" id="master_username" class="form-control form-control-solid" placeholder="contoh: debora.s"
+                                    maxlength="50" autocomplete="off" autocapitalize="none">
+                                <div class="fs-7 text-muted mt-2">Dipakai untuk masuk. Huruf kecil, angka, titik, garis bawah, atau tanda hubung.</div>
                             </div>
-                            <div class="fv-row">
-                                <label class="required fw-semibold fs-6 mb-2">Role</label>
-                                <select class="form-select form-select-solid" name="role" id="role" data-control="select2" data-hide-search="true" data-dropdown-parent="#kt_modal_add_user" data-placeholder="Pilih Role">
+                            <div class="col-md-6 fv-row">
+                                <label class="fw-semibold fs-6 mb-2" for="master_role">Role</label>
+                                <select name="role" id="master_role" class="form-select form-select-solid" data-control="select2" data-hide-search="true"
+                                    data-dropdown-parent="#kt_modal_master" data-placeholder="Tanpa role organisasi" data-allow-clear="true">
                                     <option></option>
-                                    @foreach ($roles as $item)
-                                        <option value="{{ $item->name }}">{{ $item->name }}</option>
+                                    @foreach ($grantableRoles as $role)
+                                        <option value="{{ $role }}">{{ $role }}</option>
                                     @endforeach
                                 </select>
+                                <div class="fs-7 text-muted mt-2">Hak akses tingkat organisasi. Hak dalam event diatur lewat jabatan panitia.</div>
+                            </div>
+                        </div>
+                        <div class="row g-7 mb-2">
+                            <div class="col-md-6 fv-row">
+                                <label class="fw-semibold fs-6 mb-2" for="master_password" data-user-password-label>Kata Sandi</label>
+                                <input type="password" name="password" id="master_password" class="form-control form-control-solid" autocomplete="new-password">
+                                <div class="fs-7 text-muted mt-2" data-user-password-hint></div>
+                            </div>
+                            <div class="col-md-6 fv-row">
+                                <label class="fw-semibold fs-6 mb-2" for="master_password_confirmation">Ulangi Kata Sandi</label>
+                                <input type="password" name="password_confirmation" id="master_password_confirmation" class="form-control form-control-solid" autocomplete="new-password">
                             </div>
                         </div>
                     </div>
-                </div>
+                </fieldset>
 
-                <div class="modal-footer flex-center">
-                    <button type="button" class="btn btn-light me-3" data-bs-dismiss="modal">Batal</button>
-                    <button id="kt_docs_form_add_user_submit" type="submit" class="btn btn-primary">
-                        <span class="indicator-label">Simpan</span>
-                        <span class="indicator-progress">Please wait...
-                        <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" tabindex="-1" id="kt_modal_edit_user">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Edit User</h3>
-                <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
-                    <i class="las la-times fs-2"></i>
-                </div>
-            </div>
-
-            <form id="kt_docs_form_edit_user" class="form" action="#" autocomplete="off">
-                @csrf
-                <input type="hidden" id="user_id">
-                <div class="modal-body py-10 px-lg-17">
-                    <div class="scroll-y me-n7 pe-7" data-kt-scroll="true" data-kt-scroll-activate="{default: false, lg: true}" data-kt-scroll-max-height="auto" data-kt-scroll-dependencies="#kt_modal_edit_user_header" data-kt-scroll-wrappers="#kt_modal_edit_user_scroll" data-kt-scroll-offset="300px">
-
-                        <div class="mb-7">
-                            <h4 class="mb-4">Informasi Akun</h4>
-                             <div class="fv-row mb-7">
-                                <label class="required fw-semibold fs-6 mb-2">Nama Lengkap</label>
-                                <input type="text" name="name_edit" id="name_edit" class="form-control form-control-solid" placeholder="Masukkan nama lengkap user"/>
-                            </div>
-                            <div class="fv-row mb-7">
-                                <label class="required fw-semibold fs-6 mb-2">Email</label>
-                                <input type="email" name="email_edit" id="email_edit" class="form-control form-control-solid" placeholder="contoh@domain.com"/>
-                            </div>
-                            <div class="fv-row mb-7">
-                                <label class="required fw-semibold fs-6 mb-2">Username</label>
-                                <input type="text" name="username_edit" id="username_edit" class="form-control form-control-solid" placeholder="Masukkan username unik"/>
-                            </div>
-                        </div>
-                        <div class="separator separator-dashed my-9"></div>
-
-                        <div class="mb-7">
-                            <h4 class="mb-4">Keamanan</h4>
-                            <div class="row" data-kt-password-meter="true">
-                                <div class="col-md-6 fv-row mb-7">
-                                    <label class="required fw-semibold fs-6 mb-2">Password</label>
-                                    <div class="position-relative mb-3">
-                                        <input class="form-control form-control-solid" type="password" placeholder="Masukkan password" name="password_edit" id="password_edit" autocomplete="off" />
-                                        <span class="btn btn-sm btn-icon position-absolute translate-middle top-50 end-0 me-n2" data-kt-password-meter-control="visibility">
-                                            <i class="bi bi-eye-slash fs-2"></i>
-                                            <i class="bi bi-eye fs-2 d-none"></i>
-                                        </span>
-                                    </div>
-                                    <div class="d-flex align-items-center mb-3" data-kt-password-meter-control="highlight">
-                                        <div class="flex-grow-1 bg-secondary bg-active-success rounded h-5px me-2"></div>
-                                        <div class="flex-grow-1 bg-secondary bg-active-success rounded h-5px me-2"></div>
-                                        <div class="flex-grow-1 bg-secondary bg-active-success rounded h-5px me-2"></div>
-                                        <div class="flex-grow-1 bg-secondary bg-active-success rounded h-5px"></div>
-                                    </div>
-                                    <div class="text-muted">Gunakan 8 karakter atau lebih dengan campuran huruf, angka & simbol.</div>
-                                </div>
-                                <div class="col-md-6 fv-row mb-7">
-                                    <label class="required fw-semibold fs-6 mb-2">Konfirmasi Password</label>
-                                    <input class="form-control form-control-solid" type="password" placeholder="Ulangi password" name="password_confirmation_edit" id="password_confirmation_edit" autocomplete="off" />
-                                </div>
-                            </div>
-                            <div class="fv-row mb-7">
-                                <label class="required fw-semibold fs-6 mb-2">Role</label>
-                                <select class="form-select form-select-solid" name="role_id" id="role_edit" data-control="select2" data-hide-search="true" data-dropdown-parent="#kt_modal_edit_user" data-placeholder="Pilih Role">
-                                    <option></option>
-                                    @foreach ($roles as $item)
-                                        <option value="{{ $item->name }}">{{ $item->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div class="fv-row">
-                                <label class="fw-semibold fs-6 mb-2">Permission</label>
-                                <select class="form-select form-select-solid" name="permission_additional" id="permission_additional" data-control="select2" data-hide-search="true" data-dropdown-parent="#kt_modal_edit_user" data-placeholder="Pilih Role">
-                                    <option></option>
-                                    @foreach ($permissions as $permission)
-                                        <option value="{{ $permission->name }}">{{ $permission->name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
+                @can('users.reset-two-factor')
+                    <div class="d-none align-items-center justify-content-between gap-3 border border-gray-300 rounded p-4 mt-5" data-user-two-factor>
+                        <div class="fs-7 text-gray-700">Autentikasi dua langkah aktif. Reset bila user kehilangan perangkat autentikatornya.</div>
+                        <button type="button" class="btn btn-sm btn-light-danger flex-shrink-0" data-user-reset-two-factor>Reset 2FA</button>
                     </div>
-                </div>
+                @endcan
+            </div>
+        @endcan
+    </x-ui.form-modal>
 
-                <div class="modal-footer flex-center">
-                    <button type="button" class="btn btn-light me-3" data-bs-dismiss="modal">Batal</button>
-                    <button id="kt_docs_form_edit_user_submit" type="submit" class="btn btn-primary">
-                        <span class="indicator-label">Simpan</span>
-                        <span class="indicator-progress">Please wait...
-                        <span class="spinner-border spinner-border-sm align-middle ms-2"></span></span>
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
+    <x-ui.guide-modal title="Panduan User">
+        Halaman ini berisi semua orang dalam organisasi, baik yang dapat masuk ke aplikasi maupun yang hanya dicatat untuk ditugaskan sebagai panitia.
+        <x-slot:steps>
+            <li>Klik <strong>Tambah User</strong>, lalu isi nama dan kontaknya.</li>
+            <li>Pilih unit pelayanan bila orang tersebut tergabung dalam komisi atau bidang tertentu.</li>
+            <li>Aktifkan <strong>Akses Login</strong> bila orang tersebut perlu masuk ke aplikasi, lalu isi nama pengguna, kata sandi, dan role bila perlu.</li>
+        </x-slot:steps>
+        <x-slot:notes>
+            <li>Email, nomor telepon, dan nama pengguna tidak boleh sama dengan user lain.</li>
+            <li>Mencabut akses login atau menonaktifkan user langsung mengeluarkannya dari aplikasi.</li>
+            <li>Anda hanya dapat memberikan role, atau mengatur akses user, yang hak aksesnya tidak melebihi hak akses Anda.</li>
+            <li>Akses login, role, dan status akun Anda sendiri tidak dapat diubah dari halaman ini.</li>
+            <li>User yang sudah pernah ditugaskan tidak dapat dihapus. Ubah statusnya menjadi nonaktif.</li>
+        </x-slot:notes>
+    </x-ui.guide-modal>
 @endsection
+
 @section('script')
+    <script src="{{ asset('assets/js/organizer/master-crud.js') }}"></script>
     <script src="{{ asset('assets/js/master/user.js') }}"></script>
 @endsection

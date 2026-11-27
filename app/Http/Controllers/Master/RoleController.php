@@ -2,158 +2,124 @@
 
 namespace App\Http\Controllers\Master;
 
+use App\Actions\Access\DeleteRole;
+use App\Actions\Access\SaveRole;
 use App\Http\Controllers\Controller;
-use Elegant\Sanitizer\Sanitizer;
+use App\Http\Requests\Master\SaveRoleRequest;
+use App\Services\AccountAuthority;
+use Database\Seeders\PermissionSeeder;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Yajra\DataTables\Facades\DataTables;
 
 class RoleController extends Controller
 {
-    public function index()
+    public function __construct(private AccountAuthority $authority) {}
+
+    public function index(Request $request): View
     {
-        $permissions = Permission::query()
-            ->orderBy('name')
-            ->get();
-        $permissionGroups = $permissions->groupBy(fn (Permission $permission) => Str::before($permission->name, '.'));
-        $roleSummary = [
-            'total' => Role::query()->count(),
-            'permissions' => $permissions->count(),
-            'used' => Role::query()->has('users')->count(),
-        ];
+        $permissions = Permission::query()->where('guard_name', 'web')->orderBy('name')->get();
 
-        return view('master.role', compact('permissionGroups', 'roleSummary'));
-    }
-
-    public function data(Request $request)
-    {
-        $role = Role::select(['id', 'name', 'created_at', 'updated_at']);
-
-        (! is_null($request->name)) ? $role->where('name', 'like', '%'.$request->name.'%') : '';
-
-        return DataTables::of($role)->make(true);
-    }
-
-    public function insert(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|unique:roles,name',
-            'permission' => 'required|array',
-            'permission.*' => 'required|string|exists:permissions,name',
+        return view('master.role', [
+            'permissionGroups' => $permissions->groupBy(fn (Permission $permission) => Str::before($permission->name, '.')),
+            'actorPermissions' => $request->user()->getAllPermissions()->pluck('name')->all(),
+            'roleSummary' => $this->summary(),
         ]);
-
-        if ($validator->fails()) {
-            return response()->json(['status' => false, 'data' => $this->validationErrorsToString($validator->errors())], 200);
-        }
-
-        $filters = [
-            'name' => 'trim|escape',
-            'permission' => 'trim|escape',
-        ];
-
-        $sanitizer = new Sanitizer($request->all(), $filters);
-        $attrclean = $sanitizer->sanitize();
-
-        try {
-            DB::beginTransaction();
-
-            $role = Role::create([
-                'name' => $attrclean['name'],
-            ]);
-
-            $role->syncPermissions($attrclean['permission']);
-
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollback();
-            Log::error($e);
-
-            return response()->json(['status' => false, 'data' => 'Cannot Proccess'], 200);
-        }
-
-        return response()->json(['status' => true, 'data' => $role], 200);
     }
 
-    public function detail(Role $role)
+    public function data(Request $request): JsonResponse
     {
-        $permissions = $role->permissions->pluck('name');
+        $actor = $request->user();
 
-        $data = [
-            'detail_role' => $role->makeHidden(['permissions']),
-            'role_permission' => $permissions,
-        ];
+        $query = Role::query()
+            ->where('guard_name', 'web')
+            ->select(['id', 'name', 'created_at', 'updated_at'])
+            ->withCount(['permissions', 'users'])
+            ->with('permissions:id,name');
 
-        return response()->json(['status' => true, 'data' => $data], 200);
+        $search = $request->string('search')->trim()->value();
+
+        if ($search !== '') {
+            $query->whereRaw("name like ? escape '!'", ['%'.str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $search).'%']);
+        }
+
+        return DataTables::eloquent($query)
+            ->addColumn('is_system', fn (Role $role): bool => $this->isSystemRole($role))
+            ->addColumn('can_delete', fn (Role $role): bool => $actor->can('roles.delete')
+                && ! $this->isSystemRole($role)
+                && $role->users_count === 0
+                && $this->authority->canGrantRole($actor, $role))
+            ->removeColumn('permissions')
+            ->with('summary', $this->summary())
+            ->make(true);
     }
 
-    public function update(Request $request, Role $role)
+    public function show(Request $request, Role $role): JsonResponse
     {
-        $validator = Validator::make($request->all(), [
-            'name' => [
-                'required',
-                Rule::unique('roles')->ignore($role->id),
-            ],
-            'permission' => 'required|array',
-            'permission.*' => 'required|string|exists:permissions,name',
+        return $this->jsonSuccess([
+            'id' => $role->id,
+            'name' => $role->name,
+            'permissions' => $role->permissions()->orderBy('name')->pluck('name')->all(),
+            'users_count' => $role->users()->count(),
+            'is_system' => $this->isSystemRole($role),
+            'is_locked' => $role->name === PermissionSeeder::SUPER_ADMIN_ROLE,
+            'can_manage' => $this->authority->canGrantRole($request->user(), $role),
         ]);
-
-        if ($validator->fails()) {
-            return response()->json(['status' => false, 'data' => $this->validationErrorsToString($validator->errors())], 200);
-        }
-        $filters = [
-            'name' => 'trim|escape',
-            'permission' => 'trim|escape',
-        ];
-
-        $sanitizer = new Sanitizer($request->all(), $filters);
-        $attrclean = $sanitizer->sanitize();
-
-        try {
-            DB::beginTransaction();
-
-            $role->name = $attrclean['name'];
-
-            $role->save();
-
-            $role->syncPermissions($attrclean['permission']);
-
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollback();
-            Log::error($e);
-
-            return response()->json(['status' => false, 'data' => 'Cannot Proccess'], 200);
-        }
-
-        $data = [
-            'detail_role' => $role->makeHidden(['permissions']),
-            'role_permission' => $role->permissions->pluck('name'),
-        ];
-
-        return response()->json(['status' => true, 'data' => $data], 200);
     }
 
-    public function delete(Role $role)
+    public function insert(SaveRoleRequest $request, SaveRole $saveRole): JsonResponse
     {
-        try {
-            DB::beginTransaction();
+        return $this->jsonSuccess($saveRole->handle(new Role, $request->validated('name'), $request->permissions()), 201);
+    }
 
-            $role->delete();
-
-            DB::commit();
-        } catch (\Exception $e) {
-            DB::rollback();
-            Log::error($e);
-
-            return response()->json(['status' => false, 'data' => 'Cannot Proccess'], 200);
+    public function update(SaveRoleRequest $request, Role $role, SaveRole $saveRole): JsonResponse
+    {
+        if ($role->name === PermissionSeeder::SUPER_ADMIN_ROLE) {
+            return $this->jsonFailure('Role Super Admin selalu memiliki semua permission dan tidak dapat diubah.', 409);
         }
 
-        return response()->json(['status' => true, 'data' => 'Deleted Successfully'], 200);
+        return $this->jsonSuccess($saveRole->handle($role, $request->validated('name'), $request->permissions()));
+    }
+
+    public function delete(Request $request, Role $role, DeleteRole $deleteRole): JsonResponse
+    {
+        if ($this->isSystemRole($role)) {
+            return $this->jsonFailure('Role bawaan sistem tidak dapat dihapus.', 409);
+        }
+
+        if (! $this->authority->canGrantRole($request->user(), $role)) {
+            return $this->jsonFailure('Anda tidak dapat menghapus role yang memiliki hak akses melebihi hak akses Anda.', 403);
+        }
+
+        $holders = $role->users()->count();
+
+        if ($holders > 0) {
+            return $this->jsonFailure("Role ini masih dipakai oleh {$holders} user. Ganti role mereka terlebih dahulu.", 409);
+        }
+
+        $deleteRole->handle($role);
+
+        return $this->jsonSuccess();
+    }
+
+    /**
+     * @return array{total: int, permissions: int, used: int}
+     */
+    private function summary(): array
+    {
+        return [
+            'total' => Role::query()->where('guard_name', 'web')->count(),
+            'permissions' => Permission::query()->where('guard_name', 'web')->count(),
+            'used' => Role::query()->where('guard_name', 'web')->has('users')->count(),
+        ];
+    }
+
+    private function isSystemRole(Role $role): bool
+    {
+        return in_array($role->name, PermissionSeeder::SYSTEM_ROLES, true);
     }
 }

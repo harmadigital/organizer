@@ -18,15 +18,26 @@ class RefreshDatabaseCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Refresh Database';
+    protected $description = 'Rebuild every table and reseed (deletes all data; local and testing only)';
 
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
-        $this->call('migrate:refresh');
+        if (! $this->laravel->environment(['local', 'testing'])) {
+            $this->components->error('db:refresh deletes all data and only runs in the local or testing environment.');
+
+            return self::FAILURE;
+        }
+
+        if ($this->call('migrate:refresh') !== self::SUCCESS) {
+            return self::FAILURE;
+        }
+
         $this->call('db:seed');
         $this->info('All database and seeder has been execute');
+
+        return self::SUCCESS;
     }
 }

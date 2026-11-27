@@ -17,33 +17,29 @@ class UserManagementPageTest extends TestCase
         $this->seed(DatabaseSeeder::class);
 
         $role = Role::findByName('Super Admin');
-        $activeUser = User::factory()->create(['email_verified_at' => now()]);
-        $inactiveUser = User::factory()->unverified()->create();
+        $activeUser = User::factory()->create();
+        $inactiveUser = User::factory()->inactive()->create();
         $activeUser->assignRole($role);
         $inactiveUser->assignRole($role);
+        User::factory()->withoutLogin()->create();
 
         $response = $this->actingAs($activeUser)->get(route('master.user.index'));
 
         $response->assertOk();
         $this->assertSame([
-            'total' => 3,
-            'active' => 2,
-            'inactive' => 1,
-        ], $response->viewData('userSummary'));
+            'total' => 4,
+            'active' => 3,
+            'with_login' => 3,
+        ], $response->viewData('summary'));
         $response->assertSee('Total User');
-        $response->assertSee('Active');
-        $response->assertSee('Inactive');
-        $response->assertSee('Cari nama, email...');
+        $response->assertSee('User Aktif');
+        $response->assertSee('Memiliki Akses Login');
+        $response->assertSee('Cari nama, username, email, atau telepon...');
         $response->assertSee('Semua Role');
         $response->assertSee('Semua Status');
-        $response->assertSee('filter_user_submit', false);
+        $response->assertSee('Semua Akses');
         $response->assertDontSee('Semua Cabang');
-        $response->assertSeeInOrder([
-            'data-user-section="header"',
-            'data-user-section="counter"',
-            'data-user-section="filter"',
-            'data-user-section="list"',
-        ], false);
+        $response->assertSeeInOrder(['ui-page-header', 'ui-stat-card', 'ui-toolbar', 'kt_datatable_master', 'kt_modal_master'], false);
 
         $this->actingAs($activeUser)
             ->getJson(route('master.user.data', ['status' => 'inactive']))

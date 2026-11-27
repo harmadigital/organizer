@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
+use Database\Seeders\PermissionSeeder;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -31,25 +32,21 @@ class RolePermissionManagementTest extends TestCase
 
         $response->assertOk();
         $this->assertSame([
-            'total' => 2,
-            'permissions' => 14,
+            'total' => 3,
+            'permissions' => count(PermissionSeeder::PERMISSIONS),
             'used' => 2,
         ], $response->viewData('roleSummary'));
-        $response->assertSeeInOrder([
-            'data-role-section="header"',
-            'data-role-section="counter"',
-            'data-role-section="filter"',
-            'data-role-section="list"',
-        ], false);
+        $response->assertSeeInOrder(['ui-page-header', 'ui-subnav', 'ui-stat-card', 'ui-toolbar', 'kt_datatable_master', 'kt_modal_master'], false);
         $response->assertSee('Total Role');
         $response->assertSee('Total Permission');
         $response->assertSee('Role Digunakan');
-        $response->assertSee('List Data Role');
+        $response->assertSee('Tambah Role');
         $response->assertSee('Pilih Semua');
         $response->assertSee('Cari modul, aksi, atau kode permission...');
         $response->assertSee('users.view');
         $response->assertSee('users.delete');
         $response->assertSee('Role & Permission');
+        $response->assertSee('Unit Pelayanan');
     }
 
     public function test_it_requires_the_matching_granular_permission_for_each_role_action(): void
@@ -78,11 +75,14 @@ class RolePermissionManagementTest extends TestCase
         $this->seed(DatabaseSeeder::class);
 
         $this->assertTrue(Permission::query()->where('name', 'master-role')->doesntExist());
-        $this->assertSame(14, Permission::query()->count());
-        $this->assertSame(
-            ['dashboard.view', 'permissions.create', 'permissions.delete', 'permissions.update', 'permissions.view', 'roles.create', 'roles.delete', 'roles.update', 'roles.view', 'users.create', 'users.delete', 'users.reset-two-factor', 'users.update', 'users.view'],
-            Permission::query()->orderBy('name')->pluck('name')->all(),
+        $this->assertSame(count(PermissionSeeder::PERMISSIONS), Permission::query()->count());
+        $this->assertEqualsCanonicalizing(
+            PermissionSeeder::PERMISSIONS,
+            Permission::query()->pluck('name')->all(),
         );
+        foreach (['dashboard.view', 'users.view', 'users.reset-two-factor', 'roles.delete', 'permissions.update'] as $permission) {
+            $this->assertContains($permission, PermissionSeeder::PERMISSIONS);
+        }
         $this->assertSame('dashboard.view', Permission::findByName('dashboard.view')->name);
     }
 }

@@ -1,15 +1,17 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Master\CommitteeRoleController;
+use App\Http\Controllers\Master\DivisionTemplateController;
+use App\Http\Controllers\Master\EventCategoryController;
+use App\Http\Controllers\Master\OrganizationUnitController;
 use App\Http\Controllers\Master\PermissionController;
 use App\Http\Controllers\Master\RoleController;
 use App\Http\Controllers\Master\UserController;
+use App\Http\Controllers\Master\VenueController;
+use App\Http\Controllers\Organization\OrganizationProfileController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-
-Route::get('/', function () {
-    return redirect()->route('login');
-});
 
 Route::name('dashboard.')->middleware(['auth:web', config('jetstream.auth_session'), 'verified'])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->middleware('can:dashboard.view')->name('index');
@@ -26,14 +28,14 @@ Route::name('master.')->prefix('master')->middleware(['auth:web', config('jetstr
         Route::post('/insert', 'insert')->middleware('can:users.create')->name('insert');
         Route::post('/update/{user:id}', 'update')->middleware('can:users.update')->name('update');
         Route::post('/delete/{user:id}', 'delete')->middleware('can:users.delete')->name('delete');
-        Route::post('/reset_2fa/{user:id}', 'reset_2fa')->middleware('can:users.reset-two-factor')->name('reset_2fa');
+        Route::post('/reset_2fa/{user:id}', 'resetTwoFactor')->middleware(['can:users.manage-access', 'can:users.reset-two-factor'])->name('reset_2fa');
     });
 
     // role
     Route::name('role.')->controller(RoleController::class)->prefix('role')->group(function () {
         Route::get('/index', 'index')->middleware('can:roles.view')->name('index');
         Route::get('/data', 'data')->middleware('can:roles.view')->name('data');
-        Route::get('/detail/{role:id}', 'detail')->middleware('can:roles.view')->name('detail');
+        Route::get('/show/{role:id}', 'show')->middleware('can:roles.view')->name('show');
         Route::post('/insert', 'insert')->middleware('can:roles.create')->name('insert');
         Route::post('/update/{role:id}', 'update')->middleware('can:roles.update')->name('update');
         Route::post('/delete/{role:id}', 'delete')->middleware('can:roles.delete')->name('delete');
@@ -47,5 +49,68 @@ Route::name('master.')->prefix('master')->middleware(['auth:web', config('jetstr
         Route::post('/insert', 'insert')->middleware('can:permissions.create')->name('insert');
         Route::post('/update/{permission:id}', 'update')->middleware('can:permissions.update')->name('update');
         Route::post('/delete/{permission:id}', 'delete')->middleware('can:permissions.delete')->name('delete');
+    });
+});
+
+Route::middleware(['auth:web', config('jetstream.auth_session'), 'verified'])->group(function () {
+    // organization profile
+    Route::name('organization.profile.')->controller(OrganizationProfileController::class)->prefix('organization/profile')->group(function () {
+        Route::get('/', 'index')->middleware('can:organization.view')->name('index');
+        Route::post('/update', 'update')->middleware('can:organization.update')->name('update');
+    });
+
+    Route::middleware('organization.configured')->group(function () {
+        Route::name('master.')->prefix('master')->group(function () {
+            // organization unit
+            Route::name('organization_unit.')->controller(OrganizationUnitController::class)->prefix('organization-unit')->group(function () {
+                Route::get('/index', 'index')->middleware('can:organization-units.view')->name('index');
+                Route::get('/data', 'data')->middleware('can:organization-units.view')->name('data');
+                Route::get('/options', 'options')->middleware('can:organization-units.view')->name('options');
+                Route::get('/show/{organizationUnit}', 'show')->middleware('can:organization-units.view')->name('show');
+                Route::post('/insert', 'insert')->middleware('can:organization-units.create')->name('insert');
+                Route::post('/update/{organizationUnit}', 'update')->middleware('can:organization-units.update')->name('update');
+                Route::post('/delete/{organizationUnit}', 'delete')->middleware('can:organization-units.delete')->name('delete');
+            });
+
+            // committee role
+            Route::name('committee_role.')->controller(CommitteeRoleController::class)->prefix('committee-role')->group(function () {
+                Route::get('/index', 'index')->middleware('can:committee-roles.view')->name('index');
+                Route::get('/data', 'data')->middleware('can:committee-roles.view')->name('data');
+                Route::get('/show/{committeeRole}', 'show')->middleware('can:committee-roles.view')->name('show');
+                Route::post('/insert', 'insert')->middleware('can:committee-roles.create')->name('insert');
+                Route::post('/update/{committeeRole}', 'update')->middleware('can:committee-roles.update')->name('update');
+                Route::post('/delete/{committeeRole}', 'delete')->middleware('can:committee-roles.delete')->name('delete');
+            });
+
+            // division template
+            Route::name('division_template.')->controller(DivisionTemplateController::class)->prefix('division-template')->group(function () {
+                Route::get('/index', 'index')->middleware('can:division-templates.view')->name('index');
+                Route::get('/data', 'data')->middleware('can:division-templates.view')->name('data');
+                Route::get('/show/{divisionTemplate}', 'show')->middleware('can:division-templates.view')->name('show');
+                Route::post('/insert', 'insert')->middleware('can:division-templates.create')->name('insert');
+                Route::post('/update/{divisionTemplate}', 'update')->middleware('can:division-templates.update')->name('update');
+                Route::post('/delete/{divisionTemplate}', 'delete')->middleware('can:division-templates.delete')->name('delete');
+            });
+
+            // event category
+            Route::name('event_category.')->controller(EventCategoryController::class)->prefix('event-category')->group(function () {
+                Route::get('/index', 'index')->middleware('can:event-categories.view')->name('index');
+                Route::get('/data', 'data')->middleware('can:event-categories.view')->name('data');
+                Route::get('/show/{eventCategory}', 'show')->middleware('can:event-categories.view')->name('show');
+                Route::post('/insert', 'insert')->middleware('can:event-categories.create')->name('insert');
+                Route::post('/update/{eventCategory}', 'update')->middleware('can:event-categories.update')->name('update');
+                Route::post('/delete/{eventCategory}', 'delete')->middleware('can:event-categories.delete')->name('delete');
+            });
+
+            // venue
+            Route::name('venue.')->controller(VenueController::class)->prefix('venue')->group(function () {
+                Route::get('/index', 'index')->middleware('can:venues.view')->name('index');
+                Route::get('/data', 'data')->middleware('can:venues.view')->name('data');
+                Route::get('/show/{venue}', 'show')->middleware('can:venues.view')->name('show');
+                Route::post('/insert', 'insert')->middleware('can:venues.create')->name('insert');
+                Route::post('/update/{venue}', 'update')->middleware('can:venues.update')->name('update');
+                Route::post('/delete/{venue}', 'delete')->middleware('can:venues.delete')->name('delete');
+            });
+        });
     });
 });

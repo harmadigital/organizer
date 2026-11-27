@@ -1,4 +1,12 @@
 {
+    "agents": [
+        "codex",
+        "copilot",
+        "claude_code",
+        "opencode",
+        "pi",
+        "amp"
+    ],
     "cloud": false,
     "guidelines": true,
     "mcp": true,
@@ -8,6 +16,7 @@
         "infer-conventions",
         "fortify-development",
         "laravel-best-practices",
+        "testing-best-practices",
         "livewire-development",
         "tailwindcss-development"
     ]

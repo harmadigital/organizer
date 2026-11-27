@@ -5,10 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use App\Models\User;
-use Illuminate\Support\Facades\Log;
 
 class ProfileController extends Controller
 {
@@ -41,7 +40,7 @@ class ProfileController extends Controller
             }
 
             $user->save();
-            Log::info('Profile updated for user: ' . $user->id, $request->all());
+            Log::info('Profile updated', ['user_id' => $user->id, 'changed' => array_keys($user->getChanges())]);
 
             return response()->json(['status' => true, 'data' => 'Profile updated successfully'], 200);
         } catch (\Exception $e) {

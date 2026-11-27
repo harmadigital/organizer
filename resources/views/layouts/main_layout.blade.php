@@ -27,11 +27,13 @@
         type="text/css" />
     <link href="{{ asset('assets/plugins/custom/datatables/datatables.bundle.css') }}" rel="stylesheet"
         type="text/css" />
+    @stack('vendor_css')
     <!--end::Vendor Stylesheets-->
     <!--begin::Global Stylesheets Bundle(mandatory for all pages)-->
     <link href="{{ asset('assets/plugins/global/plugins.bundle.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/css/style.bundle.css') }}" rel="stylesheet" type="text/css" />
     <!--end::Global Stylesheets Bundle-->
+    <link href="{{ asset('assets/css/ui.css') }}" rel="stylesheet" type="text/css" />
     @yield('css')
     <script>
         // Frame-busting to prevent site from being loaded within a frame without permission (click-jacking) if (window.top != window.self) { window.top.location.replace(window.self.location.href); }
@@ -214,106 +216,7 @@
                                 <!--begin::Menu-->
                                 <div class="menu menu-column menu-rounded menu-sub-indention fw-semibold fs-6"
                                     id="#kt_app_sidebar_menu" data-kt-menu="true" data-kt-menu-expand="false">
-                                    @can('dashboard.view')
-                                        <!--begin:Menu item-->
-                                        <div class="menu-item pt-5">
-                                            <!--begin:Menu link-->
-                                            <a class="menu-link {{ request()->routeIs('dashboard.index') ? 'active' : '' }}"
-                                                href="{{ route('dashboard.index') }}">
-                                                <span class="menu-icon">
-                                                    <i class="ki-duotone ki-home fs-2">
-                                                        <span class="path1"></span>
-                                                        <span class="path2"></span>
-                                                    </i>
-                                                </span>
-                                                <span class="menu-title">Dashboard</span>
-                                            </a>
-                                            <!--end:Menu link-->
-                                        </div>
-                                        <!--end:Menu item-->
-                                    @endcan
-
-                                    @canany(['users.view', 'roles.view'])
-                                        <!--begin:Menu item-->
-                                        <div class="menu-item pt-3">
-                                            <!--begin:Menu content-->
-                                            <div class="menu-content">
-                                                <span class="menu-heading fw-bold text-uppercase fs-7">Master &
-                                                    Seting</span>
-                                            </div>
-                                            <!--end:Menu content-->
-                                        </div>
-                                        <!--end:Menu item-->
-                                        @canany(['users.view', 'roles.view'])
-                                            <div data-kt-menu-trigger="click"
-                                                class="menu-item menu-accordion {{ request()->routeIs('master.user*') || request()->routeIs('master.role*') || request()->routeIs('master.branch*') ? 'here show' : '' }}">
-                                                <!--begin:Menu link-->
-                                                <span class="menu-link">
-                                                    <span class="menu-icon">
-                                                        <i class="ki-duotone ki-shield-search fs-2">
-                                                            <span class="path1"></span>
-                                                            <span class="path2"></span>
-                                                            <span class="path3"></span>
-                                                        </i>
-                                                    </span>
-                                                    <span class="menu-title">Master User & Role</span>
-                                                    <span class="menu-arrow"></span>
-                                                </span>
-                                                <!--end:Menu link-->
-                                                <!--begin:Menu sub-->
-                                                <div class="menu-sub menu-sub-accordion">
-                                                    @can('users.view')
-                                                        <!--begin:Menu item-->
-                                                        <div class="menu-item">
-                                                            <!--begin:Menu link-->
-                                                            <a class="menu-link {{ request()->routeIs('master.user.index') ? 'active' : '' }}"
-                                                                href="{{ route('master.user.index') }}">
-                                                                <span class="menu-bullet">
-                                                                    <span class="bullet bullet-dot"></span>
-                                                                </span>
-                                                                <span class="menu-title">User</span>
-                                                            </a>
-                                                            <!--end:Menu link-->
-                                                        </div>
-                                                        <!--end:Menu item-->
-                                                    @endcan
-                                                    @can('roles.view')
-                                                        <!--begin:Menu item-->
-                                                        <div class="menu-item">
-                                                            <!--begin:Menu link-->
-                                                            <a class="menu-link {{ request()->routeIs('master.role.index') ? 'active' : '' }}"
-                                                                href="{{ route('master.role.index') }}">
-                                                                <span class="menu-bullet">
-                                                                    <span class="bullet bullet-dot"></span>
-                                                                </span>
-                                                                <span class="menu-title">Role</span>
-                                                            </a>
-                                                            <!--end:Menu link-->
-                                                        </div>
-                                                        <!--end:Menu item-->
-                                                    @endcan
-                                                    {{-- @can('master-permission')
-                                                        <!--begin:Menu item-->
-                                                        <div class="menu-item">
-                                                            <!--begin:Menu link-->
-                                                            <a class="menu-link {{ request()->routeIs('master.permission.index') ? 'active' : '' }}"
-                                                                href="{{ route('master.permission.index') }}">
-                                                                <span class="menu-bullet">
-                                                                    <span class="bullet bullet-dot"></span>
-                                                                </span>
-                                                                <span class="menu-title">Permission</span>
-                                                            </a>
-                                                            <!--end:Menu link-->
-                                                        </div>
-                                                        <!--end:Menu item-->
-                                                    @endcan --}}
-                                                </div>
-                                                <!--end:Menu sub-->
-                                            </div>
-                                        @endcanany
-                                    @endcanany
-
-
+                                    @include('layouts.partials.sidebar-menu')
                                 </div>
                                 <!--end::Menu-->
                             </div>
@@ -447,6 +350,8 @@
             }
         }
     </script>
+    <script src="{{ asset('assets/js/organizer/http.js') }}"></script>
+    @stack('vendor_js')
     @yield('script')
     @if (session()->has('success'))
         <script>

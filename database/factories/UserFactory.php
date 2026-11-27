@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\UserStatus;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -37,6 +38,7 @@ class UserFactory extends Factory
             'remember_token' => Str::random(10),
             'profile_photo_path' => null,
             'current_team_id' => null,
+            'status' => UserStatus::Active,
         ];
     }
 
@@ -47,6 +49,28 @@ class UserFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
+        ]);
+    }
+
+    /**
+     * A person recorded in the directory who has no login credentials.
+     */
+    public function withoutLogin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'username' => null,
+            'password' => null,
+            'remember_token' => null,
+        ]);
+    }
+
+    /**
+     * A person who is no longer active in the organization.
+     */
+    public function inactive(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => UserStatus::Inactive,
         ]);
     }
 
