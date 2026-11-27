@@ -131,6 +131,35 @@
             </div>
 
             <div class="col-xl-4">
+                @if ($work)
+                    <div class="card ui-panel mb-5" data-work-progress>
+                        <div class="card-header">
+                            <div class="card-title"><h3>Progres Kerja</h3></div>
+                            <div class="card-toolbar">
+                                <a href="{{ route('events.work', $event) }}" class="btn btn-sm btn-light-primary">Lihat Tugas</a>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex align-items-end justify-content-between mb-2">
+                                <span class="fs-2hx fw-bold text-gray-900" data-work-percent>{{ $work['progress']['percent'] === null ? 'N/A' : $work['progress']['percent'].'%' }}</span>
+                                <span class="text-muted fs-7">{{ $work['progress']['total'] > 0 ? $work['completed'].' dari '.($work['open'] + $work['completed']).' tugas selesai' : 'Belum ada tugas' }}</span>
+                            </div>
+                            <div class="progress h-8px bg-light mb-6">
+                                <div class="progress-bar bg-primary" style="width: {{ $work['progress']['percent'] ?? 0 }}%"></div>
+                            </div>
+                            <div class="row g-3 text-center">
+                                @foreach ([['Belum Selesai', $work['open'], 'text-gray-900'], ['Terlambat', $work['overdue'], 'text-danger'], ['Selesai', $work['completed'], 'text-success']] as [$label, $value, $tone])
+                                    <div class="col-4">
+                                        <div class="border border-dashed border-gray-300 rounded py-3">
+                                            <div class="fs-3 fw-bold {{ $tone }}">{{ $value }}</div>
+                                            <div class="text-muted fs-8">{{ $label }}</div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                @endif
                 <div class="card ui-panel">
                     <div class="card-header">
                         <div class="card-title"><h3>Riwayat Status</h3></div>

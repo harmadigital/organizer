@@ -13,3 +13,6 @@ A list page script only calls OrganizerMasterCrud.create({resource, entity, colu
 
 ## Use the shared picker and select helpers in page scripts
 Fill or clear dates with OrganizerDatePicker.setValue/clearAll and remote dropdowns with OrganizerSelect.setValue(select, id, label)/reset/setParams; call OrganizerSelect.init(element) for dropdowns added after page load. Both helpers keep Esc for an open calendar or dropdown so a surrounding modal stays open. Long forms in a modal use the Metronic KTStepper; it swallows submit-button clicks, so listen to kt.stepper.submit.
+
+## Build URLs from the full path, never a bare hash
+layouts/main_layout sets <base href> to the site root, so relative URLs and bare hashes ("#komentar") resolve against the root, not the current page. In page scripts use window.location.pathname + window.location.search + "#..." for history.replaceState, and absolute or route()-generated URLs from data attributes for requests.

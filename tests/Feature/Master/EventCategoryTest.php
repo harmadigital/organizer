@@ -45,7 +45,7 @@ class EventCategoryTest extends MasterRecordTestCase
 
         $this->actingAs($manager)->postJson($this->url('insert'), [...$this->validPayload(), 'name' => 'Retret'])
             ->assertStatus(422)
-            ->assertJsonPath('errors.name.0', 'nama kategori sudah digunakan.');
+            ->assertJsonPath('errors.name.0', 'Nama kategori sudah digunakan.');
 
         $this->actingAs($manager)->postJson($this->url('update', [$other]), [...$this->validPayload(), 'name' => 'Retret'])
             ->assertStatus(422);

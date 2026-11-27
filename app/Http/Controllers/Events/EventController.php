@@ -11,6 +11,7 @@ use App\Enums\EventPhase;
 use App\Enums\EventStatus;
 use App\Enums\MembershipStatus;
 use App\Enums\ObjectiveType;
+use App\Enums\TaskStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Events\ChangeEventPhaseRequest;
 use App\Http\Requests\Events\ChangeEventStatusRequest;
@@ -25,6 +26,8 @@ use App\Services\DisplayTime;
 use App\Services\EventAccess;
 use App\Services\EventReadiness;
 use App\Services\PeopleLookup;
+use App\Services\TaskAuthority;
+use App\Services\WorkProgress;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
@@ -119,7 +122,7 @@ class EventController extends Controller
         return $this->jsonSuccess(['id' => $event->getKey(), 'url' => route('events.overview', $event)], 201);
     }
 
-    public function overview(Request $request, Event $event, EventReadiness $readiness, DisplayTime $displayTime): View
+    public function overview(Request $request, Event $event, EventReadiness $readiness, DisplayTime $displayTime, TaskAuthority $work, WorkProgress $progress): View
     {
         $event->load(['category', 'venue', 'unit', 'responsibleUser', 'objectives', 'statusHistories.actor']);
 
@@ -144,8 +147,31 @@ class EventController extends Controller
             ]),
             'transitions' => $event->status->allowedTransitions(),
             'phases' => EventPhase::cases(),
+            'work' => $this->workSummary($request, $event, $work, $progress, $displayTime),
             ...$this->formOptions(),
         ]);
+    }
+
+    /**
+     * Progress card on the overview, for people who may see the event's work.
+     *
+     * @return array{progress: array{percent: ?int, done: int, total: int}, open: int, overdue: int, completed: int}|null
+     */
+    private function workSummary(Request $request, Event $event, TaskAuthority $work, WorkProgress $progress, DisplayTime $displayTime): ?array
+    {
+        if (! $work->canViewWork($request->user(), $event)) {
+            return null;
+        }
+
+        $tasks = $work->visibleTasks($request->user(), $event)->get(['id', 'parent_id', 'status', 'weight', 'due_on']);
+        $today = now($displayTime->timezone())->startOfDay();
+
+        return [
+            'progress' => $progress->of($tasks),
+            'open' => $tasks->filter(fn ($task) => ! $task->status->isClosed())->count(),
+            'overdue' => $tasks->filter(fn ($task) => $task->isOverdue($today))->count(),
+            'completed' => $tasks->where('status', TaskStatus::Completed)->count(),
+        ];
     }
 
     /**

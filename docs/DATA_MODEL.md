@@ -109,6 +109,8 @@ Catatan:
 
 ### 5.1 Program kerja dan tugas (Batch 1.3)
 
+**Sudah dibuat.** Yang dibuat berbeda dari usulan di bawah: milestone menjadi kolom `tasks.is_milestone` (sejak 27 Nov 2026 tidak dipakai lagi); bobot `tasks.weight` hanya 1/2/3 (ringan/sedang/berat); `task_reviews` diganti `task_status_changes` (`task_id`, `action`, `from_status`, `to_status`, `note`, `actor_user_id`); `work_programs.division_id` wajib dan tanpa `weight`; `tasks.due_on` berupa tanggal tanpa `milestone_id`, `source_*`, dan soft delete; `activity_logs` melekat pada `task_id`. Sejak penyederhanaan 27 Nov 2026, hasil tugas disimpan di `tasks.result` dan `activity_logs` tidak dipakai aplikasi (tabel belum dihapus); status `in_progress` dan `blocked` tidak lagi dipakai. Semua rujukan di dalam event (seksi, program, induk, penanggung jawab, anggota, prasyarat, penulis catatan) memakai foreign key komposit `(x_id, event_id)` sehingga tidak bisa menunjuk event lain.
+
 | Tabel | Kolom kunci | Constraint |
 |---|---|---|
 | `work_programs` | `event_id`, `division_id` (nullable), `title`, `objective`, `output`, `indicator`, `pic_membership_id`, `starts_on`, `ends_on`, `status`, `weight` | Seksi dari event yang sama |
@@ -122,6 +124,8 @@ Catatan:
 Status tugas: `draft`, `todo`, `in_progress`, `blocked`, `pending_review`, `completed`, `cancelled`. Transisi yang sah didefinisikan di enum dan diuji. `tasks.source_*` dibatasi ke `action_item`, `coordination_request`, `issue`, dan `corrective_action`.
 
 ### 5.2 Dokumen (Batch 1.3 inti, 1.7 repositori)
+
+**Inti sudah dibuat** (`documents`, `document_versions`, `document_links`). Belum ada `status`, `division_id`, `current_version_id`, dan `document_tags` (Batch 1.7). Indeks unik `document_links` bernama `document_links_unique_link` karena nama otomatisnya melebihi batas MySQL.
 
 | Tabel | Kolom kunci | Constraint |
 |---|---|---|

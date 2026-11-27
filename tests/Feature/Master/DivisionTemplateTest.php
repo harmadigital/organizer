@@ -50,7 +50,7 @@ class DivisionTemplateTest extends MasterRecordTestCase
 
         $this->actingAs($manager)->postJson($this->url('insert'), [...$this->validPayload(), 'name' => 'Seksi Konsumsi'])
             ->assertStatus(422)
-            ->assertJsonPath('errors.name.0', 'nama template seksi sudah digunakan.');
+            ->assertJsonPath('errors.name.0', 'Nama template seksi sudah digunakan.');
 
         $this->actingAs($manager)->postJson($this->url('update', [$other]), [...$this->validPayload(), 'name' => 'Seksi Konsumsi'])
             ->assertStatus(422);

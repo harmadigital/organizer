@@ -9,6 +9,11 @@ use App\Actions\Events\CreateDivisionsFromTemplates;
 use App\Actions\Events\SaveDivision;
 use App\Actions\Events\SaveEvent;
 use App\Actions\Organization\ProvisionDefaultCommitteeRoles;
+use App\Actions\Work\AddTaskDependency;
+use App\Actions\Work\CompleteTask;
+use App\Actions\Work\PostTaskComment;
+use App\Actions\Work\SaveTask;
+use App\Actions\Work\SaveWorkProgram;
 use App\Enums\CommitteeRoleKind;
 use App\Enums\EventPhase;
 use App\Enums\EventStatus;
@@ -20,16 +25,19 @@ use App\Models\Event;
 use App\Models\EventCategory;
 use App\Models\Organization;
 use App\Models\OrganizationUnit;
+use App\Models\Task;
 use App\Models\User;
 use App\Models\Venue;
+use App\Models\WorkProgram;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 
 /**
  * Fictional sample data for trying the application: units, people with and without
- * login access, a sample role, division templates, event categories, venues, and two
- * events with their committees (one active, one draft that still misses required roles).
+ * login access, a sample role, division templates, event categories, venues, two events
+ * with their committees (one active, one draft that still misses required roles), and work
+ * programs and tasks in every status for the active event.
  *
  * Run it on purpose with `php artisan db:seed --class=DemoSeeder`; DatabaseSeeder never
  * calls it. It only adds what is missing, so it is safe to run again, and it never
@@ -71,6 +79,7 @@ class DemoSeeder extends Seeder
             $this->eventCategories($organization);
             $this->venues($organization);
             $this->events($organization);
+            $this->work($organization);
         });
 
         $this->command?->info('Data demo siap. Akun demo memakai kata sandi: '.self::DEMO_PASSWORD);
@@ -313,5 +322,92 @@ class DemoSeeder extends Seeder
             $assign($retreat, 'Timotius Halim', CommitteeRoleKind::Secretary);
             $assign($retreat, 'Samuel Tanoto', CommitteeRoleKind::DivisionCoordinator, $program, accepted: false);
         }
+    }
+
+    /**
+     * Programs and tasks for the Christmas event: open and finished tasks with their results,
+     * subtasks, a prerequisite and comments. Added once: skipped when the event already has programs.
+     */
+    private function work(Organization $organization): void
+    {
+        $christmas = Event::query()->forOrganization($organization)->where('code', 'DEMO-NATAL-2026')->first();
+
+        if ($christmas === null || $christmas->programs()->exists()) {
+            return;
+        }
+
+        $organizer = User::query()->where('username', 'demo.admin')->sole();
+        $division = fn (string $name): Division => $christmas->divisions()->where('name', $name)->sole();
+        $member = fn (string $name): int => $christmas->memberships()->whereHas('user', fn ($user) => $user->where('name', $name))->value('id');
+        $saveTask = app(SaveTask::class);
+        $complete = fn (Task $task, string $result) => app(CompleteTask::class)->handle($task, $result.' Data demo.', [], $organizer);
+
+        $program = fn (string $divisionName, string $title, string $pic, array $details) => app(SaveWorkProgram::class)->handle($christmas, new WorkProgram, [
+            'division_id' => $division($divisionName)->id,
+            'title' => $title,
+            'pic_membership_id' => $member($pic),
+            'status' => 'active',
+            ...$details,
+        ], $organizer);
+
+        $task = fn (array $attributes, array $assignees = []): Task => $saveTask->handle($christmas, new Task, [
+            'priority' => 'medium',
+            'weight' => 1,
+            ...$attributes,
+        ], $assignees, $organizer);
+        $comment = fn (Task $task, string $name, string $body) => app(PostTaskComment::class)->handle($task, User::query()->where('name', $name)->sole(), $body.' (Data demo)');
+
+        $liturgy = $program('Seksi Acara', 'Liturgi dan rundown ibadah malam Natal', 'Ruth Hutapea', [
+            'objective' => 'Ibadah malam Natal berjalan khidmat dan tepat waktu.',
+            'output' => 'Liturgi final, rundown, dan daftar petugas.',
+            'indicator' => 'Ibadah selesai dalam 120 menit tanpa jeda teknis.',
+            'starts_on' => '2026-10-15',
+            'ends_on' => '2026-12-24',
+        ]);
+        $sound = $program('Seksi Multimedia & Sound', 'Sistem suara dan tayangan', 'Markus Wibowo', [
+            'objective' => 'Suara jelas dan tayangan lirik tepat di seluruh ruangan.',
+            'output' => 'Sound system terpasang, cue list, dan slide lirik.',
+            'indicator' => 'Soundcheck lulus H-1.',
+            'starts_on' => '2026-11-01',
+            'ends_on' => '2026-12-25',
+        ]);
+
+        $draftLiturgy = $task(['title' => 'Susun draf liturgi', 'work_program_id' => $liturgy->id, 'owner_membership_id' => $member('Ruth Hutapea'), 'priority' => 'high', 'weight' => 3, 'starts_on' => '2026-10-20', 'due_on' => '2026-11-10']);
+        $complete($draftLiturgy, 'Urutan ibadah disepakati bersama pendeta pada rapat liturgi 8 November.');
+
+        $rundown = $task(['title' => 'Rundown ibadah malam Natal', 'work_program_id' => $liturgy->id, 'owner_membership_id' => $member('Ruth Hutapea'), 'priority' => 'high', 'weight' => 2, 'starts_on' => '2026-11-11', 'due_on' => '2026-12-05'], [$member('Priskila Gultom')]);
+        app(AddTaskDependency::class)->handle($rundown, $draftLiturgy, $organizer);
+        $complete($rundown, 'Rundown 120 menit selesai: pukul 19.00 sampai 21.00, termasuk drama anak 15 menit.');
+        $comment($rundown, 'Timotius Halim', 'Mohon drama anak dipastikan selesai sebelum pukul 20.30.');
+        $comment($rundown, 'Ruth Hutapea', 'Siap, durasi drama sudah dipangkas menjadi 12 menit.');
+
+        $officers = $task(['title' => 'Jadwal petugas ibadah', 'work_program_id' => $liturgy->id, 'owner_membership_id' => $member('Priskila Gultom'), 'weight' => 2, 'starts_on' => '2026-11-15', 'due_on' => '2026-12-12']);
+        foreach (['Konfirmasi pemandu pujian', 'Konfirmasi pembaca Alkitab', 'Konfirmasi kolektan'] as $position => $title) {
+            $subtask = $task(['title' => $title, 'parent_id' => $officers->id, 'owner_membership_id' => $member('Priskila Gultom'), 'due_on' => '2026-12-0'.($position + 5)]);
+
+            if ($position === 0) {
+                $complete($subtask, 'Dua pemandu pujian bersedia dan sudah menerima daftar lagu.');
+            }
+        }
+
+        $task(['title' => 'Gladi bersih ibadah', 'work_program_id' => $liturgy->id, 'owner_membership_id' => $member('Ruth Hutapea'), 'weight' => 2, 'starts_on' => '2026-12-23', 'due_on' => '2026-12-23']);
+
+        $soundRental = $task(['title' => 'Sewa sound system tambahan', 'work_program_id' => $sound->id, 'owner_membership_id' => $member('Markus Wibowo'), 'priority' => 'critical', 'weight' => 3, 'starts_on' => '2026-11-05', 'due_on' => '2026-11-25']);
+        $comment($soundRental, 'Debora Simanjuntak', 'Anggaran sewa sudah disetujui, silakan lanjut pesan.');
+
+        $task(['title' => 'Slide lirik lagu', 'work_program_id' => $sound->id, 'owner_membership_id' => $member('Daniel Kurniawan'), 'weight' => 2, 'starts_on' => '2026-12-01', 'due_on' => '2026-12-18']);
+        $task(['title' => 'Soundcheck H-1', 'work_program_id' => $sound->id, 'owner_membership_id' => $member('Markus Wibowo'), 'priority' => 'high', 'weight' => 2, 'due_on' => '2026-12-23'], [$member('Daniel Kurniawan')]);
+        $core = app(SaveWorkProgram::class)->handle($christmas, new WorkProgram, [
+            'division_id' => null,
+            'title' => 'Koordinasi pengurus inti',
+            'pic_membership_id' => $member('Timotius Halim'),
+            'status' => 'active',
+            'objective' => 'Administrasi, undangan, dan anggaran panitia berjalan tertib.',
+            'starts_on' => '2026-10-01',
+            'ends_on' => '2026-12-31',
+        ], $organizer);
+        $task(['title' => 'Kirim undangan Natal ke jemaat', 'work_program_id' => $core->id, 'owner_membership_id' => $member('Maria Lestari'), 'due_on' => '2026-11-20']);
+        $task(['title' => 'Susun RAB awal panitia', 'work_program_id' => $core->id, 'owner_membership_id' => $member('Debora Simanjuntak'), 'priority' => 'high', 'weight' => 3, 'due_on' => '2026-12-01']);
+        $task(['title' => 'Ide dekorasi panggung anak', 'division_id' => $division('Seksi Acara')->id, 'priority' => 'low']);
     }
 }

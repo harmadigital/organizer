@@ -44,7 +44,7 @@ class OrganizationUnitTest extends MasterRecordTestCase
 
         $this->actingAs($this->manager())->postJson($this->url('insert'), [...$this->validPayload(), 'name' => 'Komisi Anak'])
             ->assertStatus(422)
-            ->assertJsonPath('errors.name.0', 'nama unit sudah digunakan.');
+            ->assertJsonPath('errors.name.0', 'Nama unit sudah digunakan.');
     }
 
     public function test_a_unit_can_be_placed_under_another_unit(): void

@@ -86,6 +86,7 @@ class PermissionSeeder extends Seeder
         'events.create',
         'events.update',
         'events.manage-committee',
+        'events.manage-work',
         'events.change-status',
     ];
 

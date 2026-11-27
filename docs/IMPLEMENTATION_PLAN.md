@@ -262,6 +262,7 @@ Setiap batch selesai jika memenuhi Definition of Done di spec bagian 12: migrati
 #### Batch 1.3 — Program kerja, tugas, aktivitas, dan inti lampiran
 - **Lingkup:** program kerja per seksi; tugas/sub-tugas, milestone, dependency, assignee, review; transisi status yang sah; tampilan list, kanban, dan kalender; log aktivitas; unggah bukti; kalkulasi progres.
 - **Tabel:** `work_programs`, `milestones`, `tasks`, `task_assignees`, `task_dependencies`, `task_reviews`, `activity_logs`, `documents`, `document_versions`, `document_links`.
+- **Status:** dikerjakan 27 Nov 2026, menunggu review. Milestone menjadi kolom `tasks.is_milestone` dan review tercatat di `task_status_changes`; rincian di tracker bagian 15.
 - **Kriteria terima:** tugas dengan review wajib tidak bisa `Completed` sebelum disahkan; reopen wajib beralasan; dependency lintas event dan siklus ditolak; progres = bobot tugas daun selesai ÷ bobot tugas daun yang berlaku, tugas dibatalkan dikecualikan, penyebut nol menghasilkan N/A; unduhan lampiran ditolak bagi non-anggota event.
 - **Test:** unit transisi status dan kalkulator progres (termasuk parent/subtask tidak terhitung ganda); feature dependency, review, akses lampiran; validasi MIME dan ukuran.
 
@@ -492,7 +493,7 @@ Asumsi lain yang dipakai dokumen ini:
 
 ## 12. Langkah setelah review
 
-1. Review hasil Batch 1.2 (tracker bagian 13).
-2. Batch 1.3 (program kerja, tugas, aktivitas, lampiran) memakai `EventAccess` dan ability seksi yang sudah ada.
+1. Review hasil Batch 1.3 (tracker bagian 15).
+2. Batch 1.4 (rapat, notulen, keputusan): action item notulen menjadi tugas lewat `SaveTask`, dengan kolom sumber tugas ditambahkan di batch itu.
 3. Koreksi model data di [DATA_MODEL.md](DATA_MODEL.md) bila ada.
 4. Pengerjaan berlanjut satu batch per iterasi, dengan tracker diperbarui di akhir setiap batch.

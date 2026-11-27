@@ -104,7 +104,7 @@ class CommitteeRoleTest extends MasterRecordTestCase
 
         $this->actingAs($this->manager())->postJson($this->url('insert'), $this->validPayload())
             ->assertStatus(422)
-            ->assertJsonPath('errors.name.0', 'nama jabatan sudah digunakan.');
+            ->assertJsonPath('errors.name.0', 'Nama jabatan sudah digunakan.');
     }
 
     public function test_a_custom_role_needs_a_valid_scope(): void

@@ -45,7 +45,7 @@ class VenueTest extends MasterRecordTestCase
 
         $this->actingAs($manager)->postJson($this->url('insert'), [...$this->validPayload(), 'name' => 'Gedung Gereja'])
             ->assertStatus(422)
-            ->assertJsonPath('errors.name.0', 'nama venue sudah digunakan.');
+            ->assertJsonPath('errors.name.0', 'Nama venue sudah digunakan.');
 
         $this->actingAs($manager)->postJson($this->url('update', [$other]), [...$this->validPayload(), 'name' => 'Gedung Gereja'])
             ->assertStatus(422);

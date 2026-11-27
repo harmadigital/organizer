@@ -3,6 +3,8 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Events\CommitteeController;
 use App\Http\Controllers\Events\EventController;
+use App\Http\Controllers\Events\TaskController;
+use App\Http\Controllers\Events\WorkController;
 use App\Http\Controllers\Master\CommitteeRoleController;
 use App\Http\Controllers\Master\DivisionTemplateController;
 use App\Http\Controllers\Master\EventCategoryController;
@@ -154,6 +156,35 @@ Route::middleware(['auth:web', config('jetstream.auth_session'), 'verified', 'or
                 Route::post('/assignments/{assignment}/end', 'endAssignment')->name('assignments.end');
                 Route::post('/memberships/{membership}/confirm', 'confirmMembership')->name('memberships.confirm');
                 Route::post('/memberships/{membership}/revoke', 'revokeMembership')->name('memberships.revoke');
+            });
+
+            Route::controller(WorkController::class)->group(function () {
+                Route::get('/work', 'index')->name('work');
+                Route::get('/work/data', 'data')->name('work.data');
+                Route::get('/work/member-options', 'memberOptions')->name('work.member_options');
+                Route::get('/work/task-options', 'taskOptions')->name('work.task_options');
+                Route::get('/work/program-options', 'programOptions')->name('work.program_options');
+                Route::post('/programs/insert', 'storeProgram')->name('programs.insert');
+                Route::get('/programs/{program}/show', 'showProgram')->name('programs.show');
+                Route::post('/programs/{program}/update', 'updateProgram')->name('programs.update');
+                Route::post('/programs/{program}/delete', 'deleteProgram')->name('programs.delete');
+            });
+
+            // {dependency}, {document} and {comment} resolve through the task, so they must belong to it.
+            Route::controller(TaskController::class)->group(function () {
+                Route::post('/tasks/insert', 'store')->name('tasks.insert');
+                Route::get('/tasks/{task}', 'detail')->name('tasks.detail');
+                Route::get('/tasks/{task}/show', 'show')->name('tasks.show');
+                Route::post('/tasks/{task}/update', 'update')->name('tasks.update');
+                Route::post('/tasks/{task}/dependencies/insert', 'addDependency')->name('tasks.dependencies.insert');
+                Route::post('/tasks/{task}/dependencies/{dependency}/delete', 'removeDependency')->name('tasks.dependencies.delete');
+                Route::post('/tasks/{task}/complete', 'complete')->name('tasks.complete');
+                Route::post('/tasks/{task}/result', 'saveResult')->name('tasks.result');
+                Route::post('/tasks/{task}/comments/insert', 'postComment')->name('tasks.comments.insert');
+                Route::post('/tasks/{task}/comments/{comment}/delete', 'deleteComment')->name('tasks.comments.delete');
+                Route::post('/tasks/{task}/documents/insert', 'uploadDocument')->name('tasks.documents.insert');
+                Route::get('/tasks/{task}/documents/{document}/download', 'downloadDocument')->name('tasks.documents.download');
+                Route::post('/tasks/{task}/documents/{document}/delete', 'deleteDocument')->name('tasks.documents.delete');
             });
         });
     });

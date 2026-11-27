@@ -52,6 +52,64 @@ var OrganizerDatePicker = (function () {
         });
     };
 
+    /**
+     * Di dalam modal, kalender berada di area form yang bisa di-scroll, sehingga bisa
+     * terpotong. Saat dibuka: tampil di bawah input bila muat, di atas bila di sana muat,
+     * selain itu area form diberi ruang sementara sampai kalender terlihat utuh. Bila melewati
+     * tepi kanan, kalender dirapatkan ke kanan input.
+     */
+    var fitInsideScrollArea = function (instance) {
+        var calendar = instance.calendarContainer;
+        var area = instance.input.closest('.modal-body') || instance.input.closest('.modal-content');
+
+        if (!instance.config.static || !area) {
+            return;
+        }
+
+        calendar.classList.remove('ui-calendar-above', 'ui-calendar-right');
+
+        window.requestAnimationFrame(function () {
+            var areaBox = area.getBoundingClientRect();
+            var fieldBox = calendar.parentNode.getBoundingClientRect();
+            var calendarBox = calendar.getBoundingClientRect();
+            var height = calendarBox.height + 8;
+
+            if (calendarBox.right > areaBox.right) {
+                calendar.classList.add('ui-calendar-right');
+            }
+
+            if (areaBox.bottom - fieldBox.bottom >= height) {
+                return;
+            }
+
+            if (fieldBox.top - areaBox.top >= height) {
+                calendar.classList.add('ui-calendar-above');
+
+                return;
+            }
+
+            // Tidak muat di atas maupun di bawah: area form diberi ruang di bawah selama kalender
+            // terbuka (modal ikut memanjang), lalu di-scroll bila modal sudah setinggi layar.
+            var extra = Math.ceil(fieldBox.bottom + height - areaBox.bottom);
+
+            area.dataset.calendarSpace = area.style.paddingBottom;
+            area.style.paddingBottom = (parseFloat(window.getComputedStyle(area).paddingBottom) + extra) + 'px';
+
+            window.requestAnimationFrame(function () {
+                calendar.scrollIntoView({ block: 'nearest' });
+            });
+        });
+    };
+
+    var releaseScrollArea = function (instance) {
+        var area = instance.input.closest('.modal-body') || instance.input.closest('.modal-content');
+
+        if (area && area.dataset.calendarSpace !== undefined) {
+            area.style.paddingBottom = area.dataset.calendarSpace;
+            delete area.dataset.calendarSpace;
+        }
+    };
+
     var attach = function (input) {
         if (input._flatpickr || typeof flatpickr === 'undefined') {
             return;
@@ -68,6 +126,12 @@ var OrganizerDatePicker = (function () {
             static: input.closest('.modal') !== null,
             onChange: function () {
                 syncDependents(input);
+            },
+            onOpen: function (selectedDates, dateString, instance) {
+                fitInsideScrollArea(instance);
+            },
+            onClose: function (selectedDates, dateString, instance) {
+                releaseScrollArea(instance);
             },
             onReady: function (selectedDates, dateString, instance) {
                 instance.altInput.setAttribute('aria-label', accessibleName);

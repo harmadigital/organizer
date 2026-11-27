@@ -17,12 +17,10 @@
         @can('viewCommittee', $event)
             <a @class(['nav-link', 'active' => request()->routeIs('events.committee')]) href="{{ route('events.committee', $event) }}">Panitia</a>
         @endcan
+        @can('viewWork', $event)
+            <a @class(['nav-link', 'active' => request()->routeIs('events.work', 'events.tasks.*')]) href="{{ route('events.work', $event) }}">Program &amp; Tugas</a>
+        @endcan
     </div>
 </x-ui.page-header>
 
-@unless ($event->isEditable())
-    <div class="notice d-flex bg-light-warning rounded border-warning border border-dashed p-5">
-        <i class="ki-duotone ki-information-5 fs-2tx text-warning me-4"><span class="path1"></span><span class="path2"></span><span class="path3"></span></i>
-        <div class="fw-semibold text-gray-700 fs-6">Event ini berstatus <strong>{{ $event->status->label() }}</strong>, sehingga data dan susunan panitianya tidak dapat diubah.</div>
-    </div>
-@endunless
+@include('events.partials.locked-notice')

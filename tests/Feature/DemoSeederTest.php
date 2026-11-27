@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\EventStatus;
 use App\Enums\MembershipStatus;
+use App\Enums\TaskStatus;
 use App\Enums\UserStatus;
 use App\Models\CommitteeRole;
 use App\Models\DivisionTemplate;
@@ -11,8 +12,10 @@ use App\Models\Event;
 use App\Models\EventCategory;
 use App\Models\Organization;
 use App\Models\OrganizationUnit;
+use App\Models\Task;
 use App\Models\User;
 use App\Models\Venue;
+use App\Models\WorkProgram;
 use App\Services\EventReadiness;
 use Database\Seeders\DatabaseSeeder;
 use Database\Seeders\DemoSeeder;
@@ -39,6 +42,8 @@ class DemoSeederTest extends TestCase
             'event_categories' => EventCategory::query()->count(),
             'venues' => Venue::query()->count(),
             'events' => Event::query()->count(),
+            'work_programs' => WorkProgram::query()->count(),
+            'tasks' => Task::query()->count(),
         ];
     }
 
@@ -56,6 +61,8 @@ class DemoSeederTest extends TestCase
             'event_categories' => 6,
             'venues' => 6,
             'events' => 2,
+            'work_programs' => 3,
+            'tasks' => 13,
         ], $this->counts());
 
         $organization = Organization::query()->sole();
@@ -91,6 +98,20 @@ class DemoSeederTest extends TestCase
         $this->assertSame(EventStatus::Draft, $retreat->status);
         $this->assertSame(['Bendahara', 'Komite / Pengawas'], app(EventReadiness::class)->missingRequiredRoles($retreat));
         $this->assertSame(MembershipStatus::Invited, $retreat->memberships()->whereHas('user', fn ($user) => $user->where('username', 'demo.pemuda'))->sole()->status);
+    }
+
+    public function test_the_active_event_has_open_and_finished_tasks_with_results_and_comments(): void
+    {
+        $this->seed(DemoSeeder::class);
+
+        $christmas = Event::query()->where('code', 'DEMO-NATAL-2026')->sole();
+        $statuses = $christmas->tasks()->pluck('status')->map(fn (TaskStatus $status) => $status->value)->unique()->sort()->values()->all();
+
+        $this->assertSame(['completed', 'todo'], $statuses);
+        $this->assertSame(3, $christmas->tasks()->withCount('comments')->get()->sum('comments_count'));
+        $this->assertSame(3, $christmas->tasks()->whereNotNull('parent_id')->count());
+        $this->assertSame(1, $christmas->tasks()->has('dependencies')->count());
+        $this->assertSame(0, $christmas->tasks()->where('status', 'completed')->whereNull('result')->count());
     }
 
     public function test_demo_accounts_can_sign_in_with_the_demo_password(): void

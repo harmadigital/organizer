@@ -111,9 +111,11 @@ var OrganizerHttp = (function () {
             return index === 0 ? part : '[' + part + ']';
         }).join('');
 
+        // "files.2" belongs to <input name="files[]">: the error of one item goes on the list field.
         return form.querySelector('[name="' + name + '"]')
             || form.querySelector('[name="' + bracketed + '"]')
-            || form.querySelector('[name="' + bracketed + '[]"]');
+            || form.querySelector('[name="' + bracketed + '[]"]')
+            || form.querySelector('[name="' + name.split('.')[0] + '[]"]');
     };
 
     /**

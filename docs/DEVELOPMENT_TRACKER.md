@@ -1,7 +1,7 @@
 # Organizer — Development Tracker
 
 **Terakhir diperbarui:** 27 November 2026
-**Fase saat ini:** Phase 1, Batch 1.2 menunggu review
+**Fase saat ini:** Phase 1, Batch 1.3 selesai (belum di-commit); Batch 1.4 berikutnya
 **Dokumen terkait:** [organizer.md](organizer.md) (master spec), [ui-ux_brief.md](ui-ux_brief.md) (acuan UI/UX), [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md), [DATA_MODEL.md](DATA_MODEL.md)
 
 Dokumen ini diperbarui di akhir setiap batch: status, migration, test yang benar-benar dijalankan beserta hasilnya, blocker, dan known issues.
@@ -15,7 +15,7 @@ Status yang dipakai: **Belum mulai**, **Dikerjakan**, **Menunggu review**, **Sel
 | Fase | Status | Catatan |
 |---|---|---|
 | Phase 0 — Audit dan perencanaan | Selesai | Disetujui 27 Nov 2026 bersama K-01 sampai K-04 |
-| Phase 1 — Core committee management | Dikerjakan | Batch 1.0 dan 1.1 selesai; Batch 1.2 menunggu review; Batch 1.3 berikutnya |
+| Phase 1 — Core committee management | Dikerjakan | Batch 1.0–1.2 selesai; Batch 1.3 menunggu review; Batch 1.4 berikutnya |
 | Phase 2 — Finance, governance, reporting | Belum mulai | – |
 | Phase 3 — Advanced operational workflows | Belum mulai | Belum dirinci |
 | Phase 4 — Organizational intelligence | Belum mulai | Belum dirinci |
@@ -28,8 +28,8 @@ Status yang dipakai: **Belum mulai**, **Dikerjakan**, **Menunggu review**, **Sel
 |---|---|---|---|---|
 | 1.0 | Fondasi: locale, audit log, helper AJAX, lapisan `ui-*`, seeder aman, baseline test | Selesai (disetujui 27 Nov 2026) | – | – |
 | 1.1 | Organisasi dan master data, ditambah penggabungan Anggota ke User (bagian 11) | Selesai (di-push ke `main` 27 Nov 2026) | – | – |
-| 1.2 | Event, kepanitiaan, kontrol akses | Menunggu review (branch `batch-1.2-event-committee`, belum di-commit) | AC-01, AC-02, AC-03 | – |
-| 1.3 | Program kerja, tugas, aktivitas, inti lampiran | Belum mulai | – | – |
+| 1.2 | Event, kepanitiaan, kontrol akses | Selesai (di-merge ke `main` 27 Nov 2026) | AC-01, AC-02, AC-03 | – |
+| 1.3 | Program kerja, tugas, aktivitas, inti lampiran | Menunggu review (di `main`, belum di-commit) | AC-01 (diperluas) | – |
 | 1.4 | Rapat, notulen, keputusan | Belum mulai | AC-05 | – |
 | 1.5 | Kalender terpusat | Belum mulai | AC-20 (sebagian) | – |
 | 1.6 | Koordinasi, isu, risiko | Belum mulai | AC-06 | – |
@@ -52,7 +52,7 @@ Status yang dipakai: **Belum mulai**, **Dikerjakan**, **Menunggu review**, **Sel
 
 | ID | Skenario | Batch | Status |
 |---|---|---|---|
-| AC-01 | Akses lintas event lewat URL, API, file, export | 1.2, diperluas tiap batch | Lulus (test otomatis, Batch 1.2) |
+| AC-01 | Akses lintas event lewat URL, API, file, export | 1.2, diperluas tiap batch | Lulus (test otomatis, Batch 1.2; Batch 1.3 menambah program, tugas, catatan, dan unduhan lampiran) |
 | AC-02 | User dengan jabatan berbeda di dua event | 1.2 | Lulus (test otomatis, Batch 1.2) |
 | AC-03 | Aktivasi tanpa jabatan wajib; event tanpa wakil | 1.2 | Lulus (test otomatis, Batch 1.2) |
 | AC-04 | Clone event | 2.9 | Belum |
@@ -184,6 +184,12 @@ Seeder (`php artisan db:seed`) dijalankan di database dev pada 27 Nov 2026 setel
 | 27 Nov 2026 | Batch 1.2 | Event, kepanitiaan, dan hak akses per event. Rincian di bagian 13 |
 | 27 Nov 2026 | Menu | Atas permintaan pemilik produk: grup Organisasi menjadi Master Data (item datar, termasuk Profil Organisasi); grup Event (Event, Kategori Event) di paling bawah |
 | 27 Nov 2026 | UI | Atas permintaan pemilik produk: semua tanggal memakai flatpickr, semua dropdown memakai select2 (autocomplete untuk data dari server), form event menjadi stepper, bagan organisasi di modal layar penuh, susunan panitia sebagai tree view, menu event dihapus dari sidebar. Rincian di bagian 14 |
+| 27 Nov 2026 | Batch 1.3 | Program kerja, tugas, catatan kegiatan, dan lampiran bukti. Permission baru `events.manage-work`. Rincian di bagian 15 |
+| 27 Nov 2026 | Batch 1.3 | Atas permintaan pemilik produk: alur tugas disederhanakan menjadi "Tandai Selesai" dengan hasil dan foto/dokumen, dan halaman Program & Tugas didesain ulang untuk panitia awam. Rincian di bagian 16 |
+| 27 Nov 2026 | Batch 1.3 | Atas permintaan pemilik produk: review/persetujuan dihapus, semua panitia melihat semua tugas, aksi tugas hanya Selesai dan Ubah, ditambah komentar. Perbaikan kalender di dalam modal. Rincian di bagian 17 |
+| 27 Nov 2026 | Batch 1.3 | Atas permintaan pemilik produk: halaman detail tugas dibagi ke dalam tab. Rincian di bagian 18 |
+| 27 Nov 2026 | Batch 1.3 | Atas permintaan pemilik produk: istilah awam untuk bobot dan milestone. Rincian di bagian 19 |
+| 27 Nov 2026 | Batch 1.3 | Program kerja Pengurus Inti dan tugas milik sendiri untuk Bendahara. Rincian di bagian 20 |
 
 ---
 
@@ -396,3 +402,182 @@ Diminta pemilik produk saat review Batch 1.2.
 Penjaga otomatis: `FoundationTest` gagal bila ada view yang memakai input tanggal native atau `<select>` tanpa select2.
 
 Uji: `php artisan test --compact` 343 lulus; uji browser alur event 49 pemeriksaan dan stepper 32 pemeriksaan, lulus penuh pada database baru.
+
+---
+
+## 15. Hasil Batch 1.3 — Program kerja, tugas, aktivitas, dan lampiran
+
+### Yang dibuat
+
+| Area | Isi |
+|---|---|
+| Program kerja | Per seksi: tujuan, keluaran, indikator, penanggung jawab, periode, status (Draf, Berjalan, Selesai, Dibatalkan). Disusun koordinator seksi; program yang sudah punya tugas tidak bisa dihapus |
+| Tugas | Untuk seluruh event atau satu seksi, boleh terkait program. Penanggung jawab, anggota tugas, prioritas, bobot 1–10, mulai, tenggat, milestone, perlu review. Subtugas satu tingkat, mengikuti seksi dan program induknya. Bisa disimpan sebagai draf |
+| Status tugas | (Disederhanakan, lihat bagian 16.) Draf → Belum Selesai → (Menunggu Review →) Selesai; Batal dan Buka Kembali. Kembalikan, batal, dan buka kembali wajib beralasan. Riwayat di `task_status_changes` dan audit |
+| Aturan kerja | Tidak bisa selesai selama prasyarat atau subtugas masih terbuka. Subtugas tidak bisa dibuka kembali di bawah induk yang sudah ditutup. Status hanya berubah lewat `ChangeTaskStatus` (baris dikunci) |
+| Review | Tugas "perlu review" masuk Menunggu Review; disetujui atau dikembalikan oleh pengelola tugas yang tidak ikut mengerjakannya |
+| Prasyarat | Hanya tugas event yang sama; ditolak bila menunggu dirinya sendiri, induk/subtugasnya, atau membentuk siklus |
+| Progres | Bobot tugas daun selesai ÷ bobot tugas daun yang berlaku. Draf dan tugas dibatalkan tidak dihitung; induk diwakili subtugasnya; penyebut nol tampil N/A. Per event, per program, dan per tugas induk |
+| Catatan kegiatan | (Diganti hasil tugas, lihat bagian 16.) |
+| Lampiran bukti | PDF, gambar, dokumen Office, TXT, CSV maksimal 10 MB, jenis diperiksa dari isi file. Disimpan di disk privat dengan sha256; diunduh hanya lewat route yang memeriksa hak lihat tugas. Menghapus melepas tautan dan mengarsipkan dokumen; file versi tetap tersimpan |
+| Hak akses | `TaskAuthority`: lihat (ProgramView/TaskView per seksi, atau ikut mengerjakan), kelola (TaskManage/ProgramManage untuk seksinya), kerjakan (TaskWork pemilik/anggota tugas), review (pengelola yang tidak ikut mengerjakan). Permission organisasi baru `events.manage-work` memberi ProgramManage dan TaskManage di semua event |
+| Tampilan | Tab **Program & Tugas** di header event: kartu ringkasan, tabel program dengan progres, tugas dalam tiga tampilan (Daftar dengan filter, Kanban geser-lepas, Kalender FullCalendar). Halaman detail tugas: aksi status, subtugas, prasyarat, catatan kegiatan, lampiran, riwayat status. Kartu Progres Kerja di Ringkasan event |
+| Data demo | Natal 2026: dua program, 13 tugas dalam semua status, tiga subtugas, satu prasyarat, dua catatan kegiatan |
+
+Perubahan lintas modul: pesan validasi bahasa Indonesia yang diawali nama field kini diawali huruf kapital (`:Attribute`), misalnya "Nama venue sudah digunakan." Lima test master data disesuaikan dengan teks ini. `OrganizerSelect.setValues` ditambahkan untuk dropdown remote yang bisa memilih banyak.
+
+### Menyimpang dari rencana
+
+| Rencana | Yang dibuat | Alasan |
+|---|---|---|
+| Tabel `milestones` | Kolom `tasks.is_milestone` | Milestone adalah tugas penting bertanggal; tabel terpisah menggandakan status dan progres |
+| Tabel `task_reviews` | `task_status_changes` (aksi approve/return beserta catatan dan pelaku) | Keputusan review adalah perpindahan status; satu riwayat untuk semua perubahan |
+| `work_programs.division_id` nullable, `weight` | Wajib seksi; tanpa bobot | Program milik seksi; progres program dihitung dari bobot tugasnya |
+| `tasks.due_at`, `milestone_id`, `source_*`, soft delete | `due_on` (tanggal), tanpa kolom sumber dan soft delete | Tenggat harian cukup; sumber tugas (action item, koordinasi) ditambah di batch yang membuatnya; tugas dibatalkan, tidak dihapus |
+| `activity_logs.division_id`, `subject_*` | `task_id` | Catatan kegiatan melekat pada tugas |
+| `documents.status`, `current_version_id`, `division_id`, `document_tags` | Belum dibuat | Bagian repositori dokumen (Batch 1.7); versi terbaru dibaca dari `version_no` tertinggi |
+
+### Keterbatasan
+
+- Kanban digeser dengan mouse (drag & drop HTML5); di ponsel status diubah dari halaman detail tugas.
+- Tugas belum bisa dihapus; batalkan bila tidak dipakai.
+- Satu file per unggahan, tanpa versi baru untuk dokumen yang sama (Batch 1.7).
+- `sensitivity` dokumen tersimpan tetapi belum membatasi unduhan selain hak lihat tugas.
+- Pengingat tenggat belum dikirim (notifikasi di Batch 1.8).
+
+### Database dev
+
+Migration Batch 1.3 sudah berjalan di database dev. Migration `document_links` sempat gagal di MySQL karena nama indeks unik otomatis melebihi 64 karakter; tabel setengah jadi yang masih kosong dihapus, nama indeks dipendekkan (`document_links_unique_link`), lalu migration itu dijalankan ulang.
+
+### Uji
+
+- `php artisan test --compact`: 423 lulus, 12 dilewati (bawaan Jetstream), 1894 assertion. Test baru: `tests/Feature/Work/*` (6 file), `tests/Unit/Services/WorkProgressTest`, `tests/Unit/Enums/TaskActionTest`; `EventIsolationTest` dan `DemoSeederTest` diperluas.
+- Uji browser `work-check.js` pada database SQLite baru: 40 pemeriksaan lulus (daftar, filter, form tugas dan validasi, kunci seksi untuk subtugas, kanban dan catatan wajib, kalender, program, persetujuan review, unggah dan unduh bukti, tampilan bendahara di ponsel, tanpa error JS atau server).
+
+---
+
+## 16. Penyederhanaan Program & Tugas (27 Nov 2026)
+
+Diminta pemilik produk saat review Batch 1.3: panitia cukup mencatat pekerjaan yang sudah selesai, dan layarnya harus mudah bagi orang yang tidak terbiasa dengan sistem. Fungsinya dipertahankan.
+
+### Alur tugas
+
+| Sebelum | Sesudah |
+|---|---|
+| Mulai Kerjakan → Dikerjakan, Tandai Terhambat → Terhambat | Dihapus. Tugas hanya **Belum Selesai** sampai ditandai selesai |
+| Selesaikan (tanpa isian) | **Tandai Selesai**: isi *Hasil pekerjaan* (wajib) dan unggah foto/dokumen (boleh beberapa, maksimal 10 file × 10 MB) dalam satu langkah. Bila salah satu bagian gagal, tidak ada yang tersimpan, termasuk file |
+| Catatan Kegiatan per tanggal | Diganti bagian **Hasil & Dokumentasi** di detail tugas: hasil bisa diubah, file bisa ditambah, foto tampil sebagai pratinjau |
+| Kembalikan / Buka Kembali → Dikerjakan | → Belum Selesai, dengan hasil sebelumnya tetap ada untuk diperbaiki |
+
+Tetap ada: draf, review oleh pengelola lain, batal, buka kembali dengan alasan, prasyarat, subtugas, bobot, dan progres.
+
+### Tampilan
+
+| Area | Perubahan |
+|---|---|
+| Ringkasan | Lima kartu menjadi satu baris progres dengan empat angka: belum selesai, terlambat, menunggu review, selesai |
+| Tugas Saya (tab pertama) | Hanya tugas milik orang yang membuka halaman, berupa kartu dengan tenggat dalam bahasa sehari-hari ("Terlambat 2 hari", "Besok") dan satu tombol **Tandai Selesai**. Terbuka otomatis bila ada tugas yang menunggu orang itu; pilihan tab terakhir diingat |
+| Per Program | Setiap program menjadi satu kotak berisi progres dan daftar tugasnya sebagai checklist; lingkaran centang membuka form selesai. **Tambah tugas** di dalam program mengisi seksi dan program sendiri. Tugas di luar program dikumpulkan di kotak terakhir. Penyaring: cari, seksi, sembunyikan yang selesai |
+| Papan Status | Empat kolom (Draf, Belum Selesai, Menunggu Review, Selesai); menggeser ke Selesai membuka form selesai |
+| Form tugas | Terlihat hanya judul, seksi, penanggung jawab, tenggat. Program, subtugas, anggota, mulai, prioritas, bobot, review, milestone, keterangan, dan draf ada di "Pengaturan lainnya" (terbuka sendiri saat mengubah tugas yang memakainya atau saat ada error di sana) |
+| Form program | Terlihat nama, seksi, penanggung jawab, periode; tujuan, keluaran, indikator, status, urutan di "Detail lainnya". Program baru langsung berstatus Berjalan |
+| Detail tugas | Panel Subtugas dan Prasyarat disembunyikan dari panitia biasa bila kosong |
+
+### Data
+
+- Kolom baru `tasks.result`. Migration `move_retired_task_statuses_to_todo` memindahkan tugas berstatus `in_progress`/`blocked` ke `todo`; riwayat status lama tidak diubah. Kasus enum `InProgress`, `Blocked`, `Start`, dan `Block` tetap ada hanya agar riwayat lama terbaca.
+- Tabel `activity_logs` tidak lagi dipakai aplikasi (model, route, dan layar dihapus) tetapi **belum dihapus** dari database; menunggu keputusan pemilik produk.
+- Kedua migration sudah dijalankan di database dev.
+
+### Uji
+
+- `php artisan test --compact`: 426 lulus, 12 dilewati (bawaan Jetstream).
+- Uji browser `work-check2.js` pada database SQLite baru: 35 pemeriksaan lulus (tampilan awal per orang, progres, grup program, tambah tugas di dalam program dengan seksi terkunci, validasi, centang → form selesai dengan hasil dan dua foto, program baru, papan empat kolom, kalender, pratinjau foto dan ubah hasil di detail, Tugas Saya di ponsel tanpa scroll horizontal, tanpa error JS atau server).
+
+---
+
+## 17. Tanpa review, tugas terbuka untuk semua panitia, dan komentar (27 Nov 2026)
+
+Diminta pemilik produk: tidak ada lempar-lemparan review dan persetujuan; tugas seksi bisa dilihat semua panitia; aksi tugas hanya **Selesai** dan **Ubah**; ditambah **komentar** dari semua panitia.
+
+### Sebelumnya, siapa yang mereview?
+
+Pengelola tugas (koordinator seksi untuk seksinya; Ketua, Wakil, Sekretaris untuk semua tugas; admin organisasi lewat `events.manage-work`) yang tidak ikut mengerjakan tugas itu. Alur ini sekarang dihapus.
+
+### Yang berubah
+
+| Area | Sekarang |
+|---|---|
+| Status | Hanya **Belum Selesai** dan **Selesai**. Draf, Menunggu Review, Dibatalkan, Dikerjakan, dan Terhambat tidak bisa dicapai lagi (tetap terbaca di riwayat lama) |
+| Aksi | **Tandai Selesai** (hasil wajib + foto/dokumen, langsung Selesai) oleh pemilik, anggota tugas, atau pengelola; **Ubah** data tugas oleh pengelola. Route `tasks/{task}/status` dihapus; tidak ada lagi setujui, kembalikan, batal, buka kembali, atau draf |
+| Lihat | Semua panitia aktif melihat semua program dan tugas event, dari seksi mana pun, termasuk unduhan lampiran. Orang yang belum menerima undangan tetap tidak bisa masuk |
+| Komentar | Tabel baru `task_comments`. Semua panitia aktif bisa berkomentar di tugas mana pun tanpa persetujuan; komentar dihapus oleh penulisnya atau pengelola tugas. Jumlah komentar tampil di daftar tugas |
+| Halaman | Tab Papan Status dihapus (tinggal dua status). Ringkasan: belum selesai, terlambat, selesai. Kartu Ringkasan event menampilkan jumlah selesai |
+| Form | Opsi "perlu review" dan "simpan sebagai draf" dihapus dari form tugas |
+| Data | Migration `finish_pending_reviews_and_drafts`: tugas Menunggu Review menjadi Selesai, draf menjadi Belum Selesai. Tugas yang sudah dibatalkan tetap tampil sebagai Dibatalkan. Kolom `tasks.requires_review` tidak dipakai lagi (belum dihapus). Sudah dijalankan di database dev |
+
+### Perbaikan pemilih tanggal di modal
+
+Kalender di form tambah/ubah tugas terpotong oleh area form yang bisa di-scroll. Sekarang saat dibuka, kalender tampil di bawah input bila muat, di atas bila di sana muat, dan bila tidak muat keduanya area form diberi ruang sementara (modal memanjang) sampai kalender terlihat utuh; bila melewati tepi kanan, kalender dirapatkan ke kanan. Berlaku untuk semua form dalam modal.
+
+### Belum ditangani
+
+- Tidak ada cara membatalkan "Selesai" yang tertekan tidak sengaja, dan tidak ada hapus/batal tugas, karena aksi dibatasi pada Selesai dan Ubah.
+- Komentar belum memberi notifikasi (Batch 1.8).
+
+### Uji
+
+- `php artisan test --compact`: 420 lulus, 12 dilewati (bawaan Jetstream). Test baru `TaskCommentTest`; test status, halaman, lampiran, isolasi, dan data demo disesuaikan dengan aturan baru.
+- Uji browser `work-check2.js`: semua pemeriksaan lulus, termasuk kalender tanggal mulai dan tenggat utuh di dalam form, komentar dari anggota seksi lain, dan tidak ada teks review di halaman. `stepper-check.js` dan `events-check.js` (form event) diulang dan tetap lulus.
+
+---
+
+## 18. Halaman detail tugas dengan tab (27 Nov 2026)
+
+Diminta pemilik produk: isi halaman `/events/{id}/tasks/{id}` jangan tampil sekaligus.
+
+| Bagian | Isi |
+|---|---|
+| Header event | Tidak ditampilkan di halaman tugas; diganti tombol **Kembali ke Program & Tugas**. Peringatan "event tidak dapat diubah" tetap muncul bila event sudah selesai/batal/arsip |
+| Kepala (selalu terlihat) | Judul, status, prioritas, milestone/terlambat, tombol **Tandai Selesai** dan **Ubah**, serta seksi, penanggung jawab, dan tenggat dalam satu baris |
+| Tab Rincian | Semua data tugas, keterangan, subtugas, prasyarat |
+| Tab Hasil & Dokumentasi | Ajakan "Tandai Selesai" bila tugas masih terbuka, hasil, foto, dokumen, unggah. Jumlah file tampil di tab |
+| Tab Komentar | Daftar dan form komentar. Jumlah komentar tampil di tab |
+| Tab Riwayat | Riwayat status |
+
+Tab pertama: **Rincian** untuk tugas yang belum selesai, **Hasil & Dokumentasi** untuk tugas yang sudah selesai. Tab yang dibuka disimpan di alamat (`#komentar`, `#hasil`, ...), sehingga setelah mengirim komentar atau mengunggah file halaman tetap di tab yang sama. Di ponsel, deretan tab bisa digeser ke samping.
+
+Ditemukan saat uji browser: layout memakai `<base href>`, sehingga alamat `#komentar` saja mengarah ke halaman utama. Skrip memakai alamat lengkap halaman.
+
+Uji: `php artisan test --compact` 421 lulus, 12 dilewati; `work-check2.js` lulus, termasuk tab awal, satu tab terlihat sekaligus, dan tetap di tab Komentar setelah berkomentar.
+
+---
+
+## 19. Istilah awam: besar pekerjaan dan momen penting (27 Nov 2026)
+
+| Sebelum | Sekarang |
+|---|---|
+| Bobot (angka 1–10) | **Besar pekerjaan**: tiga tombol *Ringan* (sekali kerja beres), *Sedang* (perlu beberapa kali kerja, bawaan), *Berat* (butuh banyak waktu atau persiapan), disimpan sebagai 1/2/3 di `tasks.weight`. Penjelasan di bawahnya: tugas berat dihitung lebih besar dalam progres. Migration `limit_task_weights_to_three_sizes` mengubah bobot lama di atas 3 menjadi 3 (sudah dijalankan di dev) |
+| Prioritas | Label "Seberapa mendesak?" |
+| Tandai sebagai milestone | **Dihapus** atas keputusan pemilik produk, karena hanya memberi tanda tanpa efek apa pun. Kolom `tasks.is_milestone` tidak dipakai lagi (belum dihapus dari database) |
+| "Bobot selesai 4 dari 18" | "x% pekerjaan event selesai (3 dari 12 tugas)" dan "3 dari 12 tugas selesai" di Ringkasan event |
+
+Uji: `php artisan test --compact` 423 lulus, 12 dilewati; `work-check2.js` lulus pada database baru.
+
+---
+
+## 20. Pengurus Inti dalam Program & Tugas (27 Nov 2026)
+
+Pertanyaan pemilik produk: bagaimana dengan pengurus inti (Ketua, Sekretaris, Bendahara) yang punya pekerjaan sendiri?
+
+| Area | Sekarang |
+|---|---|
+| Program kerja Pengurus Inti | Program boleh tanpa seksi dan tampil sebagai **Pengurus Inti**, paling atas di tab Per Program. Diatur oleh yang memegang TaskManage atau ProgramManage untuk seluruh event (Ketua, Wakil, Sekretaris, admin organisasi). Migration `allow_core_team_work_programs` membuat `work_programs.division_id` boleh kosong (sudah dijalankan di dev) |
+| Tugas Pengurus Inti | Tugas tanpa seksi kini berlabel **Pengurus Inti** (sebelumnya "Seluruh event") |
+| Tugas milik sendiri | Pengurus inti yang mengerjakan tugas tetapi tidak mengelola tugas (bawaan: Bendahara) bisa menambah dan mengubah tugas Pengurus Inti miliknya sendiri. Form-nya otomatis mengisi penanggung jawab dengan dirinya dan menyembunyikan pilihan seksi. Tidak bisa membuat tugas untuk orang lain atau di seksi |
+| Data demo | Program "Koordinasi pengurus inti" (PJ Ketua) dengan tugas undangan (Sekretaris) dan "Susun RAB awal panitia" (Bendahara). Database dev yang sudah berisi data demo tidak ditambahi, karena seeder melewati event yang sudah punya program |
+
+Pekerjaan khas Sekretaris (rapat, notulen) dan Bendahara (RAB, transaksi, pengajuan dana) dikerjakan di modul tersendiri: Batch 1.4 dan Phase 2.
+
+Uji: `php artisan test --compact` lulus penuh; `work-check2.js` lulus, termasuk Bendahara menambah tugas untuk dirinya sendiri.
+

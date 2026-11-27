@@ -6,10 +6,14 @@ use App\Enums\EventAbility;
 use App\Models\Event;
 use App\Models\User;
 use App\Services\EventAccess;
+use App\Services\TaskAuthority;
 
 class EventPolicy
 {
-    public function __construct(private EventAccess $access) {}
+    public function __construct(
+        private EventAccess $access,
+        private TaskAuthority $work,
+    ) {}
 
     public function create(User $user): bool
     {
@@ -56,5 +60,13 @@ class EventPolicy
     public function manageDivisions(User $user, Event $event): bool
     {
         return $event->isEditable() && $this->access->for($user, $event)->has(EventAbility::CommitteeManage);
+    }
+
+    /**
+     * The "Program & Tugas" tab: work programs and tasks the person may see.
+     */
+    public function viewWork(User $user, Event $event): bool
+    {
+        return $this->work->canViewWork($user, $event);
     }
 }

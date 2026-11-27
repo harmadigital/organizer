@@ -169,6 +169,26 @@ var OrganizerSelect = (function () {
         $(select).val(value).trigger('change');
     };
 
+    /**
+     * Isi dropdown remote yang bisa memilih banyak, dari daftar [{id, text}].
+     */
+    var setValues = function (select, items) {
+        var values = (items || []).map(function (item) {
+            var value = String(item.id);
+            var exists = Array.from(select.options).some(function (option) {
+                return option.value === value;
+            });
+
+            if (!exists) {
+                select.appendChild(new Option(item.text || value, value, true, true));
+            }
+
+            return value;
+        });
+
+        $(select).val(values).trigger('change');
+    };
+
     var reset = function (select) {
         if (select.hasAttribute('data-select-remote')) {
             Array.from(select.options).forEach(function (option) {
@@ -191,6 +211,7 @@ var OrganizerSelect = (function () {
     return {
         init: init,
         setValue: setValue,
+        setValues: setValues,
         reset: reset,
         setParams: setParams,
     };

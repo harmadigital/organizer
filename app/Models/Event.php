@@ -174,6 +174,36 @@ class Event extends Model
     }
 
     /**
+     * Route parameter {program} is resolved through this relation.
+     *
+     * @return HasMany<WorkProgram, $this>
+     */
+    public function programs(): HasMany
+    {
+        return $this->hasMany(WorkProgram::class);
+    }
+
+    /**
+     * Route parameter {task} is resolved through this relation.
+     *
+     * @return HasMany<Task, $this>
+     */
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(Task::class);
+    }
+
+    /**
+     * Route parameter {document} is resolved through this relation.
+     *
+     * @return HasMany<Document, $this>
+     */
+    public function documents(): HasMany
+    {
+        return $this->hasMany(Document::class);
+    }
+
+    /**
      * Route parameter {assignment} is resolved through this relation.
      *
      * @return HasMany<EventRoleAssignment, $this>

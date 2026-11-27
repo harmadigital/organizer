@@ -7,14 +7,17 @@ use App\Enums\MembershipStatus;
 use App\Models\CommitteeRole;
 use App\Models\Division;
 use App\Models\DivisionTemplate;
+use App\Models\Document;
 use App\Models\Event;
 use App\Models\EventCategory;
 use App\Models\EventMembership;
 use App\Models\EventRoleAssignment;
 use App\Models\Organization;
 use App\Models\OrganizationUnit;
+use App\Models\Task;
 use App\Models\User;
 use App\Models\Venue;
+use App\Models\WorkProgram;
 use App\Services\CurrentOrganization;
 use App\Services\DisplayTime;
 use Illuminate\Database\Console\Migrations\FreshCommand;
@@ -107,6 +110,9 @@ class AppServiceProvider extends ServiceProvider
             'division' => Division::class,
             'event_membership' => EventMembership::class,
             'event_role_assignment' => EventRoleAssignment::class,
+            'work_program' => WorkProgram::class,
+            'task' => Task::class,
+            'document' => Document::class,
         ]);
     }
 }

@@ -13,3 +13,6 @@ A list page uses x-ui.page-header, x-ui.list-toolbar, x-ui.master-table, x-ui.fo
 
 ## Dates use flatpickr, dropdowns use select2
 Never use native date/time inputs: write <input type="text" data-date-picker> (initialised by assets/js/organizer/date-picker.js with the Indonesian locale; value YYYY-MM-DD, shown as 3 April 2027; data-date-min="#other" links a minimum). Every <select> has data-control="select2", or data-select-remote="url" when options come from the server (paged search answering {results:[{id,text,description}], more}); show endpoints send <field>_label so remote selects can display the stored value. FoundationTest fails on any view that breaks either rule.
+
+## Forms for committee members show the essentials first
+Committee-facing forms (task, program, completion) show only the fields almost everyone needs; everything else sits behind a Pengaturan lainnya / Detail lainnya toggle that opens by itself when editing a record that uses those fields or when one of them has a validation error. Prefill context (division, program) instead of asking for it again.
