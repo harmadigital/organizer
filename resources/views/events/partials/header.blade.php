@@ -20,6 +20,9 @@
         @can('viewWork', $event)
             <a @class(['nav-link', 'active' => request()->routeIs('events.work', 'events.tasks.*')]) href="{{ route('events.work', $event) }}">Program &amp; Tugas</a>
         @endcan
+        @can('viewMeetings', $event)
+            <a @class(['nav-link', 'active' => request()->routeIs('events.meetings', 'events.meetings.*')]) href="{{ route('events.meetings', $event) }}">Rapat &amp; Notulen</a>
+        @endcan
     </div>
 </x-ui.page-header>
 

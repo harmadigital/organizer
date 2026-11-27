@@ -7,6 +7,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.4",
+        "dompdf/dompdf": "^3.1",
         "elegantweb/sanitizer": "^2.4",
         "laravel/framework": "^13.0",
         "laravel/jetstream": "^5.5",
@@ -14,6 +15,7 @@
         "laravel/tinker": "^3.0",
         "livewire/livewire": "^4.3",
         "spatie/laravel-permission": "^8.3",
+        "symfony/html-sanitizer": "^8.1",
         "yajra/laravel-datatables": "^13.0"
     },
     "require-dev": {

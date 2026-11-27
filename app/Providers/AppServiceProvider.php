@@ -12,6 +12,7 @@ use App\Models\Event;
 use App\Models\EventCategory;
 use App\Models\EventMembership;
 use App\Models\EventRoleAssignment;
+use App\Models\Meeting;
 use App\Models\Organization;
 use App\Models\OrganizationUnit;
 use App\Models\Task;
@@ -111,6 +112,7 @@ class AppServiceProvider extends ServiceProvider
             'event_membership' => EventMembership::class,
             'event_role_assignment' => EventRoleAssignment::class,
             'work_program' => WorkProgram::class,
+            'meeting' => Meeting::class,
             'task' => Task::class,
             'document' => Document::class,
         ]);

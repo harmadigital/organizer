@@ -8,6 +8,8 @@ use App\Actions\Events\ChangeEventStatus;
 use App\Actions\Events\CreateDivisionsFromTemplates;
 use App\Actions\Events\SaveDivision;
 use App\Actions\Events\SaveEvent;
+use App\Actions\Meetings\SaveMeeting;
+use App\Actions\Meetings\SaveMinutes;
 use App\Actions\Organization\ProvisionDefaultCommitteeRoles;
 use App\Actions\Work\AddTaskDependency;
 use App\Actions\Work\CompleteTask;
@@ -23,6 +25,7 @@ use App\Models\Division;
 use App\Models\DivisionTemplate;
 use App\Models\Event;
 use App\Models\EventCategory;
+use App\Models\Meeting;
 use App\Models\Organization;
 use App\Models\OrganizationUnit;
 use App\Models\Task;
@@ -37,7 +40,7 @@ use Spatie\Permission\Models\Role;
  * Fictional sample data for trying the application: units, people with and without
  * login access, a sample role, division templates, event categories, venues, two events
  * with their committees (one active, one draft that still misses required roles), and work
- * programs and tasks in every status for the active event.
+ * programs, tasks and meetings with minutes for the active event.
  *
  * Run it on purpose with `php artisan db:seed --class=DemoSeeder`; DatabaseSeeder never
  * calls it. It only adds what is missing, so it is safe to run again, and it never
@@ -80,6 +83,7 @@ class DemoSeeder extends Seeder
             $this->venues($organization);
             $this->events($organization);
             $this->work($organization);
+            $this->meetings($organization);
         });
 
         $this->command?->info('Data demo siap. Akun demo memakai kata sandi: '.self::DEMO_PASSWORD);
@@ -409,5 +413,53 @@ class DemoSeeder extends Seeder
         $task(['title' => 'Kirim undangan Natal ke jemaat', 'work_program_id' => $core->id, 'owner_membership_id' => $member('Maria Lestari'), 'due_on' => '2026-11-20']);
         $task(['title' => 'Susun RAB awal panitia', 'work_program_id' => $core->id, 'owner_membership_id' => $member('Debora Simanjuntak'), 'priority' => 'high', 'weight' => 3, 'due_on' => '2026-12-01']);
         $task(['title' => 'Ide dekorasi panggung anak', 'division_id' => $division('Seksi Acara')->id, 'priority' => 'low']);
+    }
+
+    /**
+     * A past plenary meeting with its minutes and an upcoming one for the Christmas event.
+     * Added once: skipped when the event already has meetings.
+     */
+    private function meetings(Organization $organization): void
+    {
+        $christmas = Event::query()->forOrganization($organization)->where('code', 'DEMO-NATAL-2026')->first();
+
+        if ($christmas === null || $christmas->meetings()->exists()) {
+            return;
+        }
+
+        $organizer = User::query()->where('username', 'demo.admin')->sole();
+        $member = fn (string $name): int => $christmas->memberships()->whereHas('user', fn ($user) => $user->where('name', $name))->value('id');
+        $save = app(SaveMeeting::class);
+
+        $plenary = $save->handle($christmas, new Meeting, [
+            'title' => 'Rapat pleno 1',
+            'meets_on' => '2026-11-10',
+            'starts_at' => '19:00',
+            'ends_at' => '21:00',
+            'location' => 'Ruang konsistori',
+            'agenda' => "Pembukaan dan doa\nLaporan tiap seksi\nSusunan acara ibadah malam Natal\nLain-lain",
+        ], $organizer);
+
+        app(SaveMinutes::class)->handle(
+            $plenary,
+            '<p>Rapat dibuka oleh <strong>Ketua</strong>. Setiap seksi melaporkan persiapan.</p><ul><li>Seksi Acara menyampaikan draf liturgi.</li><li>Seksi Multimedia mengusulkan tambahan <em>sound system</em>.</li></ul><p>Data demo.</p>',
+            ['Ibadah malam Natal dimulai pukul 19.00.', 'Anggaran sewa sound system tambahan maksimal Rp5.000.000.'],
+            [['title' => 'Kirim draf liturgi ke pendeta', 'owner_membership_id' => $member('Ruth Hutapea'), 'due_on' => '2026-11-15']],
+            0,
+            $organizer,
+        );
+
+        // A past meeting: attendance is recorded directly, as it would have been on the day.
+        $plenary->attendees()->attach(collect(['Timotius Halim', 'Maria Lestari', 'Debora Simanjuntak', 'Ruth Hutapea', 'Markus Wibowo'])
+            ->mapWithKeys(fn (string $name) => [$member($name) => ['event_id' => $christmas->getKey()]])
+            ->all());
+
+        $save->handle($christmas, new Meeting, [
+            'title' => 'Rapat koordinasi seksi',
+            'meets_on' => '2026-12-03',
+            'starts_at' => '19:30',
+            'location' => 'Aula serbaguna',
+            'agenda' => "Kesiapan tiap seksi\nGladi bersih",
+        ], $organizer);
     }
 }

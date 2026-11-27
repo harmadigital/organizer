@@ -9,6 +9,10 @@
  * Nilai yang dikirim ke server tetap YYYY-MM-DD; yang dilihat pengguna "3 April 2027".
  * Jangan memakai <input type="date">. Di ponsel pun flatpickr yang dipakai, bukan pemilih bawaan.
  *
+ * Jam memakai flatpickr juga, dengan format 24 jam (nilai "19:00"):
+ *
+ *   <input type="text" name="starts_at" class="form-control form-control-solid" data-time-picker>
+ *
  *   OrganizerDatePicker.setValue(input, '2027-04-03');
  *   OrganizerDatePicker.clearAll(form);
  */
@@ -119,7 +123,15 @@ var OrganizerDatePicker = (function () {
         var labels = Array.from(input.labels || []);
         var accessibleName = input.getAttribute('aria-label') || (labels[0] ? labels[0].textContent.trim() : 'Tanggal');
 
-        flatpickr(input, Object.assign({}, defaults, {
+        var isTime = input.hasAttribute('data-time-picker');
+
+        flatpickr(input, Object.assign({}, defaults, isTime ? {
+            enableTime: true,
+            noCalendar: true,
+            dateFormat: 'H:i',
+            altFormat: 'H:i',
+            time_24hr: true,
+        } : {}, {
             altInputClass: input.className,
             // Di dalam modal, kalender diletakkan di samping input agar tetap berada di dalam
             // modal; kalau ditempel ke <body>, modal Bootstrap merebut fokusnya.
@@ -148,7 +160,7 @@ var OrganizerDatePicker = (function () {
     };
 
     var init = function (root) {
-        (root || document).querySelectorAll('input[data-date-picker]').forEach(attach);
+        (root || document).querySelectorAll('input[data-date-picker], input[data-time-picker]').forEach(attach);
     };
 
     var setValue = function (input, value) {
@@ -163,7 +175,7 @@ var OrganizerDatePicker = (function () {
     };
 
     var clearAll = function (root) {
-        root.querySelectorAll('input[data-date-picker]').forEach(function (input) {
+        root.querySelectorAll('input[data-date-picker], input[data-time-picker]').forEach(function (input) {
             if (input._flatpickr) {
                 input._flatpickr.clear(false);
                 input._flatpickr.set('minDate', null);

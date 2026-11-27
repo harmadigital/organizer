@@ -36,7 +36,7 @@ class EventAccess
         ],
         'events.update' => [EventAbility::EventUpdate],
         'events.manage-committee' => [EventAbility::CommitteeManage, EventAbility::DivisionManage],
-        'events.manage-work' => [EventAbility::ProgramManage, EventAbility::TaskManage],
+        'events.manage-work' => [EventAbility::ProgramManage, EventAbility::TaskManage, EventAbility::MeetingManage],
     ];
 
     /**

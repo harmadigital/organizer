@@ -271,6 +271,7 @@ Setiap batch selesai jika memenuhi Definition of Done di spec bagian 12: migrati
 - **Tabel:** `meetings`, `meeting_agendas`, `meeting_attendees`, `meeting_minutes_versions`, `decisions`, `action_items`.
 - **Kriteria terima:** AC-05. Konversi action item yang diulang tidak membuat tugas ganda. Notulen yang sudah publish hanya berubah lewat versi baru.
 - **Test:** idempotensi konversi (termasuk request ganda); versi notulen; rekap kehadiran; akses rapat seksi.
+- **Status:** dikerjakan 27 Nov 2026 tanpa undangan, RSVP, dan review notulen (keputusan pemilik produk); rincian di tracker bagian 21.
 
 #### Batch 1.5 — Kalender terpusat
 - **Lingkup:** kalender pribadi, seksi, event, dan organisasi; tampilan hari/minggu/bulan/daftar; agenda manual.
@@ -493,7 +494,7 @@ Asumsi lain yang dipakai dokumen ini:
 
 ## 12. Langkah setelah review
 
-1. Review hasil Batch 1.3 (tracker bagian 15).
-2. Batch 1.4 (rapat, notulen, keputusan): action item notulen menjadi tugas lewat `SaveTask`, dengan kolom sumber tugas ditambahkan di batch itu.
+1. Review hasil Batch 1.4 (tracker bagian 21).
+2. Batch 1.5 (kalender terpusat): rapat dan tenggat tugas dalam satu kalender.
 3. Koreksi model data di [DATA_MODEL.md](DATA_MODEL.md) bila ada.
 4. Pengerjaan berlanjut satu batch per iterasi, dengan tracker diperbarui di akhir setiap batch.

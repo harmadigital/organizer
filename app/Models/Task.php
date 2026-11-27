@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 /**
@@ -177,6 +178,16 @@ class Task extends Model
     public function statusChanges(): HasMany
     {
         return $this->hasMany(TaskStatusChange::class)->latest('id');
+    }
+
+    /**
+     * The meeting follow-up this task came from, if any.
+     *
+     * @return HasOne<MeetingActionItem, $this>
+     */
+    public function actionItem(): HasOne
+    {
+        return $this->hasOne(MeetingActionItem::class);
     }
 
     /**

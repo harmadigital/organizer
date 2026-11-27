@@ -131,6 +131,37 @@
             </div>
 
             <div class="col-xl-4">
+                @if ($canViewMeetings)
+                    <div class="card ui-panel mb-5" data-next-meeting>
+                        <div class="card-header">
+                            <div class="card-title"><h3>Rapat Berikutnya</h3></div>
+                            <div class="card-toolbar">
+                                <a href="{{ route('events.meetings', $event) }}" class="btn btn-sm btn-light-primary">Semua Rapat</a>
+                            </div>
+                        </div>
+                        <div class="card-body pt-2">
+                            @if ($nextMeeting)
+                                <a href="{{ route('events.meetings.detail', [$event, $nextMeeting]) }}" class="ui-meeting-row">
+                                    <div class="ui-meeting-date">
+                                        <span class="ui-meeting-day">{{ $nextMeeting->meets_on->format('j') }}</span>
+                                        <span class="ui-meeting-month">{{ $nextMeeting->meets_on->locale('id')->translatedFormat('M') }}</span>
+                                    </div>
+                                    <div class="flex-grow-1 min-w-0">
+                                        <div class="ui-task-title">{{ $nextMeeting->title }}</div>
+                                        <div class="ui-task-meta">
+                                            <span>{{ $nextMeeting->meets_on->locale('id')->translatedFormat('l') }} · {{ $nextMeeting->timeLabel() }}</span>
+                                            @if ($nextMeeting->location)
+                                                <span>{{ $nextMeeting->location }}</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </a>
+                            @else
+                                <div class="text-muted fs-6">Belum ada rapat yang dijadwalkan.</div>
+                            @endif
+                        </div>
+                    </div>
+                @endif
                 @if ($work)
                     <div class="card ui-panel mb-5" data-work-progress>
                         <div class="card-header">

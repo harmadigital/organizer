@@ -6,6 +6,7 @@ use App\Enums\EventAbility;
 use App\Models\Event;
 use App\Models\User;
 use App\Services\EventAccess;
+use App\Services\MeetingAuthority;
 use App\Services\TaskAuthority;
 
 class EventPolicy
@@ -13,6 +14,7 @@ class EventPolicy
     public function __construct(
         private EventAccess $access,
         private TaskAuthority $work,
+        private MeetingAuthority $meetings,
     ) {}
 
     public function create(User $user): bool
@@ -68,5 +70,13 @@ class EventPolicy
     public function viewWork(User $user, Event $event): bool
     {
         return $this->work->canViewWork($user, $event);
+    }
+
+    /**
+     * The "Rapat & Notulen" tab.
+     */
+    public function viewMeetings(User $user, Event $event): bool
+    {
+        return $this->meetings->canView($user, $event);
     }
 }

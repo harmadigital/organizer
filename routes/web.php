@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Events\CommitteeController;
 use App\Http\Controllers\Events\EventController;
+use App\Http\Controllers\Events\MeetingController;
 use App\Http\Controllers\Events\TaskController;
 use App\Http\Controllers\Events\WorkController;
 use App\Http\Controllers\Master\CommitteeRoleController;
@@ -168,6 +169,21 @@ Route::middleware(['auth:web', config('jetstream.auth_session'), 'verified', 'or
                 Route::get('/programs/{program}/show', 'showProgram')->name('programs.show');
                 Route::post('/programs/{program}/update', 'updateProgram')->name('programs.update');
                 Route::post('/programs/{program}/delete', 'deleteProgram')->name('programs.delete');
+            });
+
+            // {comment} under a meeting resolves through the meeting's own comments.
+            Route::controller(MeetingController::class)->group(function () {
+                Route::get('/meetings', 'index')->name('meetings');
+                Route::post('/meetings/insert', 'store')->name('meetings.insert');
+                Route::get('/meetings/{meeting}', 'detail')->name('meetings.detail');
+                Route::get('/meetings/{meeting}/show', 'show')->name('meetings.show');
+                Route::post('/meetings/{meeting}/update', 'update')->name('meetings.update');
+                Route::post('/meetings/{meeting}/delete', 'delete')->name('meetings.delete');
+                Route::post('/meetings/{meeting}/minutes', 'saveMinutes')->name('meetings.minutes');
+                Route::post('/meetings/{meeting}/attendance', 'markAttendance')->name('meetings.attendance');
+                Route::get('/meetings/{meeting}/pdf', 'pdf')->name('meetings.pdf');
+                Route::post('/meetings/{meeting}/comments/insert', 'postComment')->name('meetings.comments.insert');
+                Route::post('/meetings/{meeting}/comments/{comment}/delete', 'deleteComment')->name('meetings.comments.delete');
             });
 
             // {dependency}, {document} and {comment} resolve through the task, so they must belong to it.

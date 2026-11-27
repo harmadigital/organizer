@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Events;
 
+use App\Actions\Meetings\PostMeetingComment;
+use App\Actions\Meetings\SaveMeeting;
 use App\Actions\Work\AddTaskDependency;
 use App\Actions\Work\AttachTaskDocument;
 use App\Actions\Work\PostTaskComment;
@@ -9,6 +11,7 @@ use App\Actions\Work\SaveTask;
 use App\Actions\Work\SaveWorkProgram;
 use App\Enums\CommitteeRoleKind;
 use App\Models\Event;
+use App\Models\Meeting;
 use App\Models\Organization;
 use App\Models\Task;
 use App\Models\User;
@@ -60,6 +63,9 @@ class EventIsolationTest extends TestCase
         $comment = $this->app->make(PostTaskComment::class)->handle($task, $this->organizer, 'Komentar '.$suffix);
         $document = $this->app->make(AttachTaskDocument::class)->handle($task, UploadedFile::fake()->create('bukti.pdf', 10, 'application/pdf'), null, $this->organizer);
 
+        $meeting = $this->app->make(SaveMeeting::class)->handle($event, new Meeting, ['title' => 'Rapat '.$suffix, 'meets_on' => '2026-12-01', 'starts_at' => '19:00'], $this->organizer);
+        $meetingComment = $this->app->make(PostMeetingComment::class)->handle($meeting, $this->organizer, 'Komentar rapat '.$suffix);
+
         return [
             'event' => $event,
             'division' => $division,
@@ -70,6 +76,8 @@ class EventIsolationTest extends TestCase
             'dependency' => $prerequisite,
             'document' => $document,
             'comment' => $comment,
+            'meeting' => $meeting,
+            'meetingComment' => $meetingComment,
         ];
     }
 
@@ -81,7 +89,9 @@ class EventIsolationTest extends TestCase
         $parameters = [];
 
         foreach ($route->parameterNames() as $name) {
-            $parameters[$name] = $records[$name];
+            // {comment} under a meeting is a meeting comment; under a task, a task comment.
+            $key = $name === 'comment' && in_array('meeting', $route->parameterNames(), true) ? 'meetingComment' : $name;
+            $parameters[$name] = $records[$key];
         }
 
         return route($route->getName(), $parameters);
@@ -120,6 +130,8 @@ class EventIsolationTest extends TestCase
         $this->assertSame('draft', $eventB->fresh()->status->value);
         $this->assertSame('todo', $recordsOfB['task']->fresh()->status->value);
         $this->assertModelExists($recordsOfB['comment']);
+        $this->assertModelExists($recordsOfB['meetingComment']);
+        $this->assertSame('Rapat B', $recordsOfB['meeting']->fresh()->title);
         $this->assertSame('Program B', $recordsOfB['program']->fresh()->title);
         $this->assertNotSoftDeleted($recordsOfB['document']);
     }

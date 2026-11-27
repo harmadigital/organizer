@@ -16,3 +16,6 @@ Fill or clear dates with OrganizerDatePicker.setValue/clearAll and remote dropdo
 
 ## Build URLs from the full path, never a bare hash
 layouts/main_layout sets <base href> to the site root, so relative URLs and bare hashes ("#komentar") resolve against the root, not the current page. In page scripts use window.location.pathname + window.location.search + "#..." for history.replaceState, and absolute or route()-generated URLs from data attributes for requests.
+
+## Rich text editors in modals
+Use the Metronic TinyMCE bundle (assets/plugins/custom/tinymce, v8, license_key gpl, base_url from asset()) only on pages that need it. In a Bootstrap modal create the modal with { focus: false } so editor dialogs can be typed in, prefer keyboard: false and backdrop: static for long texts, and call tinymce.triggerSave() before OrganizerHttp.submit.

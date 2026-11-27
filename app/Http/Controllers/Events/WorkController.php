@@ -16,6 +16,7 @@ use App\Models\Task;
 use App\Models\User;
 use App\Models\WorkProgram;
 use App\Services\DisplayTime;
+use App\Services\MeetingAuthority;
 use App\Services\TaskAuthority;
 use App\Services\WorkProgress;
 use Carbon\CarbonInterface;
@@ -169,7 +170,7 @@ class WorkController extends Controller
             'id' => $membership->getKey(),
             'text' => $membership->user->name,
             'description' => $membership->activeAssignments
-                ->map(fn ($assignment) => trim($assignment->committeeRole->name.' '.($assignment->division?->name ?? '')))
+                ->map(fn ($assignment) => $assignment->committeeRole->name.($assignment->division ? ' · '.$assignment->division->name : ''))
                 ->implode(', ').($membership->status === MembershipStatus::Invited ? ' (diundang)' : ''),
         ]));
     }
@@ -261,13 +262,14 @@ class WorkController extends Controller
     }
 
     /**
-     * Whoever may add tasks or programs may search the dropdowns of the forms.
+     * Whoever may add tasks, programs or meetings may search the dropdowns of the forms.
      */
     private function mayPlan(Request $request, Event $event): bool
     {
         return $this->authority->canCreateTasks($request->user(), $event)
             || $this->authority->canCreatePrograms($request->user(), $event)
-            || $this->authority->canCreateOwnTasks($request->user(), $event);
+            || $this->authority->canCreateOwnTasks($request->user(), $event)
+            || app(MeetingAuthority::class)->canSchedule($request->user(), $event);
     }
 
     /**

@@ -10,6 +10,7 @@ use App\Models\CommitteeRole;
 use App\Models\DivisionTemplate;
 use App\Models\Event;
 use App\Models\EventCategory;
+use App\Models\Meeting;
 use App\Models\Organization;
 use App\Models\OrganizationUnit;
 use App\Models\Task;
@@ -44,6 +45,7 @@ class DemoSeederTest extends TestCase
             'events' => Event::query()->count(),
             'work_programs' => WorkProgram::query()->count(),
             'tasks' => Task::query()->count(),
+            'meetings' => Meeting::query()->count(),
         ];
     }
 
@@ -62,7 +64,8 @@ class DemoSeederTest extends TestCase
             'venues' => 6,
             'events' => 2,
             'work_programs' => 3,
-            'tasks' => 13,
+            'tasks' => 14,
+            'meetings' => 2,
         ], $this->counts());
 
         $organization = Organization::query()->sole();

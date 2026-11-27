@@ -1,7 +1,7 @@
 # Organizer — Development Tracker
 
 **Terakhir diperbarui:** 27 November 2026
-**Fase saat ini:** Phase 1, Batch 1.3 selesai (belum di-commit); Batch 1.4 berikutnya
+**Fase saat ini:** Phase 1, Batch 1.4 menunggu review (belum di-commit)
 **Dokumen terkait:** [organizer.md](organizer.md) (master spec), [ui-ux_brief.md](ui-ux_brief.md) (acuan UI/UX), [IMPLEMENTATION_PLAN.md](IMPLEMENTATION_PLAN.md), [DATA_MODEL.md](DATA_MODEL.md)
 
 Dokumen ini diperbarui di akhir setiap batch: status, migration, test yang benar-benar dijalankan beserta hasilnya, blocker, dan known issues.
@@ -15,7 +15,7 @@ Status yang dipakai: **Belum mulai**, **Dikerjakan**, **Menunggu review**, **Sel
 | Fase | Status | Catatan |
 |---|---|---|
 | Phase 0 — Audit dan perencanaan | Selesai | Disetujui 27 Nov 2026 bersama K-01 sampai K-04 |
-| Phase 1 — Core committee management | Dikerjakan | Batch 1.0–1.2 selesai; Batch 1.3 menunggu review; Batch 1.4 berikutnya |
+| Phase 1 — Core committee management | Dikerjakan | Batch 1.0–1.3 selesai; Batch 1.4 menunggu review; Batch 1.5 berikutnya |
 | Phase 2 — Finance, governance, reporting | Belum mulai | – |
 | Phase 3 — Advanced operational workflows | Belum mulai | Belum dirinci |
 | Phase 4 — Organizational intelligence | Belum mulai | Belum dirinci |
@@ -29,8 +29,8 @@ Status yang dipakai: **Belum mulai**, **Dikerjakan**, **Menunggu review**, **Sel
 | 1.0 | Fondasi: locale, audit log, helper AJAX, lapisan `ui-*`, seeder aman, baseline test | Selesai (disetujui 27 Nov 2026) | – | – |
 | 1.1 | Organisasi dan master data, ditambah penggabungan Anggota ke User (bagian 11) | Selesai (di-push ke `main` 27 Nov 2026) | – | – |
 | 1.2 | Event, kepanitiaan, kontrol akses | Selesai (di-merge ke `main` 27 Nov 2026) | AC-01, AC-02, AC-03 | – |
-| 1.3 | Program kerja, tugas, aktivitas, inti lampiran | Menunggu review (di `main`, belum di-commit) | AC-01 (diperluas) | – |
-| 1.4 | Rapat, notulen, keputusan | Belum mulai | AC-05 | – |
+| 1.3 | Program kerja, tugas, aktivitas, inti lampiran | Selesai (di `main`, commit 32e574a) | AC-01 (diperluas) | – |
+| 1.4 | Rapat, notulen, keputusan | Menunggu review (di `main`, belum di-commit) | AC-05 | – |
 | 1.5 | Kalender terpusat | Belum mulai | AC-20 (sebagian) | – |
 | 1.6 | Koordinasi, isu, risiko | Belum mulai | AC-06 | – |
 | 1.7 | Repositori dokumen | Belum mulai | AC-18 (sebagian) | – |
@@ -56,7 +56,7 @@ Status yang dipakai: **Belum mulai**, **Dikerjakan**, **Menunggu review**, **Sel
 | AC-02 | User dengan jabatan berbeda di dua event | 1.2 | Lulus (test otomatis, Batch 1.2) |
 | AC-03 | Aktivasi tanpa jabatan wajib; event tanpa wakil | 1.2 | Lulus (test otomatis, Batch 1.2) |
 | AC-04 | Clone event | 2.9 | Belum |
-| AC-05 | Notulen dipublikasikan, action item menjadi tugas | 1.4 | Belum |
+| AC-05 | Notulen dipublikasikan, action item menjadi tugas | 1.4 | Lulus (test otomatis dan uji browser, Batch 1.4) |
 | AC-06 | Permintaan mikrofon antar-seksi | 1.6 | Belum |
 | AC-07 | RAB diajukan, direview, disahkan | 2.2 | Belum |
 | AC-08 | Dua pengajuan bersamaan melebihi sisa anggaran | 2.4 | Belum |
@@ -190,6 +190,10 @@ Seeder (`php artisan db:seed`) dijalankan di database dev pada 27 Nov 2026 setel
 | 27 Nov 2026 | Batch 1.3 | Atas permintaan pemilik produk: halaman detail tugas dibagi ke dalam tab. Rincian di bagian 18 |
 | 27 Nov 2026 | Batch 1.3 | Atas permintaan pemilik produk: istilah awam untuk bobot dan milestone. Rincian di bagian 19 |
 | 27 Nov 2026 | Batch 1.3 | Program kerja Pengurus Inti dan tugas milik sendiri untuk Bendahara. Rincian di bagian 20 |
+| 27 Nov 2026 | Batch 1.3 | Di-commit ke `main` (32e574a). Atas permintaan pemilik produk, commit selanjutnya langsung di `main` tanpa branch per push |
+| 27 Nov 2026 | Batch 1.4 | Rapat & Notulen tanpa undangan, RSVP, atau review. Rincian di bagian 21 |
+| 27 Nov 2026 | Batch 1.4 | Atas permintaan pemilik produk: editor notulen lengkap, unduh PDF, tab Absensi. Dependency baru `dompdf/dompdf` dan `symfony/html-sanitizer` (disetujui). Rincian di bagian 22 |
+| 27 Nov 2026 | Batch 1.4 | Atas permintaan pemilik produk: form notulen bertab, absensi terkunci setelah rapat selesai, tampilan absensi diperbaiki. Rincian di bagian 23 |
 
 ---
 
@@ -580,4 +584,91 @@ Pertanyaan pemilik produk: bagaimana dengan pengurus inti (Ketua, Sekretaris, Be
 Pekerjaan khas Sekretaris (rapat, notulen) dan Bendahara (RAB, transaksi, pengajuan dana) dikerjakan di modul tersendiri: Batch 1.4 dan Phase 2.
 
 Uji: `php artisan test --compact` lulus penuh; `work-check2.js` lulus, termasuk Bendahara menambah tugas untuk dirinya sendiri.
+
+---
+
+## 21. Hasil Batch 1.4 — Rapat & Notulen
+
+Arahan pemilik produk: hilangkan proses bertahap. Tidak ada undangan atau konfirmasi hadir; rapat yang dibuat otomatis untuk semua panitia. Notulen langsung terbit tanpa review.
+
+### Yang dibuat
+
+| Area | Isi |
+|---|---|
+| Rapat | Nama, tanggal, jam mulai/selesai (pemilih jam flatpickr 24 jam), tempat, untuk Pengurus Inti atau satu seksi, agenda (satu per baris). Langsung terlihat semua panitia. Dijadwalkan oleh Sekretaris (rapat pengurus inti), koordinator seksi (rapat seksinya), atau admin organisasi |
+| Notulen | Satu form: isi notulen, yang hadir (opsional), keputusan (baris bisa ditambah), tindak lanjut (apa, penanggung jawab, tenggat). Sekali simpan langsung bisa dibaca semua panitia. Bisa diperbaiki; setiap simpanan tercatat sebagai versi di tab Riwayat |
+| Tindak lanjut → tugas (AC-05) | Setiap tindak lanjut baru otomatis menjadi tugas di Program & Tugas (seksi rapat atau Pengurus Inti) dengan penanggung jawab dan tenggatnya, lalu tertaut dari notulen. Menyimpan form yang sama dua kali, atau dua orang menyimpan bersamaan, ditolak dengan pesan, sehingga tidak pernah ada tugas ganda |
+| Komentar | Semua panitia bisa berkomentar di rapat; dihapus oleh penulisnya atau pengelola rapat |
+| Tampilan | Tab **Rapat & Notulen** di header event: daftar rapat akan datang (dengan "Hari ini") dan rapat sebelumnya (status notulen). Halaman rapat tanpa header event, dengan tab Agenda, Notulen, Komentar, Riwayat; tab pertama Notulen bila sudah ada, Agenda bila belum. Kartu **Rapat Berikutnya** di Ringkasan event |
+| Hapus | Rapat tanpa notulen bisa dihapus; yang sudah bernotulen tetap tersimpan |
+| Hak akses | `MeetingAuthority`. Permission `events.manage-work` kini juga memberi MeetingManage |
+| Data demo | Rapat pleno 1 (sudah lewat, lengkap dengan notulen, 5 peserta, 2 keputusan, 1 tindak lanjut yang menjadi tugas) dan Rapat koordinasi seksi (akan datang). Sudah ditambahkan ke database dev |
+
+### Menyimpang dari rencana
+
+| Rencana | Yang dibuat | Alasan |
+|---|---|---|
+| Undangan dan RSVP, `meeting_agendas` | Tidak ada undangan; agenda berupa teks satu baris per butir | Keputusan pemilik produk: rapat otomatis untuk semua panitia |
+| Notulen berversi dengan draft → review → publish | Simpan = terbit; versi disimpan untuk riwayat | Keputusan pemilik produk: tanpa proses bertahap |
+| `decisions`, `action_items` | `meeting_decisions`, `meeting_action_items` (dengan `task_id`) | Nama mengikuti modul; tautan tugas langsung di baris tindak lanjut |
+| Kehadiran terpisah dari notulen | "Yang hadir" diisi di form notulen | Satu langkah |
+
+Tabel baru: `meetings`, `meeting_minutes_versions`, `meeting_attendees`, `meeting_decisions`, `meeting_action_items`, `meeting_comments` (semua rujukan dalam event memakai foreign key komposit). Migration sudah dijalankan di database dev.
+
+### Keterbatasan
+
+- Belum ada pengingat rapat atau pemberitahuan notulen baru (Batch 1.8).
+- Rapat belum tampil di kalender Program & Tugas (kalender terpadu di Batch 1.5).
+- Tindak lanjut yang sudah menjadi tugas tidak ikut berubah bila notulen diperbaiki; tugasnya diubah dari Program & Tugas.
+
+### Uji
+
+- `php artisan test --compact`: 444 lulus, 12 dilewati. Test baru `tests/Feature/Meetings/MeetingTest` dan `MinutesTest`; `EventIsolationTest` dan `DemoSeederTest` diperluas.
+- Uji browser `meetings-check.js` pada database SQLite baru: 25 pemeriksaan lulus (tab di header, rapat berikutnya, daftar, form tanpa undangan, pemilih jam, notulen satu form, tindak lanjut menjadi tugas, riwayat, Bendahara di ponsel membaca dan berkomentar, tanpa error JS atau server).
+
+---
+
+## 22. Notulen berformat, PDF, dan Absensi (27 Nov 2026)
+
+Diminta pemilik produk: isi notulen dengan editor lengkap seperti Google Docs, setiap notulen bisa diunduh PDF untuk dibagikan ke pihak luar, dan tab Absensi dengan klik nama untuk pindah ke kolom Hadir.
+
+### Dependency baru (disetujui pemilik produk)
+
+| Paket | Versi | Untuk |
+|---|---|---|
+| `dompdf/dompdf` | 3.1.6 | Membuat PDF di server (font DejaVu Sans, sumber eksternal, PHP, dan JavaScript dimatikan) |
+| `symfony/html-sanitizer` | 8.1.12 | Membersihkan HTML dari editor dengan daftar izin |
+
+`composer audit` melaporkan advisory pada paket yang sudah ada sebelumnya (antara lain `spomky-labs/pki-framework`, `web-auth/webauthn-lib`, `symfony/http-foundation`, `laravel/framework`, `phpoffice/phpspreadsheet`); tidak ada advisory untuk kedua paket baru. Pembaruan paket lama perlu dibahas terpisah.
+
+### Yang dibuat
+
+| Area | Isi |
+|---|---|
+| Editor notulen | Form notulen layar penuh: editor dokumen TinyMCE 8 (sudah ada di Metronic) dengan menu Edit/View/Insert/Format/Table dan toolbar gaya paragraf, jenis dan ukuran huruf, tebal/miring/garis bawah/coret, warna teks dan latar, perataan, daftar berpoin/bernomor, indentasi, tabel, tautan, garis, hapus format, cari-ganti, layar penuh, hitung kata. Keputusan dan tindak lanjut di panel kanan. Form tidak tertutup oleh Esc atau klik di luar agar tulisan panjang tidak hilang |
+| Keamanan isi | `RichText` menyimpan hanya format dokumen (judul, paragraf, penekanan, daftar, kutipan, tabel, tautan http/https/mailto, gaya warna/perataan/ukuran huruf). Script, atribut event, gambar, embed, `javascript:`, dan `url()` dibuang saat disimpan dan sekali lagi saat ditampilkan atau dicetak. Editor yang hanya berisi paragraf kosong dianggap kosong. Notulen lama (teks biasa) tetap tampil sebagai paragraf |
+| PDF | Tombol **Unduh PDF** di halaman rapat (untuk semua yang bisa melihat rapat, setelah notulen ada) menghasilkan file `notulen-<nama-rapat>-<tanggal>.pdf` A4: nama organisasi dan event, info rapat, agenda, yang hadir, isi notulen berformat, keputusan, tabel tindak lanjut beserta status tugasnya, penulis dan versi notulen, nomor halaman |
+| Absensi | Tab **Absensi** (dengan hitungan hadir/total di tab): semua panitia aktif dan yang diundang tampil di kolom **Tidak hadir**; pengelola rapat mengklik nama untuk memindahkannya ke kolom **Hadir** (klik lagi untuk batal), langsung tersimpan tanpa memuat ulang halaman. Ada pencarian nama. Panitia lain melihatnya tanpa bisa mengubah. Isian "Yang hadir" di form notulen dihapus |
+
+Uji: `php artisan test --compact` 455 lulus, 12 dilewati (test baru `AttendanceTest`, `MinutesPdfTest`, dan kasus sanitasi di `MinutesTest`); `meetings-check.js` lulus, termasuk toolbar editor lengkap, format tersimpan dan tampil, absensi tersimpan setelah halaman dimuat ulang, dan unduhan PDF.
+
+### Keterbatasan
+
+- Tampilan editor (menu, tooltip) berbahasa Inggris karena paket bahasa Indonesia TinyMCE tidak termasuk di Metronic.
+- Gambar tidak bisa disisipkan ke notulen; foto atau dokumen pendukung dilampirkan lewat tugas tindak lanjut.
+
+---
+
+## 23. Form notulen bertab dan absensi terkunci (27 Nov 2026)
+
+| Area | Perubahan |
+|---|---|
+| Form notulen | Tetap layar penuh, kini tiga tab: **Isi Notulen** (editor selebar layar), **Keputusan**, **Tindak Lanjut**, dengan jumlah baris di tab. Satu tombol simpan; bila ada isian salah di tab lain, form pindah ke tab tersebut |
+| Kunci absensi | Absensi hanya bisa diisi pada hari rapat dan terkunci saat rapat selesai: pada jam selesai, atau akhir hari rapat bila jam selesai kosong (zona waktu organisasi). Ditegakkan di server (`Meeting::attendanceState`, `MarkAttendance`); sebelum hari rapat muncul "Absensi dibuka pada hari rapat", setelahnya "Absensi dikunci" tanpa tombol |
+| Tampilan absensi | Ringkasan "x dari y panitia hadir" dengan bilah progres, kartu ringkas dengan avatar berwarna, tombol **Hadir** di kolom Tidak hadir dan **Batal** di kolom Hadir, petunjuk di kolom kosong, pencarian nama |
+| Ponsel | Badge status rapat ("Hari ini", "Notulen tersedia") dipindah ke baris judul; sebelumnya mendorong halaman 5 px melebar di layar 390 px |
+
+Data demo dan test yang mencatat absensi rapat lampau kini menulisnya langsung, karena absensi rapat lampau terkunci.
+
+Uji: `php artisan test --compact` lulus penuh; `meetings-check.js` 42 pemeriksaan lulus dua kali berturut-turut, termasuk absensi terkunci pada rapat lampau dan tidak ada scroll horizontal di ponsel.
 

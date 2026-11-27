@@ -25,6 +25,7 @@ use App\Services\CurrentOrganization;
 use App\Services\DisplayTime;
 use App\Services\EventAccess;
 use App\Services\EventReadiness;
+use App\Services\MeetingAuthority;
 use App\Services\PeopleLookup;
 use App\Services\TaskAuthority;
 use App\Services\WorkProgress;
@@ -148,6 +149,10 @@ class EventController extends Controller
             'transitions' => $event->status->allowedTransitions(),
             'phases' => EventPhase::cases(),
             'work' => $this->workSummary($request, $event, $work, $progress, $displayTime),
+            'nextMeeting' => app(MeetingAuthority::class)->canView($request->user(), $event)
+                ? $event->meetings()->with('division:id,name')->where('meets_on', '>=', now($displayTime->timezone())->toDateString())->orderBy('meets_on')->orderBy('starts_at')->first()
+                : null,
+            'canViewMeetings' => app(MeetingAuthority::class)->canView($request->user(), $event),
             ...$this->formOptions(),
         ]);
     }
